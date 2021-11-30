@@ -47,7 +47,7 @@ void InitAlgorithm (void)
     fprintf (stderr, "Starting point out of range\n");
     exit (1);
   }
-  
+
   DBufStep = (double)Dwidth / (double)SISwidth;
   for (i=0; i<=SIS_MAX_COLORS; i++) {
     zvalue [i] = -1;
@@ -154,7 +154,7 @@ void CalcIdentLine (void)
 	      left = IdInd;
 	      IdInd = IdentBuffer[right];
 	    }
-	  } 
+	  }
 	}
 	/* here's what the original SIS-algorithm does (nearly nothing). */
 	IdentBuffer[right] = left;
@@ -172,7 +172,7 @@ void CalcIdentLine (void)
     left = IdentBufInd - (separation[DBuffer[DBufInd]] >> 1);
     right = left + separation[DBuffer[DBufInd]];
 
-    if ((0 <= left) && (right < SISwidth)) {     
+    if ((0 <= left) && (right < SISwidth)) {
       visible = 1;
       if (algorithm > 2) {
 	ZPos = z + dz[DBuffer[DBufInd]];
@@ -204,7 +204,7 @@ void CalcIdentLine (void)
 	      right = IdInd;
 	      IdInd = IdentBuffer[left];
 	    }
-	  } 
+	  }
 	}
 	IdentBuffer[left] = right;
       }
@@ -216,7 +216,7 @@ void CalcIdentLine (void)
 void FillSISBuffer (ind_t LineNumber)
 {
   ind_t i;
-  
+
   for (i=0; i<SISwidth; i++) {
     switch(SIStype) {
     case SIS_RANDOM_GREY:
@@ -240,7 +240,7 @@ void FillSISBuffer (ind_t LineNumber)
     if (IdentBuffer[i] != i)
       SISBuffer[i] = SISBuffer[IdentBuffer[i]];
   }
-  
+
   /* left half: */
   for (i=origin-1; i>=0; i--) {
     if (IdentBuffer[i] != i)
@@ -250,7 +250,7 @@ void FillSISBuffer (ind_t LineNumber)
   /* add the little, nice triangles in some color. */
   if ((LineNumber < halftriangwidth) && mark
       && ((SISwidth >> 1) > halfstripwidth + halftriangwidth))
-    for (i=halftriangwidth-LineNumber; i>=0; i--) { 
+    for (i=halftriangwidth-LineNumber; i>=0; i--) {
       SISBuffer[(SISwidth >> 1) - halfstripwidth - i] = black;
       SISBuffer[(SISwidth >> 1) - halfstripwidth + i] = black;
       SISBuffer[(SISwidth >> 1) + halfstripwidth - i] = black;

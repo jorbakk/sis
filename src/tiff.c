@@ -77,7 +77,7 @@ void Tiff_OpenSISFile (char *SISFileName, ind_t width, ind_t height,
   TIFFSetField (outpic_p, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
   TIFFSetField (outpic_p, TIFFTAG_BITSPERSAMPLE, 8);
   TIFFSetField (outpic_p, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE);
-  TIFFSetField (outpic_p, TIFFTAG_COLORMAP, SISred, SISgreen, SISblue);  
+  TIFFSetField (outpic_p, TIFFTAG_COLORMAP, SISred, SISgreen, SISblue);
   if (SIScompress)
     TIFFSetField (outpic_p, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
 }
@@ -160,7 +160,7 @@ void Tiff_CloseDFile (void)
 void Tiff_CloseTFile (void)
 {
   TIFFClose (texpic_p);
-  free (Tread_buf);  
+  free (Tread_buf);
 }
 
 void Tiff_CloseSISFile (void)

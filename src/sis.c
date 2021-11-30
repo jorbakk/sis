@@ -92,7 +92,7 @@ static void CheckDFileType ()
 {
   FILE * dfile;
   char buf[2];
-  
+
   dfile = fopen (DFileName, "r");
   fread (buf, 1, 2, dfile);
   if (((buf[0] == 0x49) && (buf[1] == 0x49)) ||
@@ -216,18 +216,17 @@ void main (int argc, char **argv) {
   InitBuffers ();
   InitVars ();
   OpenSISFile (SISFileName, SISwidth, SISheight, SIStype);
-    
+
   if (verbose) print_message_header ();
 
   for (SISLineNumber=0; SISLineNumber < SISheight; SISLineNumber++) {
     DLineNumber = (int) DLinePosition;
     DLinePosition += DLineStep;
     max_depth = SIS_MIN_DEPTH; min_depth = SIS_MAX_DEPTH;
-    
+
     ReadDBuffer (DLineNumber);        /* read in one line of depth-map */
     CalcIdentLine ();                 /* the SIS-algorithm */
-    FillSISBuffer (SISLineNumber);    /* fill in the right colors, according
-					 to the SIS-type */
+    FillSISBuffer (SISLineNumber);    /* fill in the right colors, according to the SIS-type */
     WriteSISBuffer (SISLineNumber);   /* write one line of output */
     if (verbose) print_statistics ();
   }

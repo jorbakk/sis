@@ -35,7 +35,7 @@ static void print_usage (void)
 "   -a #     : algorithm number (1-3; 2)\n"
 "   -c #     : output is random color with # colors\n"
 "   -d #     : density of black dots in per-cent, only with -g2 (1-99; 50)\n"
-"   -e #     : eye distance in dots (>0; 160)\n" 
+"   -e #     : eye distance in dots (>0; 160)\n"
 "   -e #m|i# : eye distance in tenths of (cm | inch) with resolution in dpi\n"
 "              example: -e20i300 means 2inch at 300dpi\n"
 "   -f #     : distance of far plane in per-cent of distance to the monitor (>0; 100)\n"
@@ -79,13 +79,13 @@ void get_options (int argc, char **argv)
   int opt_ind = 1;
   int str_ind, i;
 
-  if (opt_ind == argc) 
-    print_usage (); 
+  if (opt_ind == argc)
+    print_usage ();
   if ((opt_ind < argc) && (argv[opt_ind][0] != '-')) {
     DFileName = argv[opt_ind];
     opt_ind++;
   }
-  
+
   if ((opt_ind < argc) && (argv[opt_ind][0] != '-')) {
     SISFileName = argv[opt_ind];
     opt_ind++;
@@ -151,7 +151,7 @@ void get_options (int argc, char **argv)
 			  resolution);
       }
       if (E <= 0) print_usage ();
-      break;      
+      break;
     case 'f':
       if (argv[opt_ind][2] != 0)
 	t = (double) atoi (argv[opt_ind]+2)/100.0;
@@ -182,7 +182,7 @@ void get_options (int argc, char **argv)
     case 'v':
     case 'z':
       for (str_ind = 1; argv[opt_ind][str_ind]; str_ind++)
-	switch (argv[opt_ind][str_ind]) {      
+	switch (argv[opt_ind][str_ind]) {
 	case 'h':
 	  print_usage ();
 	  break;
@@ -262,7 +262,7 @@ void get_options (int argc, char **argv)
       if ((opt_ind >= argc) || !isdigit(argv[opt_ind][str_ind]))
 	print_usage ();
       for (i=str_ind; isdigit (argv[opt_ind][i]); i++);
-      if (!argv[opt_ind][i]) 
+      if (!argv[opt_ind][i])
 	SISwidth = atoi (argv[opt_ind]+str_ind);
       else {
 	if (!isdigit(argv[opt_ind][i+1])) print_usage ();

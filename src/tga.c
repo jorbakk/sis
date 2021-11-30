@@ -85,10 +85,10 @@ FILE     *f;
 tgaHeader *hp;
 {
   unsigned char buf[18];
-  
+
   if(fread(buf, 1, TGA_HEADER_LEN, f) != TGA_HEADER_LEN)
     return FALSE;
-  
+
   hp->IDLength = (unsigned int)buf[0];
   hp->CoMapType = (unsigned int)buf[1];
   hp->ImgType = (unsigned int)buf[2];
@@ -104,13 +104,13 @@ tgaHeader *hp;
   hp->Rsrvd = ( (unsigned int)buf[17] & 0x10 ) >> 4;
   hp->OrgBit = ( (unsigned int)buf[17] & 0x20 ) >> 5;
   hp->IntrLve = ( (unsigned int)buf[17] & 0xc0 ) >> 6;
-  
+
   /* See if it is consistent with a tga files */
-  
+
   if(   hp->CoMapType != 0
      && hp->CoMapType != 1)
     return FALSE;
-  
+
   if(   hp->ImgType != 1
      && hp->ImgType != 2
      && hp->ImgType != 3
@@ -118,25 +118,25 @@ tgaHeader *hp;
      && hp->ImgType != 10
      && hp->ImgType != 11)
     return FALSE;
-  
+
   if(   hp->CoSize != 0
      && hp->CoSize != 15
      && hp->CoSize != 16
      && hp->CoSize != 24
      && hp->CoSize != 32)
     return FALSE;
-  
+
   if(   hp->PixelSize != 8
      && hp->PixelSize != 16
      && hp->PixelSize != 24
      && hp->PixelSize != 32)
     return FALSE;
-  
+
   if(   hp->IntrLve != 0
      && hp->IntrLve != 1
      && hp->IntrLve != 2)
     return FALSE;
-  
+
   /* Do a few more consistency checks */
   if(hp->ImgType == TGA_Map ||
      hp->ImgType == TGA_RLEMap)
@@ -149,25 +149,25 @@ tgaHeader *hp;
       if(hp->CoMapType != 0 || hp->CoSize != 0)
 	return FALSE;	/* non-map types must not have map */
     }
-  
+
   /* can only handle 8 or 16 bit pseudo color images */
   if(hp->CoMapType != 0 && hp->PixelSize > 16)
     return FALSE;
-  
+
   /* other numbers mustn't be silly */
-  if(   (hp->Index + hp->Length) > 65535	
+  if(   (hp->Index + hp->Length) > 65535
      || (hp->X_org + hp->Width) > 65535
      || (hp->Y_org + hp->Height) > 65535)
     return FALSE;
-  
+
   /* setup run-length encoding flag */
-  if(   hp->ImgType == TGA_RLEMap 
+  if(   hp->ImgType == TGA_RLEMap
      || hp->ImgType == TGA_RLERGB
      || hp->ImgType == TGA_RLEMono)
     hp->RLE = TRUE;
   else
     hp->RLE = FALSE;
-  
+
   return TRUE;
 }
 
@@ -175,7 +175,7 @@ void data_short (void)
 {
   fprintf(stderr, "tgaLoad: Short read within Data of depth-file\n");
   fclose(inpic_p);
-}    
+}
 
 void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height)
 {
@@ -212,7 +212,7 @@ void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height)
       unsigned char buf[4];
       int used = (1 << hdr.PixelSize);	/* maximum numnber of colors */
 
-            
+
       switch (hdr.CoSize)
 	{
 	case 8:		/* Gray scale color map */
@@ -229,7 +229,7 @@ void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height)
 	      blue[i]= buf[0] << 8;
 	    }
 	  break;
-	  
+
 	case 16:	/* 5 bits of RGB */
 	case 15:
 	  for(i = hdr.Index; i < ( hdr.Index + hdr.Length ); i++)
@@ -245,7 +245,7 @@ void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height)
 	      blue[i]= (buf[0] & 0x1f)<< 8;
 	    }
 	  break;
-	  
+
 	case 32:	/* 8 bits of RGB */
 	  n = 1;
 	case 24:
@@ -275,7 +275,7 @@ void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height)
   else if(hdr.PixelSize == 8)		/* Have to handle gray as pseudocolor */
     {
       int i;
-      
+
       for(i = 0; i < 256; i++)
 	{
 	  red[i]=
@@ -285,7 +285,7 @@ void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height)
     }
   else	/* else must be a true color image */
     {
-      
+
     }
 }
 
@@ -295,10 +295,10 @@ void TGA_ReadDBuffer (ind_t r)
   int span,hretrace,vretrace,nopix,x;
   unsigned int rd_count, wr_count, pixlen, val;
   unsigned char buf[6];	/* 0, 1 for pseudo, 2, 3, 4 for BGR */
-    
+
 
   pixlen = ((hdr.PixelSize+7) / 8);
-  
+
   while (cur_Dread < r) {
     cur_Dread++;
 
@@ -306,21 +306,21 @@ void TGA_ReadDBuffer (ind_t r)
       span = hdr.Width;
     else
       span = -hdr.Width;
-    
+
     if (hdr.IntrLve == TGA_IL_Four )
-      hretrace = 4 * span - hdr.Width;	
+      hretrace = 4 * span - hdr.Width;
     else if(hdr.IntrLve == TGA_IL_Two )
-      hretrace = 2 * span - hdr.Width;	
+      hretrace = 2 * span - hdr.Width;
     else
-      hretrace = span - hdr.Width;	
+      hretrace = span - hdr.Width;
     vretrace = (hdr.Height-1) * -span;
-    
+
     nopix = (hdr.Width * hdr.Height);	/* total number of pixels */
-    
+
     hretrace *= pixlen;	/* scale for byes per pixel */
     vretrace *= pixlen;
     span *= pixlen;
-    
+
     /* Now read in the image data */
     rd_count = wr_count = 0;
     if (!hdr.RLE)	/* If not rle, all are literal */
@@ -340,7 +340,7 @@ void TGA_ReadDBuffer (ind_t r)
 	      }
 	    else	/* number of literal pixels */
 	      {
-		wr_count = 
+		wr_count =
 		  rd_count = buf[0] + 1;
 	      }
 	  }
@@ -352,7 +352,7 @@ void TGA_ReadDBuffer (ind_t r)
 		if(fread(buf, 1, 1, inpic_p) != 1)
 		  data_short ();
 		break;
-		    
+
 	      case 16:	/* 5 bits of RGB or 16 pseudo color */
 	      case 15:
 		if(fread(buf, 1, 2, inpic_p) != 2)
@@ -361,12 +361,12 @@ void TGA_ReadDBuffer (ind_t r)
 		buf[3] = ((buf[1] & 0x03) << 3) + ((unsigned)(buf[0] & 0xE0) >> 5);	/* G */
 		buf[4] = (unsigned)(buf[1] & 0x7C) >> 2;	/* R */
 		break;
-		    
+
 	      case 24:	/* 8 bits of B G R */
 		if(fread(&buf[2], 1, 3, inpic_p) != 3)
 		  data_short ();
 		break;
-		
+
 	      case 32:	/* 8 bits of B G R + alpha */
 		if(fread(&buf[2], 1, 4, inpic_p) != 4)
 		  data_short ();
