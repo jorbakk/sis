@@ -42,7 +42,7 @@ to build it from the sources:
 
 If everything went o.k., produce your first SIS with:
 
-     sis death_maps/oval.tif out.tif -m
+     sis depth_maps/oval.tif out.tif -m
 
 
 PRINTING A SIS:
