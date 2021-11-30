@@ -1,0 +1,71 @@
+********************************************************************************
+             SIS 0.5  - Single  Image  Stereogram  generator
+********************************************************************************
+
+
+
+     Sis generates 3-D pictures, which you can view by converging your eyes
+     to  a  more  distant  point  than  the  screen and focusing on screen-
+     distance.  Invoked with the -m option, sis adds two triangles  to  the
+     top  of the picture, which help you to find the right convergence.  If
+     you know those "Magic Eye" books, you know what to  do.   By  default,
+     the background of the SIS is random black-white dots.  You can read in
+     arbitrary pictures (called texture-maps) using the -t option.  Texture
+     maps  with  a  close  change  of information give better results.  The
+     depth  information of the 3-D objects is read from  a  greyscale  pic-
+     ture  like those in the directory depth_maps. Black is far away, white
+     is near.  Creating good (smooth) deapth_maps is some kind of  problem,
+     you  may  use a ray-tracer like povray.  I took the SIS-algorithm from
+     an article in the german computer journal c't from july 1994, correct-
+     ed  and improved it. If you know other algorithms - I'm very interest-
+     ed.
+
+SUPPORTED FILE FORMATS:
+
+  tiff - for input, output and texture.
+  tga  - for input.
+
+REQUIREMENTS:
+
+  * libgr (Version 1.3 works fine) - comes with slackware.
+
+INSTALLATION:
+
+A binary compiled with gcc 2.5.8 under linux 1.0.9 is included. If you want
+to build it from the sources:
+
+  * Edit the Makefile to change the path for libgr, and where you may want
+    to install the binary and man-page.
+  * type 'make'.
+  * type 'make install' to install the binary and man-page (must be logged
+    in as root).
+
+If everything went o.k., produce your first SIS with:
+
+     sis death_maps/oval.tif out.tif -m
+
+
+PRINTING A SIS:
+
+  You  can  size  and choose the resolution of your SIS with the -x, -y op-
+  tions.
+  If your printer has 300dpi, type:
+
+     sis -x40i300 -y30i300
+
+  which gives a picture of size 4x3 inch at 300 dpi. Note that 40 means
+  40 tenths of an inch = 4 inch.
+  Convert it to postscript (for example with xv) and print it with
+  ghostscript.
+
+Suggestions,  bugs,  improvements,  questions,  new  sis-algorithms,  fancy
+depth-  and texture-maps, please contact me (One of the following addresses
+may work):
+
+     bakkerjg@cip11.mathematik.uni-stuttgart.de
+
+     joerg@hatnix.mathematik.uni-stuttgart.de
+
+     zcll1122@rpool4.rus.uni-stuttgart.de
+
+Stuttgart, Feb 1995.
