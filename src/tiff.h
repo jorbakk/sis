@@ -21,7 +21,7 @@
 
 void Tiff_OpenDFile (char *DFileName, ind_t *width, ind_t *height);
 void Tiff_OpenSISFile (char *SISFileName, ind_t width, ind_t height,
-		  int SIStype);
+    int SIStype);
 void Tiff_OpenTFile (char *TFileName, ind_t *width, ind_t *height);
 
 void Tiff_ReadDBuffer (ind_t r);
