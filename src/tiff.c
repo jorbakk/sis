@@ -160,6 +160,7 @@ void Tiff_CloseDFile (void)
 {
     TIFFClose (inpic_p);
 }
+
 void Tiff_CloseTFile (void)
 {
     TIFFClose (texpic_p);
