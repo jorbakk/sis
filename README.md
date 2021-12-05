@@ -8,12 +8,11 @@ screen while focusing at the distance of the screen. However, it needs a little
 training. If you know those "Magic Eye" books, you know what to do.
 
 By default, the background of the SIS is made of random black and white dots
-but you can also set a colored texture-map instead. Texture-maps that change
-their information whithin a small environment give the best results. The depth
-information of the 3-D objects can be read from a grayscale picture. Examples
-of depth-maps are provided in the repo. The farest distance is coded as black
-while near points are white. For creating depth-maps you may use a ray-tracer
-or 3D-modeller.
+but you can also set a colored texture-map instead. The depth information of
+the 3-D objects can be read from a grayscale image. Examples of depth-maps are
+provided in the repo. The most far distance in the depth-map is coded as black
+while the nearest points should be white. Depth-maps can be created with a
+ray-tracer or 3D-modeller.
 
 ## Supported file formats
 * tiff - for input, output and texture
