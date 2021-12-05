@@ -60,7 +60,7 @@ void get_options (int argc, char **argv);
 ind_t metric2pixel (int metric_val, int resolution);
 
 /*
-   Interface to algorith.c:
+   Interface to algorithm.c:
    */
 extern z_t min_depth, max_depth;
 extern col_t black, white;
