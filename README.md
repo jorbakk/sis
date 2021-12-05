@@ -12,7 +12,7 @@ but you can also set a colored texture-map instead. The depth information of
 the 3-D objects can be read from a grayscale image. Examples of depth-maps are
 provided in the repo. The most far distance in the depth-map is coded as black
 while the nearest points should be white. Depth-maps can be created with a
-ray-tracer or 3D-modeller.
+ray-tracer or 3D-modeling software.
 
 ## Supported file formats
 * tiff - for input, output and texture
