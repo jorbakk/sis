@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include "sis.h"
 
 void TGA_OpenDFile (char *DFileName, ind_t *width, ind_t *height);
 

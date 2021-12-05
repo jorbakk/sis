@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include "defines.h"
 
 typedef unsigned char col_t;
 typedef unsigned short cmap_t;

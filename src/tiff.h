@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include "sis.h"
 
 void Tiff_OpenDFile (char *DFileName, ind_t *width, ind_t *height);
 void Tiff_OpenSISFile (char *SISFileName, ind_t width, ind_t height,

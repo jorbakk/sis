@@ -164,7 +164,7 @@ void Tiff_CloseDFile (void)
 void Tiff_CloseTFile (void)
 {
     TIFFClose (texpic_p);
-    free (Tread_buf);
+    /* free (Tread_buf); */
 }
 
 void Tiff_CloseSISFile (void)
