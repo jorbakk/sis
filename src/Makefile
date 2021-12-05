@@ -29,8 +29,8 @@ MAN_DIR = /usr/local/man/man1
 
 LIB_TIFF = tiff
 CC = gcc
-#CFLAGS = -Wall -g
-CFLAGS = -Wall -O2
+CFLAGS = -Wall -g
+# CFLAGS = -Wall -O2
 LDFLAGS = -lm
 OBJS = sis.o tiff.o tga.o algorithm.o get_opt.o
 
@@ -48,7 +48,7 @@ sis.o: sis.c tiff.h sis.h defines.h
 	$(CC) -c $(CFLAGS) sis.c
 
 clean:
-	rm *.o; rm core
+	rm -f *.o sis core
 
 install:
 	install -s sis $(BIN_DIR)
