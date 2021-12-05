@@ -5,7 +5,10 @@ glance a SIS image looks like random patterns or noise, but if you know how to
 view them correctly you can see a 3-dimensional shape in it. This can be
 achieved by converging your eyes to look at a more distant point behind the
 screen while focusing at the distance of the screen. However, it needs a little
-training. If you know those "Magic Eye" books, you know what to do.
+training. If you know those "Magic Eye" books, you know what to do. Here's an
+example:
+
+![Example of a single image stereogram](examples/oval.tif "Single Image Stereogram")
 
 By default, the background of the SIS is made of random black and white dots
 but you can also set a colored texture-map instead. The depth information of
