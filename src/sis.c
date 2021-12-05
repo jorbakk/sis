@@ -197,7 +197,7 @@ static void print_statistics (void)
     }
 }
 
-void main (int argc, char **argv) {
+int main (int argc, char **argv) {
     SISred = (cmap_t *) calloc (SIS_MAX_COLORS+1, sizeof (cmap_t));
     SISgreen = (cmap_t *) calloc (SIS_MAX_COLORS+1, sizeof (cmap_t));
     SISblue = (cmap_t *) calloc (SIS_MAX_COLORS+1, sizeof (cmap_t));
@@ -239,4 +239,5 @@ void main (int argc, char **argv) {
     CloseSISFile ();
     FreeBuffers ();
     free (SISred); free (SISgreen); free (SISblue);
+    return EXIT_SUCCESS;
 }
