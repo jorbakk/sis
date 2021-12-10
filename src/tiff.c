@@ -108,7 +108,16 @@ void Tiff_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
         fprintf(stderr, "No colormap in texture file.\n");
         exit(1);
     }
-    if (!(Tread_buf = (col_t *) calloc(*width, sizeof(col_t)))) {
+    /* FIXME:
+     * Better use libtiff internal functions like _TIFFmalloc, _TIFFfree,
+     * see also  http://www.simplesystems.org/libtiff/libtiff.html
+     * to possibly avoid the "free(): double free detected in tcache 2"
+     * error when using a texture. */
+    /* if (!(Tread_buf = (col_t *) calloc(*width, sizeof(col_t)))) { */
+    /*     fprintf(stderr, "No space for texture readbuf.\n"); */
+    /*     exit(1); */
+    /* } */
+    if (!(Tread_buf = (col_t *) _TIFFmalloc (TIFFScanlineSize(texpic_p)))) {
         fprintf(stderr, "No space for texture readbuf.\n");
         exit(1);
     }
@@ -163,6 +172,10 @@ void Tiff_CloseDFile (void)
 
 void Tiff_CloseTFile (void)
 {
+    if (Tread_buf != NULL) {
+        _TIFFfree (Tread_buf);
+        Tread_buf = NULL;
+    }
     TIFFClose (texpic_p);
     /* free (Tread_buf); */
 }
