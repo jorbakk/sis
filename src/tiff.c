@@ -159,7 +159,10 @@ void Tiff_WriteSISBuffer (ind_t r)
 col_t Tiff_ReadTPixel (ind_t r, ind_t c)
 {
     if (cur_Tread != r) {
-        TIFFReadScanline (texpic_p, Tread_buf, r, 0);
+        if (TIFFReadScanline (texpic_p, Tread_buf, r, 0) != 1) {
+            fprintf(stderr, "Reading texture scan line failed\n");
+            exit(1);
+        }
         cur_Tread = r;
     }
     return Tread_buf[c];
