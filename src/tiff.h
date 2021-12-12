@@ -32,5 +32,5 @@ void Tiff_WriteSISBuffer (ind_t r);
 col_t Tiff_ReadTPixel (ind_t r, ind_t c);
 
 void Tiff_CloseDFile (void);
-void Tiff_CloseTFile (void);
+void Tiff_CloseTFile (ind_t height);
 void Tiff_CloseSISFile (void);

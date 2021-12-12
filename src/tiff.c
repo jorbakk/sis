@@ -29,7 +29,7 @@
 
 static TIFF *inpic_p, *outpic_p, *texpic_p;
 static cmap_t *Dredcmap, *Dgreencmap, *Dbluecmap;
-static col_t *Tread_buf;
+static col_t **Tread_buf;
 static ind_t cur_Dread=-1, cur_Tread=-1;
 static unsigned short phm;
 
@@ -108,18 +108,20 @@ void Tiff_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
         fprintf(stderr, "No colormap in texture file.\n");
         exit(1);
     }
-    /* FIXME:
-     * Better use libtiff internal functions like _TIFFmalloc, _TIFFfree,
-     * see also  http://www.simplesystems.org/libtiff/libtiff.html
-     * to possibly avoid the "free(): double free detected in tcache 2"
-     * error when using a texture. */
-    /* if (!(Tread_buf = (col_t *) calloc(*width, sizeof(col_t)))) { */
-    /*     fprintf(stderr, "No space for texture readbuf.\n"); */
-    /*     exit(1); */
-    /* } */
-    if (!(Tread_buf = (col_t *) _TIFFmalloc (TIFFScanlineSize(texpic_p)))) {
+    /* Allocate buffer for reading the texture image */
+    if (!(Tread_buf = (col_t **) calloc(*height, sizeof(col_t*)))) {
         fprintf(stderr, "No space for texture readbuf.\n");
         exit(1);
+    }
+    for (int r = 0; r < *height; ++r) {
+        if (!(Tread_buf[r] = (col_t *) _TIFFmalloc (TIFFScanlineSize(texpic_p)))) {
+            fprintf(stderr, "No space for texture readbuf.\n");
+            exit(1);
+        }
+        if (TIFFReadScanline (texpic_p, Tread_buf[r], r, 0) != 1) {
+            fprintf(stderr, "Reading texture scan line failed\n");
+            exit(1);
+        }
     }
 }
 
@@ -159,13 +161,9 @@ void Tiff_WriteSISBuffer (ind_t r)
 col_t Tiff_ReadTPixel (ind_t r, ind_t c)
 {
     if (cur_Tread != r) {
-        if (TIFFReadScanline (texpic_p, Tread_buf, r, 0) != 1) {
-            fprintf(stderr, "Reading texture scan line failed\n");
-            exit(1);
-        }
         cur_Tread = r;
     }
-    return Tread_buf[c];
+    return Tread_buf[r][c];
 }
 
 void Tiff_CloseDFile (void)
@@ -173,14 +171,14 @@ void Tiff_CloseDFile (void)
     TIFFClose (inpic_p);
 }
 
-void Tiff_CloseTFile (void)
+void Tiff_CloseTFile (ind_t height)
 {
-    if (Tread_buf != NULL) {
-        _TIFFfree (Tread_buf);
-        Tread_buf = NULL;
+    /* There is still a memleak, but at least no double free */
+    for (ind_t r = 0; r < height; ++r) {
+        _TIFFfree (Tread_buf[r]);
     }
-    TIFFClose (texpic_p);
-    /* free (Tread_buf); */
+    free (Tread_buf);
+    /* TIFFClose (texpic_p); */
 }
 
 void Tiff_CloseSISFile (void)

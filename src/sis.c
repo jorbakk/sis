@@ -54,7 +54,7 @@ void (*OpenSISFile) (char *SISFileName, ind_t width, ind_t height,
         int SIStype);
 void (*OpenTFile) (char *TFileName, ind_t *width, ind_t *height);
 void (*CloseDFile) (void);
-void (*CloseTFile) (void);
+void (*CloseTFile) (ind_t height);
 void (*CloseSISFile) (void);
 void (*ReadDBuffer) (ind_t r);
 col_t (*ReadTPixel) (ind_t r, ind_t c);
@@ -235,7 +235,7 @@ int main (int argc, char **argv) {
     }
     if (verbose) puts("\n");
     CloseDFile ();
-    if (SIStype == SIS_TEXT_MAP) CloseTFile ();
+    if (SIStype == SIS_TEXT_MAP) CloseTFile (Theight);
     CloseSISFile ();
     FreeBuffers ();
     free (SISred); free (SISgreen); free (SISblue);
