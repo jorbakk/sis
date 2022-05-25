@@ -82,11 +82,8 @@ void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Somewhere here is s.th. wrong ...
 void Stb_ReadDBuffer (ind_t r)
 {
-    // FIXME this might not work ...
     z_t zval = 0;
     for (ind_t c = 0; c < Dwidth; c++) {
         DBuffer[c] = inpic_p[r * Dwidth + c];
@@ -97,20 +94,16 @@ void Stb_ReadDBuffer (ind_t r)
 
 void Stb_WriteSISBuffer (ind_t r)
 {
-    // FIXME this doesn't work ...
     // Write each line of the generated SIS subsequently to the output file / buffer
-    // TODO Convert from palette to interleaved pixel format and store the
-    // interleaved pixels in outpic_buf_p ... ?!
     for (ind_t c = 0; c < outpic_width; c++) {
         ind_t row_pos = r * outpic_width * SISChannelCount;
         ind_t col_base_pos = c * SISChannelCount;
-        // TODO need to write all color components ...
-        outpic_buf_p[row_pos + col_base_pos + 0] = SISBuffer[col_base_pos];
-        outpic_buf_p[row_pos + col_base_pos + 1] = SISBuffer[col_base_pos];
-        outpic_buf_p[row_pos + col_base_pos + 2] = SISBuffer[col_base_pos];
+        // Write all color components ...
+        outpic_buf_p[row_pos + col_base_pos + 0] = SISBuffer[c];
+        outpic_buf_p[row_pos + col_base_pos + 1] = SISBuffer[c];
+        outpic_buf_p[row_pos + col_base_pos + 2] = SISBuffer[c];
     }
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 col_t Stb_ReadTPixel (ind_t r, ind_t c)
 {
