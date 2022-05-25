@@ -31,24 +31,27 @@ CC = gcc
 CFLAGS = -Wall -g
 # CFLAGS = -Wall -O2
 LDFLAGS = -lm
-OBJS = main.o stbimg.o tiff.o algorithm.o get_opt.o
+SRC = src
+BUILD = build
+OBJS = $(BUILD)/main.o $(BUILD)/stbimg.o $(BUILD)/tiff.o $(BUILD)/algorithm.o $(BUILD)/get_opt.o
 
-sis: $(OBJS)
-	$(CC) -o sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
-get_opt.o: get_opt.c defines.h sis.h
-	$(CC) -c $(CFLAGS) get_opt.c
-algorithm.o: algorithm.c sis.h defines.h
-	$(CC) -c $(CFLAGS) algorithm.c
-stbimg.o: stbimg.c stbimg.h sis.h defines.h
-	$(CC) -c $(CFLAGS) stbimg.c
-tiff.o: tiff.c tiff.h sis.h defines.h
-	$(CC) -c $(CFLAGS) tiff.c
-sis.o: main.c stbimg.h tiff.h sis.h defines.h
-	$(CC) -c $(CFLAGS) main.c
+$(BUILD)/sis: build_dir $(OBJS)
+	$(CC) -o $(BUILD)/sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
+$(BUILD)/get_opt.o: $(SRC)/get_opt.c $(SRC)/defines.h $(SRC)/sis.h
+	$(CC) -c -o $(BUILD)/get_opt.o $(CFLAGS) $(SRC)/get_opt.c
+$(BUILD)/algorithm.o: $(SRC)/algorithm.c $(SRC)/sis.h $(SRC)/defines.h
+	$(CC) -c -o $(BUILD)/algorithm.o $(CFLAGS) $(SRC)/algorithm.c
+$(BUILD)/stbimg.o: $(SRC)/stbimg.c $(SRC)/stbimg.h $(SRC)/sis.h $(SRC)/defines.h
+	$(CC) -c -o $(BUILD)/stbimg.o $(CFLAGS) $(SRC)/stbimg.c
+$(BUILD)/tiff.o: $(SRC)/tiff.c $(SRC)/tiff.h $(SRC)/sis.h $(SRC)/defines.h
+	$(CC) -c -o $(BUILD)/tiff.o $(CFLAGS) $(SRC)/tiff.c
+$(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/tiff.h $(SRC)/sis.h $(SRC)/defines.h
+	$(CC) -c -o $(BUILD)/main.o $(CFLAGS) $(SRC)/main.c
 
 clean:
-	rm -f *.o sis core
-
+	rm -rf $(BUILD)
+build_dir:
+	@mkdir -p $(BUILD)
 install:
-	install -s sis $(BIN_DIR)
-	install -m 0644 sis.1 $(MAN_DIR)
+	install -s $(BUILD)/sis $(BIN_DIR)
+	install -m 0644 doc/sis.1 $(MAN_DIR)
