@@ -16,20 +16,20 @@ sis
 .I sis
 stands for
 .I single image stereogram.
-It reads a given depth-map in tga or tiff format as
+It reads a given depth-map in tiff format as
 the
 .I infile
-and generates a 
+and generates a
 .I SIS
-in tiff format as the 
+in tiff format as the
 .I outfile.
 The format of the input file is detected automatically.
 The 3D-effect is achieved by assigning two dots the same color
 in the
 .I SIS,
 if they correspond to the same point
-in the depth-map. Currently there are 3 algorithms for 
-generating the 
+in the depth-map. Currently there are 3 algorithms for
+generating the
 .I SIS
 available.
 You can choose them with the
@@ -42,14 +42,14 @@ points in the depth-map.
 .PP
 .SM Options
 .PP
-.I # 
+.I #
 stands for an integer.
 Parameters can be seperated from the option by a space, or not.
 .PP
 The most important options are:
 .TP 8
 .I -x #
-Width of the 
+Width of the
 .I SIS
 in dots. Default is the width of the input picture. Ratios are kept
 if one of height or width isn't forced.
@@ -59,7 +59,7 @@ Width of the
 .I SIS
 in tenths of inch with the resolution given in dots per inch.
 .TP
-.I -x #m#  
+.I -x #m#
 Width of the
 .I SIS
 in tenths of cm with the resolution given in dots per inch.
@@ -103,8 +103,8 @@ Use the tiff-picture
 as a texture, instead of the default random black/white dots.
 .TP
 .I -a #
-Use algorithm 
-.I # 
+Use algorithm
+.I #
 for generating the
 .I SIS.
 Default is algorithm 2.
@@ -126,15 +126,15 @@ Percentage of black dots in the
 (density of black).
 .TP
 .I -f #
-Distance of the far plane. 
-.I # 
+Distance of the far plane.
+.I #
 is the percentage of the distance between
 your eyes and the
 .I SIS.
 .TP
 .I -n #
-Distance of the near plane. 
-.I # 
+Distance of the near plane.
+.I #
 is the percentage of the distance between
 the
 .I SIS
@@ -156,8 +156,8 @@ Print a help message and exit.
 Invert the depth-map.
 .TP
 .I -o #
-Start the algorithm at 
-.I # 
+Start the algorithm at
+.I #
 pixels from the left, i.e. determine the origin of the
 algorithm. Default is the middle
 of the picture.
@@ -183,4 +183,4 @@ xli(1), povray(1)
 .SH AUTHORS
 .PP
 .I sis
-was written by Joerg Bakker. The tga code was taken from xli by Jim Frost.
+was written by Joerg Bakker.

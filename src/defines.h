@@ -26,7 +26,6 @@
 #define SIS_TEXT_MAP     3
 
 #define SIS_TIFF     0
-#define SIS_TGA      1
 
 #define SIS_MAX_COLORS 0xff
 #define SIS_MAX_CMAP   0xffff

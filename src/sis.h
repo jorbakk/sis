@@ -29,7 +29,7 @@ typedef long ind_t;
 typedef float pos_t;
 
 /*
-   Interface to bitmap handlers (tga.c, tiff.c):
+   Interface to bitmap handlers (tiff.c):
    */
 
 extern char *DFileName;

@@ -26,7 +26,6 @@
 #include "defines.h"
 #include "sis.h"
 #include "tiff.h"
-#include "tga.h"
 
 char *DFileName;
 char *SISFileName;
@@ -60,13 +59,13 @@ void (*ReadDBuffer) (ind_t r);
 col_t (*ReadTPixel) (ind_t r, ind_t c);
 void (*WriteSISBuffer) (ind_t r);
 
-static char *DefaultDFileName = "in.tga";
+static char *DefaultDFileName = "in.tif";
 static char *DefaultSISFileName = "out.tif";
 static char *DefaultTFileName = "texture.tif";
 static pos_t DLinePosition, DLineStep;
 static ind_t SISLineNumber;
 static ind_t DLineNumber;
-static int DFileFormat;
+static int DFileFormat = SIS_TIFF;;
 
 static void SetDefaults (void)
 {
@@ -91,34 +90,13 @@ static void SetDefaults (void)
     debug = 0;
 }
 
-static void CheckDFileType ()
-{
-    FILE * dfile;
-    char buf[2];
-
-    dfile = fopen (DFileName, "r");
-    fread (buf, 1, 2, dfile);
-    if (((buf[0] == 0x49) && (buf[1] == 0x49)) ||
-            ((buf[0] == 0x4d) && (buf[1] == 0x4d)))
-        DFileFormat = SIS_TIFF;
-    else
-        DFileFormat = SIS_TGA;
-    fclose (dfile);
-}
-
 static void InitFuncs (void)
 {
-    CheckDFileType ();
     switch (DFileFormat) {
         case SIS_TIFF:
             OpenDFile = Tiff_OpenDFile;
             CloseDFile = Tiff_CloseDFile;
             ReadDBuffer = Tiff_ReadDBuffer;
-            break;
-        case SIS_TGA:
-            OpenDFile = TGA_OpenDFile;
-            CloseDFile = TGA_CloseDFile;
-            ReadDBuffer = TGA_ReadDBuffer;
             break;
         default:
             OpenDFile = Tiff_OpenDFile;

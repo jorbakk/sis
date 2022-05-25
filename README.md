@@ -19,7 +19,6 @@ ray-tracer or 3D-modeling software.
 
 ## Supported file formats
 * tiff - for input, output and texture
-* tga  - for input
 
 ## Requirements
 * libgr (at least version 1.3)
