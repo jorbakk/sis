@@ -32,6 +32,7 @@
 // given at the command line or introduce a new command line option.
 // Beware that the input image (depth-map) can be read from stdin.
 int ImgFileFormat = SIS_IMGFMT_DFLT;
+/* int ImgFileFormat = SIS_IMGFMT_TIFF; */
 char *DFileName = NULL;
 char *SISFileName = NULL;
 char *TFileName = NULL;
