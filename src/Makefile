@@ -31,7 +31,7 @@ CC = gcc
 CFLAGS = -Wall -g
 # CFLAGS = -Wall -O2
 LDFLAGS = -lm
-OBJS = sis.o tiff.o algorithm.o get_opt.o
+OBJS = sis.o stbimg.o tiff.o algorithm.o get_opt.o
 
 sis: $(OBJS)
 	$(CC) -o sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
@@ -39,9 +39,11 @@ get_opt.o: get_opt.c defines.h sis.h
 	$(CC) -c $(CFLAGS) get_opt.c
 algorithm.o: algorithm.c sis.h defines.h
 	$(CC) -c $(CFLAGS) algorithm.c
+stbimg.o: stbimg.c stbimg.h sis.h defines.h
+	$(CC) -c $(CFLAGS) stbimg.c
 tiff.o: tiff.c tiff.h sis.h defines.h
 	$(CC) -c $(CFLAGS) tiff.c
-sis.o: sis.c tiff.h sis.h defines.h
+sis.o: sis.c stbimg.h tiff.h sis.h defines.h
 	$(CC) -c $(CFLAGS) sis.c
 
 clean:

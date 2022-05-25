@@ -1,5 +1,5 @@
 /*
- * Copyright 1995, 2021, 2022 Jörg Bakker
+ * Copyright 2022 Jörg Bakker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,15 +20,17 @@
  * SOFTWARE.
  */
 
+#include "sis.h"
 
-#define SIS_RANDOM_GREY  1
-#define SIS_RANDOM_COLOR 2
-#define SIS_TEXT_MAP     3
+void Stb_OpenDFile (char *DFileName, ind_t *width, ind_t *height);
+void Stb_OpenSISFile (char *SISFileName, ind_t width, ind_t height,
+    int SIStype);
+void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height);
 
-#define SIS_IMGFMT_DFLT  0
-#define SIS_IMGFMT_TIFF  1
+void Stb_ReadDBuffer (ind_t r);
+void Stb_WriteSISBuffer (ind_t r);
+col_t Stb_ReadTPixel (ind_t r, ind_t c);
 
-#define SIS_MAX_COLORS   0xff
-#define SIS_MAX_CMAP     0xffff
-#define SIS_MAX_DEPTH    0xffff
-#define SIS_MIN_DEPTH    0x0
+void Stb_CloseDFile (void);
+void Stb_CloseTFile (ind_t height);
+void Stb_CloseSISFile (void);

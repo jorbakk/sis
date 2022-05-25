@@ -25,14 +25,15 @@
 #include <stdio.h>
 #include "defines.h"
 #include "sis.h"
+#include "stbimg.h"
 #include "tiff.h"
 
-char *DFileName;
-char *SISFileName;
-char *TFileName;
+char *DFileName = NULL;
+char *SISFileName = NULL;
+char *TFileName = NULL;
 
-col_t *DBuffer;
-col_t *SISBuffer;
+col_t *DBuffer = NULL;
+col_t *SISBuffer = NULL;
 z_t zvalue[SIS_MAX_COLORS+1];
 
 cmap_t *SISred, *SISgreen, *SISblue;
@@ -65,7 +66,8 @@ static char *DefaultTFileName = "texture.tif";
 static pos_t DLinePosition, DLineStep;
 static ind_t SISLineNumber;
 static ind_t DLineNumber;
-static int DFileFormat = SIS_TIFF;;
+/* static int ImgFileFormat = SIS_IMGFMT_TIFF; */
+static int ImgFileFormat = SIS_IMGFMT_DFLT;
 
 static void SetDefaults (void)
 {
@@ -92,24 +94,30 @@ static void SetDefaults (void)
 
 static void InitFuncs (void)
 {
-    switch (DFileFormat) {
-        case SIS_TIFF:
+    switch (ImgFileFormat) {
+        case SIS_IMGFMT_TIFF:
             OpenDFile = Tiff_OpenDFile;
             CloseDFile = Tiff_CloseDFile;
             ReadDBuffer = Tiff_ReadDBuffer;
+            OpenSISFile = Tiff_OpenSISFile;
+            OpenTFile = Tiff_OpenTFile;
+            CloseTFile = Tiff_CloseTFile;
+            CloseSISFile = Tiff_CloseSISFile;
+            ReadTPixel = Tiff_ReadTPixel;
+            WriteSISBuffer = Tiff_WriteSISBuffer;
             break;
         default:
-            OpenDFile = Tiff_OpenDFile;
-            CloseDFile = Tiff_CloseDFile;
-            ReadDBuffer = Tiff_ReadDBuffer;
+            OpenDFile = Stb_OpenDFile;
+            CloseDFile = Stb_CloseDFile;
+            ReadDBuffer = Stb_ReadDBuffer;
+            OpenSISFile = Stb_OpenSISFile;
+            OpenTFile = Stb_OpenTFile;
+            CloseTFile = Stb_CloseTFile;
+            CloseSISFile = Stb_CloseSISFile;
+            ReadTPixel = Stb_ReadTPixel;
+            WriteSISBuffer = Stb_WriteSISBuffer;
             break;
     }
-    OpenSISFile = Tiff_OpenSISFile;
-    OpenTFile = Tiff_OpenTFile;
-    CloseTFile = Tiff_CloseTFile;
-    CloseSISFile = Tiff_CloseSISFile;
-    ReadTPixel = Tiff_ReadTPixel;
-    WriteSISBuffer = Tiff_WriteSISBuffer;
 }
 
 static void InitVars (void)
