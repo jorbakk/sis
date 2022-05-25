@@ -32,6 +32,7 @@ typedef float pos_t;
    Interface to bitmap handlers (stbimg.c, tiff.c):
    */
 
+extern int ImgFileFormat;
 extern char *DFileName;
 extern char *SISFileName;
 extern char *TFileName;

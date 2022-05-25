@@ -87,12 +87,10 @@ void get_options (int argc, char **argv)
         DFileName = argv[opt_ind];
         opt_ind++;
     }
-
     if ((opt_ind < argc) && (argv[opt_ind][0] != '-')) {
         SISFileName = argv[opt_ind];
         opt_ind++;
     }
-
     while (opt_ind < argc) {
         if (argv[opt_ind][0] != '-') print_usage();
         switch (argv[opt_ind][1]) {
@@ -228,8 +226,8 @@ void get_options (int argc, char **argv)
                     else print_usage();
                 }
                 /*
-TODO: cannot check error-condition right here !
-*/
+                   TODO: cannot check error-condition right here !
+                   */
                 break;
             case 's':
                 if (argv[opt_ind][2] != 0)

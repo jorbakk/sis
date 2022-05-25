@@ -28,6 +28,10 @@
 #include "stbimg.h"
 #include "tiff.h"
 
+// TODO set the image format for input and output images based on the filenames
+// given at the command line or introduce a new command line option.
+// Beware that the input image (depth-map) can be read from stdin.
+int ImgFileFormat = SIS_IMGFMT_DFLT;
 char *DFileName = NULL;
 char *SISFileName = NULL;
 char *TFileName = NULL;
@@ -66,8 +70,6 @@ static char *DefaultTFileName = "texture.tif";
 static pos_t DLinePosition, DLineStep;
 static ind_t SISLineNumber;
 static ind_t DLineNumber;
-/* static int ImgFileFormat = SIS_IMGFMT_TIFF; */
-static int ImgFileFormat = SIS_IMGFMT_DFLT;
 
 static void SetDefaults (void)
 {
