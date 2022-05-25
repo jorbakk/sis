@@ -28,9 +28,14 @@
 #include "stbimg.h"
 #include "tiff.h"
 
-// TODO set the image format for input and output images based on the filenames
-// given at the command line or introduce a new command line option.
-// Beware that the input image (depth-map) can be read from stdin.
+// CURRENT TODO LIST ////////////////////////////////////////////////////////////////////////
+// 1. Make textures work with the stb_image lib.
+// 2. Set the image format for input and output images based on the filenames
+//    given at the command line or introduce a new command line option.
+//    Beware that the input image (depth-map) can be read from stdin.
+// 3. Update docs (build process, ...)
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 int ImgFileFormat = SIS_IMGFMT_DFLT;
 /* int ImgFileFormat = SIS_IMGFMT_TIFF; */
 char *DFileName = NULL;
