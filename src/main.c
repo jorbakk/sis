@@ -29,15 +29,18 @@
 #include "tiff.h"
 
 // CURRENT TODO LIST ////////////////////////////////////////////////////////////////////////
-// 1. Make textures work with the stb_image lib.
-// 2. Set the image format for input and output images based on the filenames
+//
+// 1. Set the image format for input and output images based on the filenames
 //    given at the command line or introduce a new command line option.
 //    Beware that the input image (depth-map) can be read from stdin.
-// 3. Update docs (build process, ...)
+// 2. Update docs (build process, supported image formats, add input images:
+//    depth map and texture, ...)
+// 3. Support color palette for the texture image with more than 256 colors?
+//
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-int ImgFileFormat = SIS_IMGFMT_DFLT;
-/* int ImgFileFormat = SIS_IMGFMT_TIFF; */
+/* int ImgFileFormat = SIS_IMGFMT_DFLT; */
+int ImgFileFormat = SIS_IMGFMT_TIFF;
 char *DFileName = NULL;
 char *SISFileName = NULL;
 char *TFileName = NULL;
