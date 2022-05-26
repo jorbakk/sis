@@ -22,11 +22,14 @@
 
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../3rd-party/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../3rd-party/stb_image_write.h"
+#define STB_DS_IMPLEMENTATION
+#include "../3rd-party/stb_ds.h"
 
 #include "defines.h"
 #include "sis.h"
@@ -73,21 +76,46 @@ void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
         // TODO: check if we can continue with the desired channel count
         exit(1);
     }
-    // TODO copy the interleaved color values and populate the texture image
+    // Copy the interleaved color values and populate the texture image
     // planes SISred, SISgreen, SISblue and the image color index buffer
     // Tread_buf by creating a color map from the interleaved stb_image data.
+    struct { uint32_t key; col_t value; } *colmap = NULL;
+    const col_t default_value = -1;
+    hmdefault (colmap, default_value);
+    col_t col_idx = 0;
     if (!(Tread_buf = (col_t **) calloc(*height, sizeof(col_t*)))) {
         fprintf(stderr, "Failed to allocate texture readbuf.\n");
         exit(1);
     }
     for (ind_t r = 0; r < *width; ++r) {
-        if (!(Tread_buf = (col_t **) calloc(*width, sizeof(col_t*)))) {
+        if (!(Tread_buf[r] = (col_t *) calloc(*width, sizeof(col_t)))) {
             fprintf(stderr, "Failed to allocate texture readbuf.\n");
             exit(1);
         }
+        // TODO We also need to downsample the texture image to 256 different
+        // colors, as col_t is unsigned char and SIS_MAX_COLORS is 0xff.
+        // However, currently the tiff implementation rejects texture images
+        // with more than 256 different colors (BITSPERSAMPLE != 8). We could
+        // raise this limit for both implementations (tiff and stb_image) or
+        // remove tiff and fix it with stb_image.
         for (ind_t c = 0; c < *height; ++c) {
+            ind_t row_pos = r * (*width) * channel_count;
+            ind_t col_base_pos = c * channel_count;
+            uint32_t col_rgb = (uint32_t)(texpic_p[row_pos + col_base_pos] & 0x00ffffff);
+            col_t current_col_idx = hmget (colmap, col_rgb);
+            if (current_col_idx == default_value) {
+                hmput (colmap, col_rgb, col_idx);
+                current_col_idx = col_idx;
+                col_idx++;
+            }
+            Tread_buf[r][c] = current_col_idx;
+            SISred[current_col_idx] = texpic_p[row_pos + col_base_pos + 0];
+            SISgreen[current_col_idx] = texpic_p[row_pos + col_base_pos + 1];
+            SISblue[current_col_idx] = texpic_p[row_pos + col_base_pos + 2];
+
         }
     }
+    hmfree (colmap);
 }
 
 void Stb_ReadDBuffer (ind_t r)
@@ -114,8 +142,11 @@ void Stb_WriteSISBuffer (ind_t r)
     }
 }
 
+// Return the index into the color palette of the pixel with coordinates (r, c)
+// in the texture images
 col_t Stb_ReadTPixel (ind_t r, ind_t c)
 {
+    // TODO is cur_Tread actually used in stbimg.c and tiff.c?
     if (cur_Tread != r) {
         cur_Tread = r;
     }
@@ -129,10 +160,10 @@ void Stb_CloseDFile (void)
 
 void Stb_CloseTFile (ind_t height)
 {
-    for (ind_t r = 0; r < height; ++r) {
-        free (Tread_buf[r]);
-    }
-    free (Tread_buf);
+    /* for (ind_t r = 0; r < height; ++r) { */
+    /*     free (Tread_buf[r]); */
+    /* } */
+    /* free (Tread_buf); */
     free (texpic_p);
 }
 
