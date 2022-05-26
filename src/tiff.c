@@ -110,12 +110,13 @@ void Tiff_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
     }
     /* Allocate buffer for reading the texture image */
     if (!(Tread_buf = (col_t **) calloc(*height, sizeof(col_t*)))) {
-        fprintf(stderr, "No space for texture readbuf.\n");
+        fprintf(stderr, "Failed to allocate texture readbuf.\n");
         exit(1);
     }
     for (int r = 0; r < *height; ++r) {
+        // TODO check if we need to allocate Tread_buf or if TIFFReadScanline does the job
         if (!(Tread_buf[r] = (col_t *) _TIFFmalloc (TIFFScanlineSize(texpic_p)))) {
-            fprintf(stderr, "No space for texture readbuf.\n");
+            fprintf(stderr, "Failed to allocate texture readbuf.\n");
             exit(1);
         }
         if (TIFFReadScanline (texpic_p, Tread_buf[r], r, 0) != 1) {

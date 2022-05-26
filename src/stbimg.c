@@ -76,7 +76,15 @@ void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
     // TODO copy the interleaved color values and populate the texture image
     // planes SISred, SISgreen, SISblue and the image color index buffer
     // Tread_buf by creating a color map from the interleaved stb_image data.
+    if (!(Tread_buf = (col_t **) calloc(*height, sizeof(col_t*)))) {
+        fprintf(stderr, "Failed to allocate texture readbuf.\n");
+        exit(1);
+    }
     for (ind_t r = 0; r < *width; ++r) {
+        if (!(Tread_buf = (col_t **) calloc(*width, sizeof(col_t*)))) {
+            fprintf(stderr, "Failed to allocate texture readbuf.\n");
+            exit(1);
+        }
         for (ind_t c = 0; c < *height; ++c) {
         }
     }
@@ -99,9 +107,12 @@ void Stb_WriteSISBuffer (ind_t r)
         ind_t row_pos = r * outpic_width * SISChannelCount;
         ind_t col_base_pos = c * SISChannelCount;
         // Write all color components ...
+        // For monochrome random output we set all color components to the same value
         outpic_buf_p[row_pos + col_base_pos + 0] = SISBuffer[c];
         outpic_buf_p[row_pos + col_base_pos + 1] = SISBuffer[c];
         outpic_buf_p[row_pos + col_base_pos + 2] = SISBuffer[c];
+        // TODO For color random or texture based output we need to get the color
+        // corresponding to SISBuffer[c] from the color palette
     }
 }
 
@@ -120,7 +131,11 @@ void Stb_CloseDFile (void)
 
 void Stb_CloseTFile (ind_t height)
 {
-    free(texpic_p);
+    for (ind_t r = 0; r < height; ++r) {
+        free (Tread_buf[r]);
+    }
+    free (Tread_buf);
+    free (texpic_p);
 }
 
 void Stb_CloseSISFile (void)
