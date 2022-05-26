@@ -106,13 +106,11 @@ void Stb_WriteSISBuffer (ind_t r)
     for (ind_t c = 0; c < outpic_width; c++) {
         ind_t row_pos = r * outpic_width * SISChannelCount;
         ind_t col_base_pos = c * SISChannelCount;
-        // Write all color components ...
-        // For monochrome random output we set all color components to the same value
-        outpic_buf_p[row_pos + col_base_pos + 0] = SISBuffer[c];
-        outpic_buf_p[row_pos + col_base_pos + 1] = SISBuffer[c];
-        outpic_buf_p[row_pos + col_base_pos + 2] = SISBuffer[c];
-        // TODO For color random or texture based output we need to get the color
-        // corresponding to SISBuffer[c] from the color palette
+        // Write all color components of the ouput image. The color is taken from the color palette
+        // and the index into the color palette is taken from SISBuffer.
+        outpic_buf_p[row_pos + col_base_pos + 0] = SISred[SISBuffer[c]];
+        outpic_buf_p[row_pos + col_base_pos + 1] = SISgreen[SISBuffer[c]];
+        outpic_buf_p[row_pos + col_base_pos + 2] = SISblue[SISBuffer[c]];
     }
 }
 
