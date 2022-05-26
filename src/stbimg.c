@@ -87,7 +87,7 @@ void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
         fprintf(stderr, "Failed to allocate texture readbuf.\n");
         exit(1);
     }
-    for (ind_t r = 0; r < *width; ++r) {
+    for (ind_t r = 0; r < *height; ++r) {
         if (!(Tread_buf[r] = (col_t *) calloc(*width, sizeof(col_t)))) {
             fprintf(stderr, "Failed to allocate texture readbuf.\n");
             exit(1);
@@ -98,7 +98,7 @@ void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height)
         // with more than 256 different colors (BITSPERSAMPLE != 8). We could
         // raise this limit for both implementations (tiff and stb_image) or
         // remove tiff and fix it with stb_image.
-        for (ind_t c = 0; c < *height; ++c) {
+        for (ind_t c = 0; c < *width; ++c) {
             ind_t row_pos = r * (*width) * channel_count;
             ind_t col_base_pos = c * channel_count;
             uint32_t col_rgb = (uint32_t)(texpic_p[row_pos + col_base_pos] & 0x00ffffff);
@@ -160,10 +160,10 @@ void Stb_CloseDFile (void)
 
 void Stb_CloseTFile (ind_t height)
 {
-    /* for (ind_t r = 0; r < height; ++r) { */
-    /*     free (Tread_buf[r]); */
-    /* } */
-    /* free (Tread_buf); */
+    for (ind_t r = 0; r < height; ++r) {
+        free (Tread_buf[r]);
+    }
+    free (Tread_buf);
     free (texpic_p);
 }
 

@@ -39,8 +39,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-/* int ImgFileFormat = SIS_IMGFMT_DFLT; */
-int ImgFileFormat = SIS_IMGFMT_TIFF;
+int ImgFileFormat = SIS_IMGFMT_DFLT;
+/* int ImgFileFormat = SIS_IMGFMT_TIFF; */
 char *DFileName = NULL;
 char *SISFileName = NULL;
 char *TFileName = NULL;
