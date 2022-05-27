@@ -18,35 +18,37 @@ while the nearest points should be white. Depth-maps can be created with a
 ray-tracer or 3D-modeling software.
 
 ## Supported file formats
-* tiff - for input, output and texture
+* png, bmp, gif, pnm, tga, jpeg for input and texture. Currently, tif support
+  is disabled and there are some limitations on the accepted image types,
+  basically an 8-bit color palette png should work. These limitations might be
+  removed in future releases.
+* output is always png
 
 ## Requirements
-* libgr (at least version 1.3)
+* gcc, make, otherwise no dependencies
 
 ## Installation
 Build from sources:
 
-* Change to the src directory
-* Edit the Makefile to change the path for libgr, and where you might want
-  to install the binary and man-page.
-* type 'make'.
-* type 'make install' to install the binary and man-page (as root). Instead of
+* Edit the Makefile to change where you might want to install the binary and man-page.
+* Run 'make'.
+* Run 'make install' to install the binary and man-page (as root). Instead of
   installing, you can also run the sis excecutable directly from the src directory.
 
 ## Usage
 Generate a SIS of a simple 3-D sinus oval figure which is supplied in the
 depthmaps subdirectory:
 
-     ./sis ../depthmaps/oval.tif out.tif
+     ./sis ../depthmaps/oval.png out.png
 
 Invoked with the -m option, sis adds two triangles to the top of the
 picture, which help you to find the right convergence.
 
-     ./sis ../depthmaps/oval.tif out.tif -m
+     ./sis ../depthmaps/oval.png out.png -m
 
 Use a texture instead of the random noise background:
 
-     ./sis ../depthmaps/oval.tif out.tif -t ../textures/cork.tif
+     ./sis ../depthmaps/oval.png out.png -t ../textures/cork.png
 
 To see all available options run sis without any arguments.
 
@@ -54,7 +56,7 @@ To see all available options run sis without any arguments.
   You can size and choose the resolution of your SIS with the -x, -y options.
   For example, if your printer has 300dpi, use:
 
-     ./sis ../depthmaps/oval.tif out.tif -x40i300 -y30i300
+     ./sis ../depthmaps/oval.png out.png -x40i300 -y30i300
 
   which gives a picture of size 4x3 inch at 300 dpi. Note that 40 means
   40 tenths of an inch = 4 inch.

@@ -35,7 +35,8 @@
 //    Beware that the input image (depth-map) can be read from stdin.
 // 2. Update docs (build process, supported image formats, add input images:
 //    depth map and texture, ...)
-// 3. Support color palette for the texture image with more than 256 colors?
+// 3. Support color palette for the texture image with more than 256 colors,
+//    depalettize input images while reading
 //
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -105,30 +106,39 @@ static void SetDefaults (void)
 
 static void InitFuncs (void)
 {
-    switch (ImgFileFormat) {
-        case SIS_IMGFMT_TIFF:
-            OpenDFile = Tiff_OpenDFile;
-            CloseDFile = Tiff_CloseDFile;
-            ReadDBuffer = Tiff_ReadDBuffer;
-            OpenSISFile = Tiff_OpenSISFile;
-            OpenTFile = Tiff_OpenTFile;
-            CloseTFile = Tiff_CloseTFile;
-            CloseSISFile = Tiff_CloseSISFile;
-            ReadTPixel = Tiff_ReadTPixel;
-            WriteSISBuffer = Tiff_WriteSISBuffer;
-            break;
-        default:
-            OpenDFile = Stb_OpenDFile;
-            CloseDFile = Stb_CloseDFile;
-            ReadDBuffer = Stb_ReadDBuffer;
-            OpenSISFile = Stb_OpenSISFile;
-            OpenTFile = Stb_OpenTFile;
-            CloseTFile = Stb_CloseTFile;
-            CloseSISFile = Stb_CloseSISFile;
-            ReadTPixel = Stb_ReadTPixel;
-            WriteSISBuffer = Stb_WriteSISBuffer;
-            break;
-    }
+    OpenDFile = Stb_OpenDFile;
+    CloseDFile = Stb_CloseDFile;
+    ReadDBuffer = Stb_ReadDBuffer;
+    OpenSISFile = Stb_OpenSISFile;
+    OpenTFile = Stb_OpenTFile;
+    CloseTFile = Stb_CloseTFile;
+    CloseSISFile = Stb_CloseSISFile;
+    ReadTPixel = Stb_ReadTPixel;
+    WriteSISBuffer = Stb_WriteSISBuffer;
+    /* switch (ImgFileFormat) { */
+    /*     case SIS_IMGFMT_TIFF: */
+    /*         OpenDFile = Tiff_OpenDFile; */
+    /*         CloseDFile = Tiff_CloseDFile; */
+    /*         ReadDBuffer = Tiff_ReadDBuffer; */
+    /*         OpenSISFile = Tiff_OpenSISFile; */
+    /*         OpenTFile = Tiff_OpenTFile; */
+    /*         CloseTFile = Tiff_CloseTFile; */
+    /*         CloseSISFile = Tiff_CloseSISFile; */
+    /*         ReadTPixel = Tiff_ReadTPixel; */
+    /*         WriteSISBuffer = Tiff_WriteSISBuffer; */
+    /*         break; */
+    /*     default: */
+    /*         OpenDFile = Stb_OpenDFile; */
+    /*         CloseDFile = Stb_CloseDFile; */
+    /*         ReadDBuffer = Stb_ReadDBuffer; */
+    /*         OpenSISFile = Stb_OpenSISFile; */
+    /*         OpenTFile = Stb_OpenTFile; */
+    /*         CloseTFile = Stb_CloseTFile; */
+    /*         CloseSISFile = Stb_CloseSISFile; */
+    /*         ReadTPixel = Stb_ReadTPixel; */
+    /*         WriteSISBuffer = Stb_WriteSISBuffer; */
+    /*         break; */
+    /* } */
 }
 
 static void InitVars (void)
