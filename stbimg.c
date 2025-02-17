@@ -30,7 +30,6 @@
 #define STB_DS_IMPLEMENTATION
 #include "3rd-party/stb_ds.h"
 
-#include "defines.h"
 #include "sis.h"
 #include "stbimg.h"
 

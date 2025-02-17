@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "defines.h"
 #include "sis.h"
 
 /// The biggest and smallest distance in one line (!)

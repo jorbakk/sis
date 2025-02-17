@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "defines.h"
 #include "sis.h"
 #include "stbimg.h"
 #include "tiff.h"

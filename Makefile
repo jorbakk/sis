@@ -40,16 +40,16 @@ OBJS = $(BUILD)/main.o $(BUILD)/stbimg.o $(BUILD)/algorithm.o $(BUILD)/get_opt.o
 # 	$(CC) -o $(BUILD)/sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
 $(BUILD)/sis: build_dir $(OBJS)
 	$(CC) -o $(BUILD)/sis $(OBJS) $(LDFLAGS)
-$(BUILD)/get_opt.o: $(SRC)/get_opt.c $(SRC)/defines.h $(SRC)/sis.h
+$(BUILD)/get_opt.o: $(SRC)/get_opt.c $(SRC)/sis.h
 	$(CC) -c -o $(BUILD)/get_opt.o $(CFLAGS) $(SRC)/get_opt.c
-$(BUILD)/algorithm.o: $(SRC)/algorithm.c $(SRC)/sis.h $(SRC)/defines.h
+$(BUILD)/algorithm.o: $(SRC)/algorithm.c $(SRC)/sis.h
 	$(CC) -c -o $(BUILD)/algorithm.o $(CFLAGS) $(SRC)/algorithm.c
-$(BUILD)/stbimg.o: $(SRC)/stbimg.c $(SRC)/stbimg.h $(SRC)/sis.h $(SRC)/defines.h
+$(BUILD)/stbimg.o: $(SRC)/stbimg.c $(SRC)/stbimg.h $(SRC)/sis.h
 	$(CC) -c -o $(BUILD)/stbimg.o $(CFLAGS) $(SRC)/stbimg.c
-# $(BUILD)/tiff.o: $(SRC)/tiff.c $(SRC)/tiff.h $(SRC)/sis.h $(SRC)/defines.h
+# $(BUILD)/tiff.o: $(SRC)/tiff.c $(SRC)/tiff.h $(SRC)/sis.h
 # 	$(CC) -c -o $(BUILD)/tiff.o $(CFLAGS) $(SRC)/tiff.c
-# $(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/tiff.h $(SRC)/sis.h $(SRC)/defines.h
-$(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/sis.h $(SRC)/defines.h
+# $(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/tiff.h $(SRC)/sis.h
+$(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/sis.h
 	$(CC) -c -o $(BUILD)/main.o $(CFLAGS) $(SRC)/main.c
 
 clean:
