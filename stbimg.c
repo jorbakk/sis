@@ -80,20 +80,19 @@ void
 Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 {
 	int channel_count = 0, desired_channel_count = 3;
-	if (!
-	    (texpic_p =
-	     (unsigned char *)stbi_load(TFileName, (int *)width, (int *)height,
+	if (!(texpic_p = (unsigned char *)stbi_load(TFileName, (int *)width, (int *)height,
 	                                &channel_count, desired_channel_count)))
 		exit(1);
 	if (channel_count != desired_channel_count) {
 		fprintf(stderr,
 		        "Input texture map image must have three color channels\n");
-		// TODO: check if we can continue with the desired channel count
+		/// TODO: check if we can continue if channel count is not equal
+		///       to the desired channel count
 		exit(1);
 	}
-	// Copy the interleaved color values and populate the texture image
-	// planes SISred, SISgreen, SISblue and the image color index buffer
-	// Tread_buf by creating a color map from the interleaved stb_image data.
+	/// Copy the interleaved color values and populate the texture image
+	/// planes SISred, SISgreen, SISblue and the image color index buffer
+	/// Tread_buf by creating a color map from the interleaved stb_image data.
 	struct {
 		uint32_t key;
 		col_t value;
@@ -120,7 +119,9 @@ Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 			ind_t row_pos = r * (*width) * channel_count;
 			ind_t col_base_pos = c * channel_count;
 			uint32_t col_rgb =
-			    (uint32_t) (texpic_p[row_pos + col_base_pos] & 0x00ffffff);
+			    (uint32_t) (texpic_p[row_pos + col_base_pos + 0]) |
+			    (uint32_t) (texpic_p[row_pos + col_base_pos + 1]) << 8 |
+			    (uint32_t) (texpic_p[row_pos + col_base_pos + 2]) << 16;
 			col_t current_col_idx = hmget(colmap, col_rgb);
 			if (current_col_idx == default_value) {
 				hmput(colmap, col_rgb, col_idx);
@@ -135,6 +136,8 @@ Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 		}
 	}
 	hmfree(colmap);
+	/// Number of unique colors is col_idx + black
+	// printf("texture unique color count: %d\n", col_idx + 1);
 }
 
 

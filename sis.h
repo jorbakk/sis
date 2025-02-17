@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#include <stdint.h>
+
 #define SIS_RANDOM_GREY  1
 #define SIS_RANDOM_COLOR 2
 #define SIS_TEXT_MAP     3
@@ -27,14 +29,15 @@
 #define SIS_IMGFMT_DFLT  0
 #define SIS_IMGFMT_TIFF  1
 
-#define SIS_MAX_COLORS   0xff
+#define SIS_MAX_COLORS   0xffff
 #define SIS_MAX_CMAP     0xffff
 #define SIS_MAX_DEPTH    0xffff
 #define SIS_MIN_DEPTH    0x0
 
-typedef unsigned char col_t;
-typedef unsigned short cmap_t;
-typedef long z_t;               /* for portability: MAX(z_t) > SIS_MAX_DEPTH */
+typedef uint32_t col_t;
+typedef uint16_t cmap_t;
+/// MAX(z_t) needs to be greater than SIS_MAX_DEPTH
+typedef long z_t;
 typedef long ind_t;
 typedef float pos_t;
 
