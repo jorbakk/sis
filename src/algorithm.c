@@ -28,7 +28,7 @@
 #include "sis.h"
 
 z_t max_depth, min_depth;  /* the biggest and smallest distance in one line (!)
-                              of the depth-map. This is just for efficienty. */
+                              of the depth-map. This is just for efficiency. */
 int algorithm;
 long forwards_obscure_c, backwards_obscure_c; /* Just for statistics. */
 long inner_propagate_c, outer_propagate_c;
