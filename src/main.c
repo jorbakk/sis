@@ -1,5 +1,5 @@
 /*
- * Copyright 1995, 2021, 2022 Jörg Bakker
+ * Copyright 1995, 2021, 2022, 2025 Jörg Bakker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,7 +47,7 @@ char *TFileName = NULL;
 
 col_t *DBuffer = NULL;
 col_t *SISBuffer = NULL;
-z_t zvalue[SIS_MAX_COLORS+1];
+z_t zvalue[SIS_MAX_COLORS + 1];
 
 cmap_t *SISred, *SISgreen, *SISblue;
 
@@ -63,16 +62,15 @@ int resolution;
 int debug;
 double density;
 
-void (*OpenDFile) (char *DFileName, ind_t *width, ind_t *height);
-void (*OpenSISFile) (char *SISFileName, ind_t width, ind_t height,
-        int SIStype);
-void (*OpenTFile) (char *TFileName, ind_t *width, ind_t *height);
-void (*CloseDFile) (void);
-void (*CloseTFile) (ind_t height);
-void (*CloseSISFile) (void);
-void (*ReadDBuffer) (ind_t r);
-col_t (*ReadTPixel) (ind_t r, ind_t c);
-void (*WriteSISBuffer) (ind_t r);
+void (*OpenDFile)(char *DFileName, ind_t * width, ind_t * height);
+void (*OpenSISFile)(char *SISFileName, ind_t width, ind_t height, int SIStype);
+void (*OpenTFile)(char *TFileName, ind_t * width, ind_t * height);
+void (*CloseDFile)(void);
+void (*CloseTFile)(ind_t height);
+void (*CloseSISFile)(void);
+void (*ReadDBuffer)(ind_t r);
+col_t(*ReadTPixel) (ind_t r, ind_t c);
+void (*WriteSISBuffer)(ind_t r);
 
 static char *DefaultDFileName = "in.tif";
 static char *DefaultSISFileName = "out.tif";
@@ -81,170 +79,194 @@ static pos_t DLinePosition, DLineStep;
 static ind_t SISLineNumber;
 static ind_t DLineNumber;
 
-static void SetDefaults (void)
+
+static void
+SetDefaults(void)
 {
-    DFileName = DefaultDFileName;
-    TFileName = DefaultTFileName;
-    SISFileName = DefaultSISFileName;
-    SIStype = SIS_RANDOM_GREY;
-    SISwidth = SISheight = 0;
-    algorithm = 2;
-    origin = -1; /* that means, it is set to SISwidth/2 later */
-    verbose = 1;
-    invert = 0;
-    mark = 0;
-    metric = 'i';
-    resolution = 75;
-    E = 0;
-    t = 1.0; u = 0.67;
-    rand_grey_num = 2;
-    rand_col_num = SIS_MAX_COLORS;
-    density = 0.5;
-    SIScompress = 0;
-    debug = 0;
+	DFileName = DefaultDFileName;
+	TFileName = DefaultTFileName;
+	SISFileName = DefaultSISFileName;
+	SIStype = SIS_RANDOM_GREY;
+	SISwidth = SISheight = 0;
+	algorithm = 2;
+	origin = -1;                /* that means, it is set to SISwidth/2 later */
+	verbose = 1;
+	invert = 0;
+	mark = 0;
+	metric = 'i';
+	resolution = 75;
+	E = 0;
+	t = 1.0;
+	u = 0.67;
+	rand_grey_num = 2;
+	rand_col_num = SIS_MAX_COLORS;
+	density = 0.5;
+	SIScompress = 0;
+	debug = 0;
 }
 
-static void InitFuncs (void)
+
+static void
+InitFuncs(void)
 {
-    OpenDFile = Stb_OpenDFile;
-    CloseDFile = Stb_CloseDFile;
-    ReadDBuffer = Stb_ReadDBuffer;
-    OpenSISFile = Stb_OpenSISFile;
-    OpenTFile = Stb_OpenTFile;
-    CloseTFile = Stb_CloseTFile;
-    CloseSISFile = Stb_CloseSISFile;
-    ReadTPixel = Stb_ReadTPixel;
-    WriteSISBuffer = Stb_WriteSISBuffer;
-    /* switch (ImgFileFormat) { */
-    /*     case SIS_IMGFMT_TIFF: */
-    /*         OpenDFile = Tiff_OpenDFile; */
-    /*         CloseDFile = Tiff_CloseDFile; */
-    /*         ReadDBuffer = Tiff_ReadDBuffer; */
-    /*         OpenSISFile = Tiff_OpenSISFile; */
-    /*         OpenTFile = Tiff_OpenTFile; */
-    /*         CloseTFile = Tiff_CloseTFile; */
-    /*         CloseSISFile = Tiff_CloseSISFile; */
-    /*         ReadTPixel = Tiff_ReadTPixel; */
-    /*         WriteSISBuffer = Tiff_WriteSISBuffer; */
-    /*         break; */
-    /*     default: */
-    /*         OpenDFile = Stb_OpenDFile; */
-    /*         CloseDFile = Stb_CloseDFile; */
-    /*         ReadDBuffer = Stb_ReadDBuffer; */
-    /*         OpenSISFile = Stb_OpenSISFile; */
-    /*         OpenTFile = Stb_OpenTFile; */
-    /*         CloseTFile = Stb_CloseTFile; */
-    /*         CloseSISFile = Stb_CloseSISFile; */
-    /*         ReadTPixel = Stb_ReadTPixel; */
-    /*         WriteSISBuffer = Stb_WriteSISBuffer; */
-    /*         break; */
-    /* } */
+	OpenDFile = Stb_OpenDFile;
+	CloseDFile = Stb_CloseDFile;
+	ReadDBuffer = Stb_ReadDBuffer;
+	OpenSISFile = Stb_OpenSISFile;
+	OpenTFile = Stb_OpenTFile;
+	CloseTFile = Stb_CloseTFile;
+	CloseSISFile = Stb_CloseSISFile;
+	ReadTPixel = Stb_ReadTPixel;
+	WriteSISBuffer = Stb_WriteSISBuffer;
+	/* switch (ImgFileFormat) { */
+	/*     case SIS_IMGFMT_TIFF: */
+	/*         OpenDFile = Tiff_OpenDFile; */
+	/*         CloseDFile = Tiff_CloseDFile; */
+	/*         ReadDBuffer = Tiff_ReadDBuffer; */
+	/*         OpenSISFile = Tiff_OpenSISFile; */
+	/*         OpenTFile = Tiff_OpenTFile; */
+	/*         CloseTFile = Tiff_CloseTFile; */
+	/*         CloseSISFile = Tiff_CloseSISFile; */
+	/*         ReadTPixel = Tiff_ReadTPixel; */
+	/*         WriteSISBuffer = Tiff_WriteSISBuffer; */
+	/*         break; */
+	/*     default: */
+	/*         OpenDFile = Stb_OpenDFile; */
+	/*         CloseDFile = Stb_CloseDFile; */
+	/*         ReadDBuffer = Stb_ReadDBuffer; */
+	/*         OpenSISFile = Stb_OpenSISFile; */
+	/*         OpenTFile = Stb_OpenTFile; */
+	/*         CloseTFile = Stb_CloseTFile; */
+	/*         CloseSISFile = Stb_CloseSISFile; */
+	/*         ReadTPixel = Stb_ReadTPixel; */
+	/*         WriteSISBuffer = Stb_WriteSISBuffer; */
+	/*         break; */
+	/* } */
 }
 
-static void InitVars (void)
+
+static void
+InitVars(void)
 {
-    int i;
+	int i;
 
-    inner_propagate_c = 0;
-    outer_propagate_c = 0;
-    forwards_obscure_c = 0;
-    backwards_obscure_c = 0;
-    metric = 'i';
-    if (E == 0) E = metric2pixel (22, resolution);
-    halfstripwidth = E * t/(2*(1+t));
-    halftriangwidth = SISwidth / 75;
-    if (!halftriangwidth) halftriangwidth = 4;
-    DLineStep = (double) Dheight / (double) SISheight;
-    DLinePosition = 0.0;
-    if (origin == -1) origin = SISwidth >> 1;
+	inner_propagate_c = 0;
+	outer_propagate_c = 0;
+	forwards_obscure_c = 0;
+	backwards_obscure_c = 0;
+	metric = 'i';
+	if (E == 0)
+		E = metric2pixel(22, resolution);
+	halfstripwidth = E * t / (2 * (1 + t));
+	halftriangwidth = SISwidth / 75;
+	if (!halftriangwidth)
+		halftriangwidth = 4;
+	DLineStep = (double)Dheight / (double)SISheight;
+	DLinePosition = 0.0;
+	if (origin == -1)
+		origin = SISwidth >> 1;
 
-    switch (SIStype) {
-        case SIS_RANDOM_GREY:
-            SISred[0] = SISgreen[0] = SISblue[0] = white_value;
-            white = 0;
-            for (i=1; i < rand_grey_num; i++) {
-                SISred[i] =  SISgreen[i] = SISblue[i] =
-                    i * (float)SIS_MAX_CMAP / (float)rand_grey_num;
-            }
-            break;
-        case SIS_RANDOM_COLOR:
-            for (i=0; i < rand_col_num; i++) {
-                SISred[i] = rand()/(RAND_MAX / SIS_MAX_CMAP);
-                SISgreen[i] = rand()/(RAND_MAX / SIS_MAX_CMAP);
-                SISblue[i] = rand()/(RAND_MAX / SIS_MAX_CMAP);
-            }
-            break;
-    }
-    SISred[SIS_MAX_COLORS] = SISgreen[SIS_MAX_COLORS] = SISblue[SIS_MAX_COLORS]
-        = black_value;
-    black = SIS_MAX_COLORS;
+	switch (SIStype) {
+	case SIS_RANDOM_GREY:
+		SISred[0] = SISgreen[0] = SISblue[0] = white_value;
+		white = 0;
+		for (i = 1; i < rand_grey_num; i++) {
+			SISred[i] = SISgreen[i] = SISblue[i] =
+			    i * (float)SIS_MAX_CMAP / (float)rand_grey_num;
+		}
+		break;
+	case SIS_RANDOM_COLOR:
+		for (i = 0; i < rand_col_num; i++) {
+			SISred[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISgreen[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISblue[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+		}
+		break;
+	}
+	SISred[SIS_MAX_COLORS] = SISgreen[SIS_MAX_COLORS] = SISblue[SIS_MAX_COLORS]
+	    = black_value;
+	black = SIS_MAX_COLORS;
 }
 
-static void print_message_header (void)
-{
-    printf("\n  DEPTH FILE:     %s (%ldx%ld)\n"
-            , DFileName, Dwidth, Dheight);
-    printf("  SIS FILE:       %s (%ldx%ld)\n\n"
-            , SISFileName, SISwidth, SISheight);
-    if (SIStype == SIS_TEXT_MAP)
-        printf("  ... using texture-map: %s\n\n\n", TFileName);
 
-    printf ("  ----    --- PROPAGATE ---    ---- OBSCURE ----\n");
-    printf ("  Line       inner    outer        forw    backw\n");
+static void
+print_message_header(void)
+{
+	printf("\n  DEPTH FILE:     %s (%ldx%ld)\n", DFileName, Dwidth, Dheight);
+	printf("  SIS FILE:       %s (%ldx%ld)\n\n", SISFileName, SISwidth,
+	       SISheight);
+	if (SIStype == SIS_TEXT_MAP)
+		printf("  ... using texture-map: %s\n\n\n", TFileName);
+
+	printf("  ----    --- PROPAGATE ---    ---- OBSCURE ----\n");
+	printf("  Line       inner    outer        forw    backw\n");
 }
 
-static void print_statistics (void)
+
+static void
+print_statistics(void)
 {
-    printf ("  %4ld    %8ld %8ld    %8ld %8ld\r"
-            ,SISLineNumber+1, inner_propagate_c, outer_propagate_c
-            ,forwards_obscure_c, backwards_obscure_c);
-    if (fflush(stdout)) {
-        printf ("stdout didn't flush\n");
-        verbose = 0;
-    }
+	printf("  %4ld    %8ld %8ld    %8ld %8ld\r", SISLineNumber + 1,
+	       inner_propagate_c, outer_propagate_c, forwards_obscure_c,
+	       backwards_obscure_c);
+	if (fflush(stdout)) {
+		printf("stdout didn't flush\n");
+		verbose = 0;
+	}
 }
 
-int main (int argc, char **argv) {
-    SISred = (cmap_t *) calloc (SIS_MAX_COLORS+1, sizeof (cmap_t));
-    SISgreen = (cmap_t *) calloc (SIS_MAX_COLORS+1, sizeof (cmap_t));
-    SISblue = (cmap_t *) calloc (SIS_MAX_COLORS+1, sizeof (cmap_t));
 
-    SetDefaults ();
-    get_options (argc, argv);
-    InitFuncs ();
-    OpenDFile (DFileName, &Dwidth, &Dheight);
-    if (!SISwidth && !SISheight) {
-        SISwidth = Dwidth;
-        SISheight = Dheight;
-    }
-    if (!SISwidth)
-        SISwidth = SISheight * (float) Dwidth / (float) Dheight;
-    if (!SISheight)
-        SISheight = SISwidth * (float) Dheight / (float) Dwidth;
-    if (SIStype == SIS_TEXT_MAP) OpenTFile (TFileName, &Twidth, &Theight);
-    InitAlgorithm ();
-    InitBuffers ();
-    InitVars ();
-    OpenSISFile (SISFileName, SISwidth, SISheight, SIStype);
+int
+main(int argc, char **argv)
+{
+	SISred = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
+	SISgreen = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
+	SISblue = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 
-    if (verbose) print_message_header ();
+	SetDefaults();
+	get_options(argc, argv);
+	InitFuncs();
+	OpenDFile(DFileName, &Dwidth, &Dheight);
+	if (!SISwidth && !SISheight) {
+		SISwidth = Dwidth;
+		SISheight = Dheight;
+	}
+	if (!SISwidth)
+		SISwidth = SISheight * (float)Dwidth / (float)Dheight;
+	if (!SISheight)
+		SISheight = SISwidth * (float)Dheight / (float)Dwidth;
+	if (SIStype == SIS_TEXT_MAP)
+		OpenTFile(TFileName, &Twidth, &Theight);
+	InitAlgorithm();
+	InitBuffers();
+	InitVars();
+	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
 
-    for (SISLineNumber=0; SISLineNumber < SISheight; SISLineNumber++) {
-        DLineNumber = (int) DLinePosition;
-        DLinePosition += DLineStep;
-        max_depth = SIS_MIN_DEPTH; min_depth = SIS_MAX_DEPTH;
+	if (verbose)
+		print_message_header();
 
-        ReadDBuffer (DLineNumber);        /* read in one line of depth-map */
-        CalcIdentLine ();                 /* the SIS-algorithm */
-        FillSISBuffer (SISLineNumber);    /* fill in the right colors, according to the SIS-type */
-        WriteSISBuffer (SISLineNumber);   /* write one line of output */
-        if (verbose) print_statistics ();
-    }
-    if (verbose) puts("\n");
-    CloseDFile ();
-    if (SIStype == SIS_TEXT_MAP) CloseTFile (Theight);
-    CloseSISFile ();
-    FreeBuffers ();
-    free (SISred); free (SISgreen); free (SISblue);
-    return EXIT_SUCCESS;
+	for (SISLineNumber = 0; SISLineNumber < SISheight; SISLineNumber++) {
+		DLineNumber = (int)DLinePosition;
+		DLinePosition += DLineStep;
+		max_depth = SIS_MIN_DEPTH;
+		min_depth = SIS_MAX_DEPTH;
+
+		ReadDBuffer(DLineNumber);   /* read in one line of depth-map */
+		CalcIdentLine();        /* the SIS-algorithm */
+		FillSISBuffer(SISLineNumber);   /* fill in the right colors, according to the SIS-type */
+		WriteSISBuffer(SISLineNumber);  /* write one line of output */
+		if (verbose)
+			print_statistics();
+	}
+	if (verbose)
+		puts("\n");
+	CloseDFile();
+	if (SIStype == SIS_TEXT_MAP)
+		CloseTFile(Theight);
+	CloseSISFile();
+	FreeBuffers();
+	free(SISred);
+	free(SISgreen);
+	free(SISblue);
+	return EXIT_SUCCESS;
 }

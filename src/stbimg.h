@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Jörg Bakker
+ * Copyright 2022, 2025 Jörg Bakker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,15 +22,14 @@
 
 #include "sis.h"
 
-void Stb_OpenDFile (char *DFileName, ind_t *width, ind_t *height);
-void Stb_OpenSISFile (char *SISFileName, ind_t width, ind_t height,
-    int SIStype);
-void Stb_OpenTFile (char *TFileName, ind_t *width, ind_t *height);
+void Stb_OpenDFile(char *DFileName, ind_t * width, ind_t * height);
+void Stb_OpenSISFile(char *SISFileName, ind_t width, ind_t height, int SIStype);
+void Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height);
 
-void Stb_ReadDBuffer (ind_t r);
-void Stb_WriteSISBuffer (ind_t r);
-col_t Stb_ReadTPixel (ind_t r, ind_t c);
+void Stb_ReadDBuffer(ind_t r);
+void Stb_WriteSISBuffer(ind_t r);
+col_t Stb_ReadTPixel(ind_t r, ind_t c);
 
-void Stb_CloseDFile (void);
-void Stb_CloseTFile (ind_t height);
-void Stb_CloseSISFile (void);
+void Stb_CloseDFile(void);
+void Stb_CloseTFile(ind_t height);
+void Stb_CloseSISFile(void);

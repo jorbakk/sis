@@ -1,5 +1,5 @@
 /*
- * Copyright 1995, 2021, 2022 Jörg Bakker
+ * Copyright 1995, 2021, 2022, 2025 Jörg Bakker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 
 #define SIS_RANDOM_GREY  1
 #define SIS_RANDOM_COLOR 2

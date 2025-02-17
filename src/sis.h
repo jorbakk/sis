@@ -1,5 +1,5 @@
 /*
- * Copyright 1995, 2021, 2022 Jörg Bakker
+ * Copyright 1995, 2021, 2022, 2025 Jörg Bakker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@
 
 typedef unsigned char col_t;
 typedef unsigned short cmap_t;
-typedef long z_t; /* for portability: MAX(z_t) > SIS_MAX_DEPTH */
+typedef long z_t;               /* for portability: MAX(z_t) > SIS_MAX_DEPTH */
 typedef long ind_t;
 typedef float pos_t;
 
@@ -40,7 +40,7 @@ extern col_t *DBuffer;
 extern col_t *SISBuffer;
 extern int SIStype, SIScompress;
 
-extern z_t zvalue[SIS_MAX_COLORS+1];
+extern z_t zvalue[SIS_MAX_COLORS + 1];
 extern cmap_t *SISred;
 extern cmap_t *SISgreen;
 extern cmap_t *SISblue;
@@ -58,8 +58,8 @@ extern double density;
 extern char metric;
 extern int resolution;
 
-void get_options (int argc, char **argv);
-ind_t metric2pixel (int metric_val, int resolution);
+void get_options(int argc, char **argv);
+ind_t metric2pixel(int metric_val, int resolution);
 
 /*
    Interface to algorithm.c:
@@ -70,11 +70,11 @@ extern ind_t halfstripwidth, halftriangwidth;
 extern long forwards_obscure_c, backwards_obscure_c;
 extern long inner_propagate_c, outer_propagate_c;
 
-extern col_t (*ReadTPixel) (ind_t r, ind_t c);
-extern void (*WriteSISBuffer) (ind_t r);
-void InitAlgorithm (void);
-void DaddEntry (col_t index, z_t zval);
-void InitBuffers (void);
-void FreeBuffers (void);
-void FillSISBuffer (ind_t LineNumber);
-void CalcIdentLine (void);
+extern col_t(*ReadTPixel) (ind_t r, ind_t c);
+extern void (*WriteSISBuffer)(ind_t r);
+void InitAlgorithm(void);
+void DaddEntry(col_t index, z_t zval);
+void InitBuffers(void);
+void FreeBuffers(void);
+void FillSISBuffer(ind_t LineNumber);
+void CalcIdentLine(void);

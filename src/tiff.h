@@ -1,5 +1,5 @@
 /*
- * Copyright 1995, 2021, 2022 Jörg Bakker
+ * Copyright 1995, 2021, 2022, 2025 Jörg Bakker
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,15 +22,15 @@
 
 #include "sis.h"
 
-void Tiff_OpenDFile (char *DFileName, ind_t *width, ind_t *height);
-void Tiff_OpenSISFile (char *SISFileName, ind_t width, ind_t height,
-    int SIStype);
-void Tiff_OpenTFile (char *TFileName, ind_t *width, ind_t *height);
+void Tiff_OpenDFile(char *DFileName, ind_t * width, ind_t * height);
+void Tiff_OpenSISFile(char *SISFileName, ind_t width, ind_t height,
+                      int SIStype);
+void Tiff_OpenTFile(char *TFileName, ind_t * width, ind_t * height);
 
-void Tiff_ReadDBuffer (ind_t r);
-void Tiff_WriteSISBuffer (ind_t r);
-col_t Tiff_ReadTPixel (ind_t r, ind_t c);
+void Tiff_ReadDBuffer(ind_t r);
+void Tiff_WriteSISBuffer(ind_t r);
+col_t Tiff_ReadTPixel(ind_t r, ind_t c);
 
-void Tiff_CloseDFile (void);
-void Tiff_CloseTFile (ind_t height);
-void Tiff_CloseSISFile (void);
+void Tiff_CloseDFile(void);
+void Tiff_CloseTFile(ind_t height);
+void Tiff_CloseSISFile(void);
