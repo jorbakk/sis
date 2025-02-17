@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <tiffio.h>
+
 #include "defines.h"
 #include "sis.h"
 #include "tiff.h"

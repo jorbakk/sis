@@ -24,11 +24,11 @@
 #include <stdint.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../3rd-party/stb_image.h"
+#include "3rd-party/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../3rd-party/stb_image_write.h"
+#include "3rd-party/stb_image_write.h"
 #define STB_DS_IMPLEMENTATION
-#include "../3rd-party/stb_ds.h"
+#include "3rd-party/stb_ds.h"
 
 #include "defines.h"
 #include "sis.h"
