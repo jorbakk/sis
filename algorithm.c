@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -294,4 +295,170 @@ FillSISBuffer(ind_t LineNumber)
 			SISBuffer[(SISwidth >> 1) + halfstripwidth - i] = black;
 			SISBuffer[(SISwidth >> 1) + halfstripwidth + i] = black;
 		}
+}
+
+
+typedef struct {
+	int r, g, b;
+} color_t;
+
+
+int
+depth_of_image_at(int x, int y)
+{
+	return 0;
+}
+
+
+color_t
+get_pixel_from_pattern(int x, int y)
+{
+	return (color_t){0, 0, 0};
+}
+
+
+void
+set_pixel(int x, int y, color_t col)
+{
+}
+
+
+color_t
+rgb_value(int r, int g, int b)
+{
+	return (color_t){r, g, b};
+}
+
+
+void
+asteer(void)
+{
+	int lastlinked;
+	int i;
+	int patHeight = Theight;
+	int width = Dwidth;
+	int height = Dheight;
+	int xdpi = 75;
+	int ydpi = 75;
+	int yShift = ydpi / 16;
+	/// Oversampling ratio
+	int oversam = 4;
+
+	/// Allow space for up to 6 times oversampling
+	int maxwidth = width * 6;
+	int vwidth = width * oversam;
+	
+	int *lookL = (int *)calloc(maxwidth, sizeof(int));
+	int *lookR = (int *)calloc(maxwidth, sizeof(int));
+	color_t *color = (color_t *)calloc(maxwidth, sizeof(color_t));
+	color_t col;
+
+	int obsDist = xdpi * 12;
+	int eyeSep = xdpi * 2.5;
+	int veyeSep = eyeSep * oversam;
+
+	int maxdepth = xdpi * 12;
+	int maxsep = (int)(((long)eyeSep * maxdepth) / (maxdepth + obsDist));   // pattern must be at
+	                                                                         // least this wide
+	int vmaxsep = oversam * maxsep;
+	int s = vwidth / 2 - vmaxsep / 2;
+	int poffset = vmaxsep - (s % vmaxsep);
+
+	int featureZ, sep;
+	int x, y, left, right;
+	bool vis;
+
+	for (y = 0; y < height; y++) {
+		for (x = 0; x < vwidth; x++) {
+			lookL[x] = x;
+			lookR[x] = x;
+		}
+		for (x = 0; x < vwidth; x++) {
+			if ((x % oversam) == 0) // speedup for oversampled pictures
+			{
+				featureZ = depth_of_image_at(x / oversam, y);
+			    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
+			}
+
+			left = x - sep / 2;
+			right = left + sep;
+
+			vis = true;
+
+			if ((left >= 0) && (right < vwidth)) {
+				if (lookL[right] != right)      // right pt already linked
+				{
+					if (lookL[right] < left)    // deeper than current
+					{
+						lookR[lookL[right]] = lookL[right]; // break old links
+						lookL[right] = right;
+					} else
+						vis = false;
+				}
+
+				if (lookR[left] != left)        // left pt already linked
+				{
+					if (lookR[left] > right)    // deeper than current
+					{
+						lookL[lookR[left]] = lookR[left];   // break old links
+						lookR[left] = left;
+					} else
+						vis = false;
+				}
+				if (vis == true) {
+					lookL[right] = left;
+					lookR[left] = right;
+				}                   // make link
+			}
+		}
+
+		lastlinked = -10;           // dummy initial value
+		for (x = s; x < vwidth; x++) {
+			if ((lookL[x] == x) || (lookL[x] < s)) {
+				if (lastlinked == (x - 1))
+					color[x] = color[x - 1];
+				else {
+					color[x] = get_pixel_from_pattern(((x + poffset) % vmaxsep) / oversam,
+					                        (y + ((x - s) / vmaxsep) * yShift) % patHeight);
+				}
+			} else {
+				color[x] = color[lookL[x]];
+				lastlinked = x;     // keep track of the last pixel to be constrained
+			}
+		}
+
+		lastlinked = -10;           // dummy initial value
+		for (x = s - 1; x >= 0; x--) {
+			if (lookR[x] == x) {
+				if (lastlinked == (x + 1))
+					color[x] = color[x + 1];
+				else {
+					color[x] = get_pixel_from_pattern(((x + poffset) % vmaxsep) / oversam,
+					                        (y + ((s - x) / vmaxsep + 1) * yShift) % patHeight);
+				}
+			} else {
+				color[x] = color[lookR[x]];
+				lastlinked = x;     // keep track of the last pixel to be constrained
+			}
+		}
+
+		int red, green, blue;
+		for (x = 0; x < vwidth; x += oversam) {
+			red = 0;
+			green = 0;
+			blue = 0;
+			// use average color of virtual pixels for screen pixel
+			for (i = x; i < (x + oversam); i++) {
+				col = color[i];
+				red += col.r;
+				green += col.g;
+				blue += col.b;
+			}
+			col = rgb_value(red / oversam, green / oversam, blue / oversam);
+			set_pixel(x / oversam, y, col);
+		}
+	}
+	free(lookL);
+	free(lookR);
+	free(color);
 }
