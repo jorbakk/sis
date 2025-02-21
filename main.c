@@ -90,7 +90,7 @@ SetDefaults(void)
 	SISFileName = DefaultSISFileName;
 	SIStype = SIS_RANDOM_GREY;
 	SISwidth = SISheight = 0;
-	algorithm = 2;
+	algorithm = 4;
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
 	verbose = 1;
 	invert = 0;

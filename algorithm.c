@@ -308,11 +308,6 @@ FillSISBuffer(ind_t LineNumber)
 }
 
 
-// typedef struct {
-	// int r, g, b;
-// } col_rgb_t;
-
-
 int
 depth_of_image_at(int x)
 {
@@ -326,23 +321,7 @@ get_pixel_from_pattern(int x, int y)
 	col_t ret = ReadTPixel(y % Theight, x % Twidth);
 	// printf("get texture pixel from [x,y]: [%d,%d] -> %d\n", x, y, ret);
 	return ret;
-	// col_t ret = { SISred[col_idx], SISgreen[col_idx], SISblue[col_idx] };
-	// return ret;
 }
-
-
-// void
-// set_pixel(int x, col_t col)
-// {
-	// SISBuffer[x] = col;
-// }
-
-
-// col_rgb_t
-// rgb_value(int r, int g, int b)
-// {
-	// return (col_rgb_t){r, g, b};
-// }
 
 
 void
@@ -350,50 +329,35 @@ asteer(ind_t y)
 {
 	int lastlinked;
 	int i;
-	int patHeight = Theight;
-	int width = SISwidth;
-	// int width = Dwidth;
-	// int height = Dheight;
-	int xdpi = 75;
-	int ydpi = 75;
-	int yShift = ydpi / 16;
 	/// Oversampling ratio
-	int oversam = 4;
+	int oversam  = 4;
 
-	/// FIXME could set maxwidth to actual 'virtual' width vwidth
-	/// Allow space for up to 6 times oversampling
-	int maxwidth = width * 6;
-	int vwidth = width * oversam;
-	
-	int *lookL = (int *)calloc(maxwidth, sizeof(int));
-	int *lookR = (int *)calloc(maxwidth, sizeof(int));
-	col_t *color = (col_t *)calloc(maxwidth, sizeof(col_t));
-	// col_t col;
-	SIScolorRGB = (col_rgb_t *)calloc(maxwidth, sizeof(col_rgb_t));
+	int obsDist  = 1500;   /// distance from viewer to screen
+	int maxdepth = 675;    /// distance from screen to far plane
 
-	// int obsDist = xdpi * 12;
-	int obsDist = xdpi * 20;
-	// int eyeSep = xdpi * 2.5;
-	int eyeSep = E;
-	int veyeSep = eyeSep * oversam;
+	/// Shift texture map 4 pixels in vertical direction
+	int yShift = 4;
+	int veyeSep = E * oversam;
+	int vwidth = SISwidth * oversam;
+	int *lookL = (int *)calloc(vwidth, sizeof(int));
+	int *lookR = (int *)calloc(vwidth, sizeof(int));
+	col_t *color = (col_t *)calloc(vwidth, sizeof(col_t));
+	SIScolorRGB = (col_rgb_t *)calloc(vwidth, sizeof(col_rgb_t));
 
-	// int maxdepth = xdpi * 12;
-	int maxdepth = xdpi * 9;
 	/// Pattern must be at least this wide
-	int maxsep = (int)(((long)eyeSep * maxdepth) / (maxdepth + obsDist));
+	int maxsep = (int)(((long)E * maxdepth) / (maxdepth + obsDist));
 	int vmaxsep = oversam * maxsep;
 	int s = vwidth / 2 - vmaxsep / 2;
-	// int s = 600;
 	int poffset = vmaxsep - (s % vmaxsep);
 
 	// printf("PARAMS --------------------------------------------------------------\n");
-	// printf("width: %d\n", width);
+	// printf("SISwidth: %d\n", SISwidth);
 	// printf("vwidth: %d\n", vwidth);
 	// printf("xdpi: %d\n", xdpi);
 	// printf("ydpi: %d\n", ydpi);
 	// printf("yShift: %d\n", yShift);
 	// printf("obsDist: %d\n", obsDist);
-	// printf("eyeSep: %d\n", eyeSep);
+	// printf("E: %d\n", eyeSep);
 	// printf("veyeSep: %d\n", veyeSep);
 	// printf("maxdepth: %d\n", maxdepth);
 	// printf("maxsep: %d\n", maxsep);
@@ -403,7 +367,6 @@ asteer(ind_t y)
 	// printf("poffset: %d\n", poffset);
 
 	int featureZ = 0, sep = 0;
-	// int x, y, left, right;
 	int x, left, right;
 	bool vis;
 
@@ -417,7 +380,6 @@ asteer(ind_t y)
 	for (x = 0; x < vwidth; x++) {
 		if ((x % oversam) == 0) // speedup for oversampled pictures
 		{
-			// featureZ = depth_of_image_at(x / oversam);
 	        featureZ = maxdepth - depth_of_image_at(x / oversam) * maxdepth / 256;
 		    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
             // printf("sep: %d\n", sep);
@@ -466,8 +428,7 @@ asteer(ind_t y)
 			else {
 				color[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
-				   (y + ((x - s) / vmaxsep) * yShift) % patHeight);
-				   // (y + ((x - s) / vmaxsep) * yShift + patHeight) % patHeight);
+				   (y + ((x - s) / vmaxsep) * yShift) % Theight);
 			}
 		} else {
 			color[x] = color[lookL[x]];
@@ -483,8 +444,7 @@ asteer(ind_t y)
 			else {
 				color[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
-				  (y + ((s - x) / vmaxsep + 1) * yShift) % patHeight);
-				  // (y + ((s - x) / vmaxsep + 1) * yShift + patHeight) % patHeight);
+				  (y + ((s - x) / vmaxsep + 1) * yShift) % Theight);
 			}
 		} else {
 			color[x] = color[lookR[x]];
