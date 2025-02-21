@@ -324,7 +324,7 @@ col_t
 get_pixel_from_pattern(int x, int y)
 {
 	col_t ret = ReadTPixel(y % Theight, x % Twidth);
-	printf("get texture pixel from [x,y]: [%d,%d] -> %d\n", x, y, ret);
+	// printf("get texture pixel from [x,y]: [%d,%d] -> %d\n", x, y, ret);
 	return ret;
 	// col_t ret = { SISred[col_idx], SISgreen[col_idx], SISblue[col_idx] };
 	// return ret;
@@ -373,7 +373,8 @@ asteer(ind_t y)
 
 	// int obsDist = xdpi * 12;
 	int obsDist = xdpi * 20;
-	int eyeSep = xdpi * 2.5;
+	// int eyeSep = xdpi * 2.5;
+	int eyeSep = E;
 	int veyeSep = eyeSep * oversam;
 
 	// int maxdepth = xdpi * 12;
@@ -385,21 +386,21 @@ asteer(ind_t y)
 	// int s = 600;
 	int poffset = vmaxsep - (s % vmaxsep);
 
-	printf("PARAMS --------------------------------------------------------------\n");
-	printf("width: %d\n", width);
-	printf("vwidth: %d\n", vwidth);
-	printf("xdpi: %d\n", xdpi);
-	printf("ydpi: %d\n", ydpi);
-	printf("yShift: %d\n", yShift);
-	printf("obsDist: %d\n", obsDist);
-	printf("eyeSep: %d\n", eyeSep);
-	printf("veyeSep: %d\n", veyeSep);
-	printf("maxdepth: %d\n", maxdepth);
-	printf("maxsep: %d\n", maxsep);
-	printf("oversam: %d\n", oversam);
-	printf("vmaxsep: %d\n", vmaxsep);
-	printf("s: %d\n", s);
-	printf("poffset: %d\n", poffset);
+	// printf("PARAMS --------------------------------------------------------------\n");
+	// printf("width: %d\n", width);
+	// printf("vwidth: %d\n", vwidth);
+	// printf("xdpi: %d\n", xdpi);
+	// printf("ydpi: %d\n", ydpi);
+	// printf("yShift: %d\n", yShift);
+	// printf("obsDist: %d\n", obsDist);
+	// printf("eyeSep: %d\n", eyeSep);
+	// printf("veyeSep: %d\n", veyeSep);
+	// printf("maxdepth: %d\n", maxdepth);
+	// printf("maxsep: %d\n", maxsep);
+	// printf("oversam: %d\n", oversam);
+	// printf("vmaxsep: %d\n", vmaxsep);
+	// printf("s: %d\n", s);
+	// printf("poffset: %d\n", poffset);
 
 	int featureZ = 0, sep = 0;
 	// int x, y, left, right;
@@ -417,9 +418,9 @@ asteer(ind_t y)
 		if ((x % oversam) == 0) // speedup for oversampled pictures
 		{
 			// featureZ = depth_of_image_at(x / oversam);
-	        featureZ=maxdepth - depth_of_image_at(x / oversam) * maxdepth/256;
+	        featureZ = maxdepth - depth_of_image_at(x / oversam) * maxdepth / 256;
 		    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
-            printf("sep: %d\n", sep);
+            // printf("sep: %d\n", sep);
 		}
 		left = x - sep / 2;
 		right = left + sep;
