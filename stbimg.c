@@ -45,9 +45,7 @@ void
 Stb_OpenDFile(char *DFileName, ind_t * width, ind_t * height)
 {
 	int channel_count = 0, desired_channel_count = 1;
-	if (!
-	    (inpic_p =
-	     (unsigned char *)stbi_load(DFileName, (int *)width, (int *)height,
+	if (! (inpic_p = (unsigned char *)stbi_load(DFileName, (int *)width, (int *)height,
 	                                &channel_count, desired_channel_count)))
 		exit(1);
 	if (channel_count != desired_channel_count) {
@@ -67,9 +65,7 @@ Stb_OpenSISFile(char *SISFileName, ind_t width, ind_t height, int SIStype)
 	outpic_width = width;
 	outpic_height = height;
 	// Allocate buffer for the output image data that can be directly written with stb_image_write()
-	if (!
-		(outpic_buf_p =
-		 (unsigned char *)calloc(height * width, SISChannelCount))) {
+	if (! (outpic_buf_p = (unsigned char *)calloc(height * width, SISChannelCount))) {
 		fprintf(stderr, "No space for output image buffer.\n");
 		exit(1);
 	}
@@ -186,7 +182,7 @@ Stb_WriteSISColorBuffer(ind_t r)
 
 
 // Return the index into the color palette of the pixel with coordinates (r, c)
-// in the texture images
+// in the texture image
 col_t
 Stb_ReadTPixel(ind_t r, ind_t c)
 {

@@ -323,8 +323,9 @@ depth_of_image_at(int x)
 col_t
 get_pixel_from_pattern(int x, int y)
 {
-	int col_idx = ReadTPixel(y, x);
-	return col_idx;
+	col_t ret = ReadTPixel(y % Theight, x % Twidth);
+	printf("get texture pixel from [x,y]: [%d,%d] -> %d\n", x, y, ret);
+	return ret;
 	// col_t ret = { SISred[col_idx], SISgreen[col_idx], SISblue[col_idx] };
 	// return ret;
 }
@@ -337,11 +338,11 @@ get_pixel_from_pattern(int x, int y)
 // }
 
 
-col_rgb_t
-rgb_value(int r, int g, int b)
-{
-	return (col_rgb_t){r, g, b};
-}
+// col_rgb_t
+// rgb_value(int r, int g, int b)
+// {
+	// return (col_rgb_t){r, g, b};
+// }
 
 
 void
@@ -350,7 +351,8 @@ asteer(ind_t y)
 	int lastlinked;
 	int i;
 	int patHeight = Theight;
-	int width = Dwidth;
+	int width = SISwidth;
+	// int width = Dwidth;
 	// int height = Dheight;
 	int xdpi = 75;
 	int ydpi = 75;
@@ -358,6 +360,7 @@ asteer(ind_t y)
 	/// Oversampling ratio
 	int oversam = 4;
 
+	/// FIXME could set maxwidth to actual 'virtual' width vwidth
 	/// Allow space for up to 6 times oversampling
 	int maxwidth = width * 6;
 	int vwidth = width * oversam;
@@ -365,123 +368,152 @@ asteer(ind_t y)
 	int *lookL = (int *)calloc(maxwidth, sizeof(int));
 	int *lookR = (int *)calloc(maxwidth, sizeof(int));
 	col_t *color = (col_t *)calloc(maxwidth, sizeof(col_t));
-	col_t col;
+	// col_t col;
 	SIScolorRGB = (col_rgb_t *)calloc(maxwidth, sizeof(col_rgb_t));
 
-	int obsDist = xdpi * 12;
+	// int obsDist = xdpi * 12;
+	int obsDist = xdpi * 20;
 	int eyeSep = xdpi * 2.5;
 	int veyeSep = eyeSep * oversam;
 
-	int maxdepth = xdpi * 12;
-	int maxsep = (int)(((long)eyeSep * maxdepth) / (maxdepth + obsDist));   // pattern must be at
-	                                                                        // least this wide
+	// int maxdepth = xdpi * 12;
+	int maxdepth = xdpi * 9;
+	/// Pattern must be at least this wide
+	int maxsep = (int)(((long)eyeSep * maxdepth) / (maxdepth + obsDist));
 	int vmaxsep = oversam * maxsep;
 	int s = vwidth / 2 - vmaxsep / 2;
+	// int s = 600;
 	int poffset = vmaxsep - (s % vmaxsep);
 
-	int featureZ, sep;
+	printf("PARAMS --------------------------------------------------------------\n");
+	printf("width: %d\n", width);
+	printf("vwidth: %d\n", vwidth);
+	printf("xdpi: %d\n", xdpi);
+	printf("ydpi: %d\n", ydpi);
+	printf("yShift: %d\n", yShift);
+	printf("obsDist: %d\n", obsDist);
+	printf("eyeSep: %d\n", eyeSep);
+	printf("veyeSep: %d\n", veyeSep);
+	printf("maxdepth: %d\n", maxdepth);
+	printf("maxsep: %d\n", maxsep);
+	printf("oversam: %d\n", oversam);
+	printf("vmaxsep: %d\n", vmaxsep);
+	printf("s: %d\n", s);
+	printf("poffset: %d\n", poffset);
+
+	int featureZ = 0, sep = 0;
 	// int x, y, left, right;
 	int x, left, right;
 	bool vis;
 
-	// for (y = 0; y < height; y++) {
-		for (x = 0; x < vwidth; x++) {
-			lookL[x] = x;
-			lookR[x] = x;
+	/// Initialize ident buffer (IdentBuffer in algorithm < 4)
+	for (x = 0; x < vwidth; x++) {
+		lookL[x] = x;
+		lookR[x] = x;
+	}
+	/// Set indices of identical color pixels in 'virtual' buffer based on
+	/// eye separation and depth value
+	for (x = 0; x < vwidth; x++) {
+		if ((x % oversam) == 0) // speedup for oversampled pictures
+		{
+			// featureZ = depth_of_image_at(x / oversam);
+	        featureZ=maxdepth - depth_of_image_at(x / oversam) * maxdepth/256;
+		    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
+            printf("sep: %d\n", sep);
 		}
-		for (x = 0; x < vwidth; x++) {
-			if ((x % oversam) == 0) // speedup for oversampled pictures
+		left = x - sep / 2;
+		right = left + sep;
+		vis = true;
+		if ((left >= 0) && (right < vwidth)) {
+			if (lookL[right] != right)      // right pt already linked
 			{
-				featureZ = depth_of_image_at(x / oversam);
-			    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
-			}
-
-			left = x - sep / 2;
-			right = left + sep;
-
-			vis = true;
-
-			if ((left >= 0) && (right < vwidth)) {
-				if (lookL[right] != right)      // right pt already linked
+				if (lookL[right] < left)    // deeper than current
 				{
-					if (lookL[right] < left)    // deeper than current
-					{
-						lookR[lookL[right]] = lookL[right]; // break old links
-						lookL[right] = right;
-					} else
-						vis = false;
-				}
+					lookR[lookL[right]] = lookL[right]; // break old links
+					lookL[right] = right;
+				} else
+					vis = false;
+			}
 
-				if (lookR[left] != left)        // left pt already linked
+			if (lookR[left] != left)        // left pt already linked
+			{
+				if (lookR[left] > right)    // deeper than current
 				{
-					if (lookR[left] > right)    // deeper than current
-					{
-						lookL[lookR[left]] = lookR[left];   // break old links
-						lookR[left] = left;
-					} else
-						vis = false;
-				}
-				if (vis == true) {
-					lookL[right] = left;
-					lookR[left] = right;
-				}                   // make link
+					lookL[lookR[left]] = lookR[left];   // break old links
+					lookR[left] = left;
+				} else
+					vis = false;
 			}
+			if (vis == true) {
+				lookL[right] = left;
+				lookR[left] = right;
+			}                   // make link
 		}
-
-		lastlinked = -10;           // dummy initial value
-		for (x = s; x < vwidth; x++) {
-			if ((lookL[x] == x) || (lookL[x] < s)) {
-				if (lastlinked == (x - 1))
-					color[x] = color[x - 1];
-				else {
-					color[x] = get_pixel_from_pattern(((x + poffset) % vmaxsep) / oversam,
-					                        (y + ((x - s) / vmaxsep) * yShift) % patHeight);
-				}
-			} else {
-				color[x] = color[lookL[x]];
-				lastlinked = x;     // keep track of the last pixel to be constrained
-			}
-		}
-
-		lastlinked = -10;           // dummy initial value
-		for (x = s - 1; x >= 0; x--) {
-			if (lookR[x] == x) {
-				if (lastlinked == (x + 1))
-					color[x] = color[x + 1];
-				else {
-					color[x] = get_pixel_from_pattern(((x + poffset) % vmaxsep) / oversam,
-					                        (y + ((s - x) / vmaxsep + 1) * yShift) % patHeight);
-				}
-			} else {
-				color[x] = color[lookR[x]];
-				lastlinked = x;     // keep track of the last pixel to be constrained
-			}
-		}
-
-		int red, green, blue;
-		for (x = 0; x < vwidth; x += oversam) {
-			red = 0;
-			green = 0;
-			blue = 0;
-			/// Use average color of virtual pixels for screen pixel
-			for (i = x; i < (x + oversam); i++) {
-				col = color[i];
-				/// Get RGB colors for color palette index col and sum them up
-				red += SISred[col];
-				green += SISgreen[col];
-				blue += SISblue[col];
-				// red += col.r;
-				// green += col.g;
-				// blue += col.b;
-			}
-			// col_rgb_t colrgb = rgb_value(red / oversam, green / oversam, blue / oversam);
-			/// TODO set output pixel in one row
-			// set_pixel(x / oversam, colrgb);
-			// SetSISPixel(x / oversam, colrgb);
-			col_rgb_t colrgb = { red / oversam, green / oversam, blue / oversam };
-			SIScolorRGB[x / oversam] = colrgb;
-		}
+	}
+	// for (x = 0; x < vwidth; x++) {
+		// printf("%d|%d,", lookL[x], lookR[x]);
 	// }
+	// printf("\n");
+
+	/// Set color values based on the ident buffers and texture map
+	/// ... starting from roughly the center s, going right ...
+	lastlinked = -10;           // dummy initial value
+	for (x = s; x < vwidth; x++) {
+		if ((lookL[x] == x) || (lookL[x] < s)) {
+			if (lastlinked == (x - 1))
+				color[x] = color[x - 1];
+			else {
+				color[x] = get_pixel_from_pattern(
+				  ((x + poffset) % vmaxsep) / oversam,
+				   (y + ((x - s) / vmaxsep) * yShift) % patHeight);
+				   // (y + ((x - s) / vmaxsep) * yShift + patHeight) % patHeight);
+			}
+		} else {
+			color[x] = color[lookL[x]];
+			lastlinked = x;     // keep track of the last pixel to be constrained
+		}
+	}
+	/// ... starting from roughly the center s, going left ...
+	lastlinked = -10;           // dummy initial value
+	for (x = s - 1; x >= 0; x--) {
+		if (lookR[x] == x) {
+			if (lastlinked == (x + 1))
+				color[x] = color[x + 1];
+			else {
+				color[x] = get_pixel_from_pattern(
+				  ((x + poffset) % vmaxsep) / oversam,
+				  (y + ((s - x) / vmaxsep + 1) * yShift) % patHeight);
+				  // (y + ((s - x) / vmaxsep + 1) * yShift + patHeight) % patHeight);
+			}
+		} else {
+			color[x] = color[lookR[x]];
+			lastlinked = x;     // keep track of the last pixel to be constrained
+		}
+	}
+
+	int red, green, blue;
+	for (x = 0; x < vwidth; x += oversam) {
+		red = 0;
+		green = 0;
+		blue = 0;
+		/// Use average color of virtual pixels for screen pixel
+		for (i = x; i < (x + oversam); i++) {
+			// col = color[i];
+			/// Get RGB colors for color palette index col and sum them up
+			red += SISred[color[i]];
+			green += SISgreen[color[i]];
+			blue += SISblue[color[i]];
+			// red += col.r;
+			// green += col.g;
+			// blue += col.b;
+		}
+		// col_rgb_t colrgb = rgb_value(red / oversam, green / oversam, blue / oversam);
+		// set_pixel(x / oversam, colrgb);
+		// SetSISPixel(x / oversam, colrgb);
+		col_rgb_t colrgb = { red / oversam, green / oversam, blue / oversam };
+		SIScolorRGB[x / oversam] = colrgb;
+	}
+
 	free(lookL);
 	free(lookR);
 	free(color);
