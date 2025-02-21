@@ -85,8 +85,7 @@ DaddEntry(col_t index, z_t zval)
 	if (zvalue[index] == -1) {
 		zvalue[index] = zval;
 		separation[index] = E * (numerator - zval) / (denominator - zval);
-		dz[index] =
-		    (double)(denominator - zval) / (double)((E >> 1) * DBufStep);
+		dz[index] = (double)(denominator - zval) / (double)((E >> 1) * DBufStep);
 	}
 }
 
@@ -298,46 +297,50 @@ FillSISBuffer(ind_t LineNumber)
 }
 
 
-typedef struct {
-	int r, g, b;
-} color_t;
+// typedef struct {
+	// int r, g, b;
+// } col_rgb_t;
 
 
 int
-depth_of_image_at(int x, int y)
+depth_of_image_at(int x)
 {
-	return 0;
+	return DBuffer[x];
 }
 
 
-color_t
+col_t
 get_pixel_from_pattern(int x, int y)
 {
-	return (color_t){0, 0, 0};
+	int col_idx = ReadTPixel(y, x);
+	return col_idx;
+	// col_t ret = { SISred[col_idx], SISgreen[col_idx], SISblue[col_idx] };
+	// return ret;
 }
 
 
 void
-set_pixel(int x, int y, color_t col)
+set_pixel(int x, col_t col)
 {
+	SISBuffer[x] = col;
 }
 
 
-color_t
+col_rgb_t
 rgb_value(int r, int g, int b)
 {
-	return (color_t){r, g, b};
+	return (col_rgb_t){r, g, b};
 }
 
 
 void
-asteer(void)
+asteer(ind_t y)
 {
 	int lastlinked;
 	int i;
 	int patHeight = Theight;
 	int width = Dwidth;
-	int height = Dheight;
+	// int height = Dheight;
 	int xdpi = 75;
 	int ydpi = 75;
 	int yShift = ydpi / 16;
@@ -350,8 +353,9 @@ asteer(void)
 	
 	int *lookL = (int *)calloc(maxwidth, sizeof(int));
 	int *lookR = (int *)calloc(maxwidth, sizeof(int));
-	color_t *color = (color_t *)calloc(maxwidth, sizeof(color_t));
-	color_t col;
+	col_t *color = (col_t *)calloc(maxwidth, sizeof(col_t));
+	col_t col;
+	SIScolorRGB = (col_rgb_t *)calloc(maxwidth, sizeof(col_rgb_t));
 
 	int obsDist = xdpi * 12;
 	int eyeSep = xdpi * 2.5;
@@ -359,16 +363,17 @@ asteer(void)
 
 	int maxdepth = xdpi * 12;
 	int maxsep = (int)(((long)eyeSep * maxdepth) / (maxdepth + obsDist));   // pattern must be at
-	                                                                         // least this wide
+	                                                                        // least this wide
 	int vmaxsep = oversam * maxsep;
 	int s = vwidth / 2 - vmaxsep / 2;
 	int poffset = vmaxsep - (s % vmaxsep);
 
 	int featureZ, sep;
-	int x, y, left, right;
+	// int x, y, left, right;
+	int x, left, right;
 	bool vis;
 
-	for (y = 0; y < height; y++) {
+	// for (y = 0; y < height; y++) {
 		for (x = 0; x < vwidth; x++) {
 			lookL[x] = x;
 			lookR[x] = x;
@@ -376,7 +381,7 @@ asteer(void)
 		for (x = 0; x < vwidth; x++) {
 			if ((x % oversam) == 0) // speedup for oversampled pictures
 			{
-				featureZ = depth_of_image_at(x / oversam, y);
+				featureZ = depth_of_image_at(x / oversam);
 			    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
 			}
 
@@ -447,18 +452,26 @@ asteer(void)
 			red = 0;
 			green = 0;
 			blue = 0;
-			// use average color of virtual pixels for screen pixel
+			/// Use average color of virtual pixels for screen pixel
 			for (i = x; i < (x + oversam); i++) {
 				col = color[i];
-				red += col.r;
-				green += col.g;
-				blue += col.b;
+				/// Get RGB colors for color palette index col and sum them up
+				red += SISred[col];
+				green += SISgreen[col];
+				blue += SISblue[col];
+				// red += col.r;
+				// green += col.g;
+				// blue += col.b;
 			}
-			col = rgb_value(red / oversam, green / oversam, blue / oversam);
-			set_pixel(x / oversam, y, col);
+			col_rgb_t colrgb = rgb_value(red / oversam, green / oversam, blue / oversam);
+			/// TODO set output pixel in one row
+			// set_pixel(x / oversam, colrgb);
+			// SetSISPixel(x / oversam, colrgb);
+			SIScolorRGB[x / oversam] = colrgb;
 		}
-	}
+	// }
 	free(lookL);
 	free(lookR);
 	free(color);
+	free(SIScolorRGB);
 }

@@ -1,3 +1,5 @@
+#ifndef SIS_INCLUDED
+#define SIS_INCLUDED
 /*
  * Copyright 1995, 2021, 2022, 2025 Jörg Bakker
  *
@@ -41,6 +43,10 @@ typedef long z_t;
 typedef long ind_t;
 typedef float pos_t;
 
+typedef struct {
+	int r, g, b;
+} col_rgb_t;
+
 /*
    Interface to bitmap handlers (stbimg.c, tiff.c):
    */
@@ -57,6 +63,7 @@ extern z_t zvalue[SIS_MAX_COLORS + 1];
 extern cmap_t *SISred;
 extern cmap_t *SISgreen;
 extern cmap_t *SISblue;
+extern col_rgb_t *SIScolorRGB;
 extern ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight;
 extern cmap_t white_value, black_value;
 
@@ -85,9 +92,13 @@ extern long inner_propagate_c, outer_propagate_c;
 
 extern col_t(*ReadTPixel) (ind_t r, ind_t c);
 extern void (*WriteSISBuffer)(ind_t r);
+extern void (*WriteSISColorBuffer)(ind_t r);
 void InitAlgorithm(void);
 void DaddEntry(col_t index, z_t zval);
 void InitBuffers(void);
 void FreeBuffers(void);
 void FillSISBuffer(ind_t LineNumber);
 void CalcIdentLine(void);
+void asteer(ind_t LineNumber);
+
+#endif     /// SIS_INCLUDED

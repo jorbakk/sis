@@ -50,6 +50,7 @@ col_t *SISBuffer = NULL;
 z_t zvalue[SIS_MAX_COLORS + 1];
 
 cmap_t *SISred, *SISgreen, *SISblue;
+col_rgb_t *SIScolorRGB;
 
 cmap_t black_value, white_value;
 int rand_grey_num, rand_col_num;
@@ -71,6 +72,7 @@ void (*CloseSISFile)(void);
 void (*ReadDBuffer)(ind_t r);
 col_t(*ReadTPixel) (ind_t r, ind_t c);
 void (*WriteSISBuffer)(ind_t r);
+void (*WriteSISColorBuffer)(ind_t r);
 
 static char *DefaultDFileName = "in.tif";
 static char *DefaultSISFileName = "out.tif";
@@ -118,6 +120,7 @@ InitFuncs(void)
 	CloseSISFile = Stb_CloseSISFile;
 	ReadTPixel = Stb_ReadTPixel;
 	WriteSISBuffer = Stb_WriteSISBuffer;
+	WriteSISColorBuffer = Stb_WriteSISColorBuffer;
 	/* switch (ImgFileFormat) { */
 	/*     case SIS_IMGFMT_TIFF: */
 	/*         OpenDFile = Tiff_OpenDFile; */
@@ -251,10 +254,16 @@ main(int argc, char **argv)
 		max_depth = SIS_MIN_DEPTH;
 		min_depth = SIS_MAX_DEPTH;
 
-		ReadDBuffer(DLineNumber);   /* read in one line of depth-map */
-		CalcIdentLine();        /* the SIS-algorithm */
-		FillSISBuffer(SISLineNumber);   /* fill in the right colors, according to the SIS-type */
-		WriteSISBuffer(SISLineNumber);  /* write one line of output */
+		ReadDBuffer(DLineNumber);       /// Read in one line of depth-map
+
+#if 1
+		asteer(SISLineNumber);          /// Andrew Steer's SIS-algorithm
+		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
+#else
+		CalcIdentLine();                /// My SIS-algorithm
+		FillSISBuffer(SISLineNumber);   /// Fill in the right colors, according to the SIS-type
+		WriteSISBuffer(SISLineNumber);  /// Write one line of output
+#endif
 		if (verbose)
 			print_statistics();
 	}

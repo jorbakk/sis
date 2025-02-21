@@ -28,6 +28,7 @@ void Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height);
 
 void Stb_ReadDBuffer(ind_t r);
 void Stb_WriteSISBuffer(ind_t r);
+void Stb_WriteSISColorBuffer(ind_t r);
 col_t Stb_ReadTPixel(ind_t r, ind_t c);
 
 void Stb_CloseDFile(void);

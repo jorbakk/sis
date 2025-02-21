@@ -169,6 +169,22 @@ Stb_WriteSISBuffer(ind_t r)
 }
 
 
+void
+Stb_WriteSISColorBuffer(ind_t r)
+{
+	// Write each line of the generated SIS subsequently to the output file / buffer
+	for (ind_t c = 0; c < outpic_width; c++) {
+		ind_t row_pos = r * outpic_width * SISChannelCount;
+		ind_t col_base_pos = c * SISChannelCount;
+		// Write all color components of the ouput image. The color is taken from the color palette
+		// and the index into the color palette is taken from SISBuffer.
+		outpic_buf_p[row_pos + col_base_pos + 0] = SIScolorRGB[c].r;
+		outpic_buf_p[row_pos + col_base_pos + 1] = SIScolorRGB[c].g;
+		outpic_buf_p[row_pos + col_base_pos + 2] = SIScolorRGB[c].b;
+	}
+}
+
+
 // Return the index into the color palette of the pixel with coordinates (r, c)
 // in the texture images
 col_t
