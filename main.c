@@ -254,15 +254,17 @@ main(int argc, char **argv)
 		max_depth = SIS_MIN_DEPTH;
 		min_depth = SIS_MAX_DEPTH;
 
-		ReadDBuffer(DLineNumber);       /// Read in one line of depth-map
+		ReadDBuffer(DLineNumber);            /// Read in one line of depth-map
 
 #if 1
-		asteer(SISLineNumber);          /// Andrew Steer's SIS-algorithm
+		asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
 		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
 #else
-		CalcIdentLine();                /// My SIS-algorithm
-		FillSISBuffer(SISLineNumber);   /// Fill in the right colors, according to the SIS-type
-		WriteSISBuffer(SISLineNumber);  /// Write one line of output
+		CalcIdentLine();                     /// My SIS-algorithm
+		FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+		                                     /// according to the SIS-type
+		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
+		// WriteSISBuffer(SISLineNumber);    /// Write one line of output
 #endif
 		if (verbose)
 			print_statistics();

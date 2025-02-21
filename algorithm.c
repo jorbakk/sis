@@ -108,6 +108,7 @@ InitBuffers(void)
 		free(IdentBuffer);
 		exit(1);
 	}
+	SIScolorRGB = (col_rgb_t *)calloc(SISwidth, sizeof(col_rgb_t));
 }
 
 
@@ -117,6 +118,7 @@ FreeBuffers(void)
 	free(DBuffer);
 	free(IdentBuffer);
 	free(SISBuffer);
+	free(SIScolorRGB);
 }
 
 
@@ -294,6 +296,11 @@ FillSISBuffer(ind_t LineNumber)
 			SISBuffer[(SISwidth >> 1) + halfstripwidth - i] = black;
 			SISBuffer[(SISwidth >> 1) + halfstripwidth + i] = black;
 		}
+	/// Fill the RGB buffer for writing to the output image
+	for (i = 0; i < SISwidth; i++) {
+		col_rgb_t colrgb = { SISred[SISBuffer[i]], SISgreen[SISBuffer[i]], SISblue[SISBuffer[i]] };
+		SIScolorRGB[i] = colrgb;
+	}
 }
 
 
