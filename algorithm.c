@@ -108,7 +108,9 @@ InitBuffers(void)
 		free(IdentBuffer);
 		exit(1);
 	}
-	SIScolorRGB = (col_rgb_t *)calloc(SISwidth, sizeof(col_rgb_t));
+	if (algorithm < 4) {
+		SIScolorRGB = (col_rgb_t *)calloc(SISwidth, sizeof(col_rgb_t));
+	}
 }
 
 
@@ -118,7 +120,9 @@ FreeBuffers(void)
 	free(DBuffer);
 	free(IdentBuffer);
 	free(SISBuffer);
-	free(SIScolorRGB);
+	if (algorithm < 4) {
+		free(SIScolorRGB);
+	}
 }
 
 
@@ -326,11 +330,11 @@ get_pixel_from_pattern(int x, int y)
 }
 
 
-void
-set_pixel(int x, col_t col)
-{
-	SISBuffer[x] = col;
-}
+// void
+// set_pixel(int x, col_t col)
+// {
+	// SISBuffer[x] = col;
+// }
 
 
 col_rgb_t
@@ -470,10 +474,11 @@ asteer(ind_t y)
 				// green += col.g;
 				// blue += col.b;
 			}
-			col_rgb_t colrgb = rgb_value(red / oversam, green / oversam, blue / oversam);
+			// col_rgb_t colrgb = rgb_value(red / oversam, green / oversam, blue / oversam);
 			/// TODO set output pixel in one row
 			// set_pixel(x / oversam, colrgb);
 			// SetSISPixel(x / oversam, colrgb);
+			col_rgb_t colrgb = { red / oversam, green / oversam, blue / oversam };
 			SIScolorRGB[x / oversam] = colrgb;
 		}
 	// }

@@ -36,6 +36,10 @@
 #define SIS_MAX_DEPTH    0xffff
 #define SIS_MIN_DEPTH    0x0
 
+#define SIS_MIN_ALGO     1
+#define SIS_MAX_ALGO     4
+
+
 typedef uint32_t col_t;
 typedef uint16_t cmap_t;
 /// MAX(z_t) needs to be greater than SIS_MAX_DEPTH

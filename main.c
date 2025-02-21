@@ -256,16 +256,15 @@ main(int argc, char **argv)
 
 		ReadDBuffer(DLineNumber);            /// Read in one line of depth-map
 
-#if 1
-		asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
-		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
-#else
-		CalcIdentLine();                     /// My SIS-algorithm
-		FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
-		                                     /// according to the SIS-type
-		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
+		if (algorithm < 4) {
+			CalcIdentLine();                     /// My SIS-algorithm
+			FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			                                     /// according to the SIS-type
+		} else {
+			asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
+		}
 		// WriteSISBuffer(SISLineNumber);    /// Write one line of output
-#endif
+		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
 		if (verbose)
 			print_statistics();
 	}

@@ -109,7 +109,7 @@ get_options(int argc, char **argv)
 				else
 					print_usage();
 			}
-			if ((algorithm < 1) || (algorithm > 3))
+			if ((algorithm < SIS_MIN_ALGO) || (algorithm > SIS_MAX_ALGO))
 				print_usage();
 			break;
 		case 'c':
