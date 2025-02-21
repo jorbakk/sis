@@ -31,10 +31,10 @@
 #define SIS_IMGFMT_DFLT  0
 #define SIS_IMGFMT_TIFF  1
 
-#define SIS_MAX_COLORS   0xffff
-#define SIS_MAX_CMAP     0xffff
-#define SIS_MAX_DEPTH    0xffff
-#define SIS_MIN_DEPTH    0x0
+#define SIS_MAX_COLORS   0xffff    /// Max index in color palette
+#define SIS_MAX_CMAP     0xffff    /// Max ...
+#define SIS_MAX_DEPTH    0xffff    /// Max possible pixel value in the depth map image
+#define SIS_MIN_DEPTH    0x0       /// Min possible pixel value in the depth map image
 
 #define SIS_MIN_ALGO     1
 #define SIS_MAX_ALGO     4
@@ -59,6 +59,7 @@ extern int ImgFileFormat;
 extern char *DFileName;
 extern char *SISFileName;
 extern char *TFileName;
+/// Color palettes for depth and sis image colors (from texture or random dots)
 extern col_t *DBuffer;
 extern col_t *SISBuffer;
 extern int SIStype, SIScompress;

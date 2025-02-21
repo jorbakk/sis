@@ -201,17 +201,18 @@ print_message_header(void)
 	if (SIStype == SIS_TEXT_MAP)
 		printf("  ... using texture-map: %s\n\n\n", TFileName);
 
-	printf("  ----    --- PROPAGATE ---    ---- OBSCURE ----\n");
-	printf("  Line       inner    outer        forw    backw\n");
+	printf("  ----    --- PROPAGATE ---    ---- OBSCURE ----     --- DEPTH ---\n");
+	printf("  Line       inner    outer        forw    backw      min      max\n");
 }
 
 
 static void
 print_statistics(void)
 {
-	printf("  %4ld    %8ld %8ld    %8ld %8ld\r", SISLineNumber + 1,
-	       inner_propagate_c, outer_propagate_c, forwards_obscure_c,
-	       backwards_obscure_c);
+	printf("  %4ld    %8ld %8ld    %8ld %8ld   %6ld   %6ld\r", SISLineNumber + 1,
+	       inner_propagate_c, outer_propagate_c,
+	       forwards_obscure_c, backwards_obscure_c,
+	       min_depth, max_depth);
 	if (fflush(stdout)) {
 		printf("stdout didn't flush\n");
 		verbose = 0;

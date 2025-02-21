@@ -27,6 +27,39 @@
 
 #include "sis.h"
 
+/*
+
+      (_O_)     <-   eye_dist   ->     (_O_)
+         \                              /                            ^
+          \                            /                             |
+           \                          /                              | view_dist
+            \                        /                               |
+             \                      /                                |
+              \   <-   sep   ->    /                                 =
+ ====================================================================== screen_z
+                \                /                                   ^
+                 \              /                                    |
+ --------------------------------------------------  near plane (SIS_MAX_DEPTH)
+                   \          /                          ^           |
+                    \        /                           |           |
+                     \      /                            |           |
+                      \    /                             |           |
+                       \  /                              | u = 0.8   | t = 1.2
+                        \/                               | (-n 20)   | (-f 120)
+              *****************            --- max_depth |           |
+         *****        ^                                  |           |
+     ****            z_val     ********     --- min_depth|           |
+                      =                                  =           =
+ ---------------------------------------------------  far plane (0) ----
+
+ screen_z * u  =  SIS_MAX_DEPTH
+ => screen_z   =  SIS_MAX_DEPTH / u
+ screen_z / t  =  view_dist
+
+ sep / (screen_z - z_val)  =  eye_dist / (screen_z - z_val + view_dist)
+
+*/
+
 /// The biggest and smallest distance in one line (!)
 /// of the depth-map. This is just for efficiency.
 z_t max_depth, min_depth;
@@ -69,6 +102,12 @@ InitAlgorithm(void)
 	}
 	numerator = SIS_MAX_DEPTH / u;
 	denominator = SIS_MAX_DEPTH / u + SIS_MAX_DEPTH / (t * u);
+	printf("DBufStep: %f\n", DBufStep);
+	printf("SIS_MAX_DEPTH: %d\n", SIS_MAX_DEPTH);
+	printf("u: %f\n", u);
+	printf("t: %f\n", t);
+	printf("numerator: %d\n", numerator);
+	printf("denominator: %d\n", denominator);
 }
 
 
@@ -308,13 +347,6 @@ FillSISBuffer(ind_t LineNumber)
 }
 
 
-int
-depth_of_image_at(int x)
-{
-	return DBuffer[x];
-}
-
-
 col_t
 get_pixel_from_pattern(int x, int y)
 {
@@ -380,7 +412,7 @@ asteer(ind_t y)
 	for (x = 0; x < vwidth; x++) {
 		if ((x % oversam) == 0) // speedup for oversampled pictures
 		{
-	        featureZ = maxdepth - depth_of_image_at(x / oversam) * maxdepth / 256;
+	        featureZ = maxdepth - DBuffer[x / oversam] * maxdepth / 256;
 		    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
             // printf("sep: %d\n", sep);
 		}
