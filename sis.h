@@ -32,7 +32,7 @@
 #define SIS_IMGFMT_TIFF  1
 
 #define SIS_MAX_COLORS   0xffff    /// Max index in color palette
-#define SIS_MAX_CMAP     0xffff    /// Max ...
+#define SIS_MAX_CMAP     0xffff    /// Max value for color component (gray, r, g, b)
 #define SIS_MAX_DEPTH    0xffff    /// Max possible pixel value in the depth map image
 #define SIS_MIN_DEPTH    0x0       /// Min possible pixel value in the depth map image
 
