@@ -29,6 +29,9 @@
 
 /*
 
+ Overview of most important parameters and formulas for the algorithms:
+
+
       (_O_)     <-   eye_dist   ->     (_O_)
          \                              /                            ^
           \                            /                             |
@@ -39,24 +42,26 @@
  ====================================================================== screen_z
                 \                /                                   ^
                  \              /                                    |
- --------------------------------------------------  near plane (SIS_MAX_DEPTH)
+ --------------------------------------------------  near plane (z=SIS_MAX_DEPTH)
                    \          /                          ^           |
                     \        /                           |           |
                      \      /                            |           |
                       \    /                             |           |
                        \  /                              | u = 0.8   | t = 1.2
                         \/                               | (-n 20)   | (-f 120)
-              *****************            --- max_depth |           |
+              *****************          --- z=max_depth |           |
          *****        ^                                  |           |
-     ****            z_val     ********     --- min_depth|           |
+     ****            z_val     ********  --- z=min_depth |           |
                       =                                  =           =
- ---------------------------------------------------  far plane (0) ----
+ ---------------------------------------------------------  far plane (z=0) ----
 
  screen_z * u  =  SIS_MAX_DEPTH
  => screen_z   =  SIS_MAX_DEPTH / u
  screen_z / t  =  view_dist
 
  sep / (screen_z - z_val)  =  eye_dist / (screen_z - z_val + view_dist)
+
+ z values are zero at far plane and increase towards the viewer.
 
 */
 
@@ -364,8 +369,10 @@ asteer(ind_t y)
 	/// Oversampling ratio
 	int oversam  = 4;
 
-	int obsDist  = 1500;   /// distance from viewer to screen
-	int maxdepth = 675;    /// distance from screen to far plane
+	// int obsDist  = 1500;   /// original distance from viewer to screen
+	// int maxdepth = 675;    /// original distance from screen to far plane
+	int obsDist  = SIS_MAX_DEPTH / u;          /// distance from viewer to screen
+	int maxdepth = SIS_MAX_DEPTH / (u * t);    /// distance from screen to far plane
 
 	/// Shift texture map 4 pixels in vertical direction
 	int yShift = 4;
