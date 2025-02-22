@@ -82,6 +82,7 @@ extern double t, u;
 extern double density;
 extern char metric;
 extern int resolution;
+extern int oversam;
 
 void get_options(int argc, char **argv);
 ind_t metric2pixel(int metric_val, int resolution);

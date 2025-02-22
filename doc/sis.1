@@ -28,7 +28,7 @@ The 3D-effect is achieved by assigning two dots the same color
 in the
 .I SIS,
 if they correspond to the same point
-in the depth-map. Currently there are 3 algorithms for
+in the depth-map. Currently there are 4 algorithms for
 generating the
 .I SIS
 available.
@@ -38,7 +38,8 @@ option.
 The first algorithm is the simplest, and (you guess it) the fastest.
 The second algorithm additionally propagates pixels of the same color and
 is a tiny bit slower. The third one does some additional checks for hidden
-points in the depth-map.
+points in the depth-map. The fourth one is based on the original algorithm
+from Andrew Steer.
 .PP
 .SM Options
 .PP
@@ -107,7 +108,7 @@ Use algorithm
 .I #
 for generating the
 .I SIS.
-Default is algorithm 2.
+Default is algorithm 4.
 .PP
 The more sophisticated options are:
 .TP
@@ -163,7 +164,8 @@ algorithm. Default is the middle
 of the picture.
 .TP
 .I -q
-Don't print any messages.
+Oversampling factor. Currently only available for algorithm 4.
+The default value is 4.
 .TP
 .I -s #
 Start the random pixel-generation with seed value
@@ -176,8 +178,6 @@ Print some messages and statistics.
 Compress the output picture.
 
 .PP
-.SH BUGS
-Currently, just up to 256 different colors are supported.
 .SH SEE ALSO
 xli(1), povray(1)
 .SH AUTHORS

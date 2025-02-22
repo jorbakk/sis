@@ -48,7 +48,7 @@ print_usage(void)
 	        "   -m       : add triangles at top of SIS (makes SIS watching easier)\n"
 	        "   -n #     : distance from screen to near plane in percent of distance from screen to far plane (>0; 33)\n"
 	        "   -o #     : position where algorithm starts (0-SISwidth; SISwidth/2)\n"
-	        "   -q       : don\'t print any message\n"
+	        "   -q #     : oversampling factor (>0; 4)\n"
 	        "   -s #     : seed value for random dots (>0; 1)\n"
 	        "   -t file  : texture filename (texture.tif)\n"
 	        "   -v       : print some information\n"
@@ -190,7 +190,6 @@ get_options(int argc, char **argv)
 		case 'h':
 		case 'i':
 		case 'm':
-		case 'q':
 		case 'v':
 		case 'z':
 			for (str_ind = 1; argv[opt_ind][str_ind]; str_ind++)
@@ -204,9 +203,6 @@ get_options(int argc, char **argv)
 				case 'm':
 					mark = 1;
 					break;
-				case 'q':
-					verbose = 0;
-					break;
 				case 'v':
 					verbose = 1;
 					break;
@@ -216,6 +212,19 @@ get_options(int argc, char **argv)
 				default:
 					print_usage();
 				}
+			break;
+		case 'q':
+			if (argv[opt_ind][2] != 0)
+				oversam = atoi(argv[opt_ind] + 2);
+			else {
+				opt_ind++;
+				if ((opt_ind < argc) && (argv[opt_ind][0] != '-'))
+					oversam = atoi(argv[opt_ind]);
+				else
+					print_usage();
+			}
+			if (oversam <= 0)
+				print_usage();
 			break;
 		case 'n':
 			if (argv[opt_ind][2] != 0)

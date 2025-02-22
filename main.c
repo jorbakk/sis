@@ -92,11 +92,12 @@ SetDefaults(void)
 	SISwidth = SISheight = 0;
 	algorithm = 4;
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
-	verbose = 1;
+	verbose = 0;
 	invert = 0;
 	mark = 0;
 	metric = 'i';
 	resolution = 75;
+	oversam = 4;
 	E = 0;
 	t = 1.0;
 	u = 0.67;
@@ -193,6 +194,15 @@ InitVars(void)
 
 
 static void
+print_warnings(void)
+{
+	if (algorithm < 4 && oversam > 1) {
+		fprintf(stderr, "warning: oversampling is currently only available for algorithm 4\n");
+	}
+}
+
+
+static void
 print_message_header(void)
 {
 	printf("\n  DEPTH FILE:     %s (%ldx%ld)\n", DFileName, Dwidth, Dheight);
@@ -246,8 +256,9 @@ main(int argc, char **argv)
 	InitVars();
 	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
 
-	if (verbose)
+	if (verbose) {
 		print_message_header();
+	}
 
 	for (SISLineNumber = 0; SISLineNumber < SISheight; SISLineNumber++) {
 		DLineNumber = (int)DLinePosition;
@@ -271,6 +282,7 @@ main(int argc, char **argv)
 	}
 	if (verbose)
 		puts("\n");
+	print_warnings();
 	CloseDFile();
 	if (SIStype == SIS_TEXT_MAP)
 		CloseTFile(Theight);

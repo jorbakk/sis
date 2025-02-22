@@ -107,12 +107,12 @@ InitAlgorithm(void)
 	}
 	numerator = SIS_MAX_DEPTH / u;
 	denominator = SIS_MAX_DEPTH / u + SIS_MAX_DEPTH / (t * u);
-	printf("DBufStep: %f\n", DBufStep);
-	printf("SIS_MAX_DEPTH: %d\n", SIS_MAX_DEPTH);
-	printf("u: %f\n", u);
-	printf("t: %f\n", t);
-	printf("numerator: %d\n", numerator);
-	printf("denominator: %d\n", denominator);
+	// printf("DBufStep: %f\n", DBufStep);
+	// printf("SIS_MAX_DEPTH: %d\n", SIS_MAX_DEPTH);
+	// printf("u: %f\n", u);
+	// printf("t: %f\n", t);
+	// printf("numerator: %d\n", numerator);
+	// printf("denominator: %d\n", denominator);
 }
 
 
@@ -361,19 +361,19 @@ get_pixel_from_pattern(int x, int y)
 }
 
 
+/// Oversampling ratio
+int oversam;
+
 void
 asteer(ind_t y)
 {
-	int lastlinked;
-	int i;
-	/// Oversampling ratio
-	int oversam  = 4;
-
 	// int obsDist  = 1500;   /// original distance from viewer to screen
 	// int maxdepth = 675;    /// original distance from screen to far plane
 	int obsDist  = SIS_MAX_DEPTH / u;          /// distance from viewer to screen
 	int maxdepth = SIS_MAX_DEPTH / (u * t);    /// distance from screen to far plane
 
+	int lastlinked;
+	int i;
 	/// Shift texture map 4 pixels in vertical direction
 	int yShift = 4;
 	int veyeSep = E * oversam;
