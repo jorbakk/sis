@@ -208,9 +208,6 @@ print_warnings(void)
 		fprintf(stderr, "warning: random dot stereograms are currently not available for algorithm 4. You need to specify a texture map image, aborting!\n");
 		exit(1);
 	}
-	if (algorithm == 4 && mark) {
-		fprintf(stderr, "warning: eye markers are currently not available for algorithm 4\n");
-	}
 	if (algorithm == 4 && origin != (SISwidth >> 1)) {
 		fprintf(stderr, "warning: setting origin is currently not available for algorithm 4\n");
 	}

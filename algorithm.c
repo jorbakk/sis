@@ -339,15 +339,16 @@ FillSISBuffer(ind_t LineNumber)
 			SISBuffer[i] = SISBuffer[IdentBuffer[i]];
 	}
 
-	/* add the little, nice triangles in some color. */
+	/// Add the little, nice triangles in black
 	if ((LineNumber < halftriangwidth) && mark
-	    && ((SISwidth >> 1) > halfstripwidth + halftriangwidth))
+	    && ((SISwidth >> 1) > halfstripwidth + halftriangwidth)) {
 		for (i = halftriangwidth - LineNumber; i >= 0; i--) {
 			SISBuffer[(SISwidth >> 1) - halfstripwidth - i] = black;
 			SISBuffer[(SISwidth >> 1) - halfstripwidth + i] = black;
 			SISBuffer[(SISwidth >> 1) + halfstripwidth - i] = black;
 			SISBuffer[(SISwidth >> 1) + halfstripwidth + i] = black;
 		}
+	}
 	/// Fill the RGB buffer for writing to the output image
 	for (i = 0; i < SISwidth; i++) {
 		col_rgb_t colrgb = { SISred[SISBuffer[i]], SISgreen[SISBuffer[i]], SISblue[SISBuffer[i]] };
@@ -516,6 +517,17 @@ asteer(ind_t y)
 		// SetSISPixel(x / oversam, colrgb);
 		col_rgb_t colrgb = { red / oversam, green / oversam, blue / oversam };
 		SIScolorRGB[x / oversam] = colrgb;
+	}
+	/// Add the little, nice triangles in black
+	col_rgb_t black_rgb = {0, 0, 0};
+	if ((y < halftriangwidth) && mark
+	    && ((SISwidth >> 1) > halfstripwidth + halftriangwidth)) {
+		for (i = halftriangwidth - y; i >= 0; i--) {
+			SIScolorRGB[(SISwidth >> 1) - halfstripwidth - i] = black_rgb;
+			SIScolorRGB[(SISwidth >> 1) - halfstripwidth + i] = black_rgb;
+			SIScolorRGB[(SISwidth >> 1) + halfstripwidth - i] = black_rgb;
+			SIScolorRGB[(SISwidth >> 1) + halfstripwidth + i] = black_rgb;
+		}
 	}
 
 	free(lookL);
