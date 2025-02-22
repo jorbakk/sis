@@ -174,6 +174,22 @@ FreeBuffers(void)
 }
 
 
+/// Add the little, nice triangles in black
+void
+AddTriangles(ind_t y)
+{
+	col_rgb_t black_rgb = {0, 0, 0};
+	if ((y < halftriangwidth) && ((SISwidth >> 1) > halfstripwidth + halftriangwidth)) {
+		for (ind_t i = halftriangwidth - y; i >= 0; i--) {
+			SIScolorRGB[(SISwidth >> 1) - halfstripwidth - i] = black_rgb;
+			SIScolorRGB[(SISwidth >> 1) - halfstripwidth + i] = black_rgb;
+			SIScolorRGB[(SISwidth >> 1) + halfstripwidth - i] = black_rgb;
+			SIScolorRGB[(SISwidth >> 1) + halfstripwidth + i] = black_rgb;
+		}
+	}
+}
+
+
 void
 CalcIdentLine(void)
 {
@@ -325,35 +341,24 @@ FillSISBuffer(ind_t LineNumber)
 			break;
 		}
 	}
-
-	/* set the color of two corresponding pixels to the same value. */
-	/* right half: */
+	/// Set the color of two corresponding pixels to the same value.
+	/// right half:
 	for (i = origin; i < SISwidth; i++) {
 		if (IdentBuffer[i] != i)
 			SISBuffer[i] = SISBuffer[IdentBuffer[i]];
 	}
 
-	/* left half: */
+	/// Left half:
 	for (i = origin - 1; i >= 0; i--) {
 		if (IdentBuffer[i] != i)
 			SISBuffer[i] = SISBuffer[IdentBuffer[i]];
-	}
-
-	/// Add the little, nice triangles in black
-	if ((LineNumber < halftriangwidth) && mark
-	    && ((SISwidth >> 1) > halfstripwidth + halftriangwidth)) {
-		for (i = halftriangwidth - LineNumber; i >= 0; i--) {
-			SISBuffer[(SISwidth >> 1) - halfstripwidth - i] = black;
-			SISBuffer[(SISwidth >> 1) - halfstripwidth + i] = black;
-			SISBuffer[(SISwidth >> 1) + halfstripwidth - i] = black;
-			SISBuffer[(SISwidth >> 1) + halfstripwidth + i] = black;
-		}
 	}
 	/// Fill the RGB buffer for writing to the output image
 	for (i = 0; i < SISwidth; i++) {
 		col_rgb_t colrgb = { SISred[SISBuffer[i]], SISgreen[SISBuffer[i]], SISblue[SISBuffer[i]] };
 		SIScolorRGB[i] = colrgb;
 	}
+	if (mark) AddTriangles(LineNumber);
 }
 
 
@@ -370,7 +375,7 @@ get_pixel_from_pattern(int x, int y)
 int oversam;
 
 void
-asteer(ind_t y)
+asteer(ind_t LineNumber)
 {
 	// int obsDist  = 1500;   /// original distance from viewer to screen
 	// int maxdepth = 675;    /// original distance from screen to far plane
@@ -472,7 +477,7 @@ asteer(ind_t y)
 			else {
 				color[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
-				   (y + ((x - s) / vmaxsep) * yShift) % Theight);
+				   (LineNumber + ((x - s) / vmaxsep) * yShift) % Theight);
 			}
 		} else {
 			color[x] = color[lookL[x]];
@@ -488,7 +493,7 @@ asteer(ind_t y)
 			else {
 				color[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
-				  (y + ((s - x) / vmaxsep + 1) * yShift) % Theight);
+				  (LineNumber + ((s - x) / vmaxsep + 1) * yShift) % Theight);
 			}
 		} else {
 			color[x] = color[lookR[x]];
@@ -518,17 +523,7 @@ asteer(ind_t y)
 		col_rgb_t colrgb = { red / oversam, green / oversam, blue / oversam };
 		SIScolorRGB[x / oversam] = colrgb;
 	}
-	/// Add the little, nice triangles in black
-	col_rgb_t black_rgb = {0, 0, 0};
-	if ((y < halftriangwidth) && mark
-	    && ((SISwidth >> 1) > halfstripwidth + halftriangwidth)) {
-		for (i = halftriangwidth - y; i >= 0; i--) {
-			SIScolorRGB[(SISwidth >> 1) - halfstripwidth - i] = black_rgb;
-			SIScolorRGB[(SISwidth >> 1) - halfstripwidth + i] = black_rgb;
-			SIScolorRGB[(SISwidth >> 1) + halfstripwidth - i] = black_rgb;
-			SIScolorRGB[(SISwidth >> 1) + halfstripwidth + i] = black_rgb;
-		}
-	}
+	if (mark) AddTriangles(LineNumber);
 
 	free(lookL);
 	free(lookR);
