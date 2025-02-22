@@ -75,7 +75,7 @@ extern cmap_t white_value, black_value;
 /*
    Interface to get_opt.c:
    */
-extern ind_t E, origin;
+extern ind_t eye_dist, origin;
 extern int verbose, mark, debug, algorithm, invert;
 extern int rand_grey_num, rand_col_num;
 extern double t, u;

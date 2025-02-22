@@ -58,7 +58,7 @@ cmap_t black_value, white_value;
 int rand_grey_num, rand_col_num;
 col_t white, black;
 ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight;
-ind_t E, origin, halfstripwidth, halftriangwidth;
+ind_t eye_dist, origin, halfstripwidth, halftriangwidth;
 int SIStype, SIScompress, verbose, mark, invert;
 char metric;
 int resolution;
@@ -100,7 +100,7 @@ SetDefaults(void)
 	metric = 'i';
 	resolution = 75;
 	oversam = 4;
-	E = 0;
+	eye_dist = 0;
 	t = 1.0;
 	u = 0.67;
 	rand_grey_num = 2;
@@ -161,16 +161,18 @@ InitVars(void)
 	forwards_obscure_c = 0;
 	backwards_obscure_c = 0;
 	metric = 'i';
-	if (E == 0)
-		E = metric2pixel(22, resolution);
-	halfstripwidth = E * t / (2 * (1 + t));
+	if (eye_dist == 0) {
+		eye_dist = metric2pixel(22, resolution);
+	}
+	halfstripwidth = eye_dist * t / (2 * (1 + t));
 	halftriangwidth = SISwidth / 75;
 	if (!halftriangwidth)
 		halftriangwidth = 4;
 	DLineStep = (double)Dheight / (double)SISheight;
 	DLinePosition = 0.0;
-	if (origin == -1)
+	if (origin == -1) {
 		origin = SISwidth >> 1;
+	}
 
 	switch (SIStype) {
 	case SIS_RANDOM_GREY:

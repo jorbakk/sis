@@ -132,8 +132,8 @@ DaddEntry(col_t index, z_t zval)
 
 	if (zvalue[index] == -1) {
 		zvalue[index] = zval;
-		separation[index] = E * (numerator - zval) / (denominator - zval);
-		dz[index] = (double)(denominator - zval) / (double)((E >> 1) * DBufStep);
+		separation[index] = eye_dist * (numerator - zval) / (denominator - zval);
+		dz[index] = (double)(denominator - zval) / (double)((eye_dist >> 1) * DBufStep);
 	}
 }
 
@@ -386,7 +386,7 @@ asteer(ind_t LineNumber)
 	int i;
 	/// Shift texture map 4 pixels in vertical direction
 	int yShift = 4;
-	int veyeSep = E * oversam;
+	int veyeSep = eye_dist * oversam;
 	int vwidth = SISwidth * oversam;
 	int *lookL = (int *)calloc(vwidth, sizeof(int));
 	int *lookR = (int *)calloc(vwidth, sizeof(int));
@@ -394,7 +394,7 @@ asteer(ind_t LineNumber)
 	SIScolorRGB = (col_rgb_t *)calloc(vwidth, sizeof(col_rgb_t));
 
 	/// Pattern must be at least this wide
-	int maxsep = (int)(((long)E * maxdepth) / (maxdepth + obsDist));
+	int maxsep = (int)(((long)eye_dist * maxdepth) / (maxdepth + obsDist));
 	int vmaxsep = oversam * maxsep;
 	int s = vwidth / 2 - vmaxsep / 2;
 	int poffset = vmaxsep - (s % vmaxsep);

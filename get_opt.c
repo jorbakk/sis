@@ -151,16 +151,16 @@ get_options(int argc, char **argv)
 				print_usage();
 			for (i = str_ind; isdigit(argv[opt_ind][i]); i++) ;
 			if (!argv[opt_ind][i])
-				E = atoi(argv[opt_ind] + str_ind);
+				eye_dist = atoi(argv[opt_ind] + str_ind);
 			else {
 				if (!isdigit(argv[opt_ind][i + 1]))
 					print_usage();
 				metric = argv[opt_ind][i];
 				argv[opt_ind][i] = 0;
 				resolution = atoi(argv[opt_ind] + i + 1);
-				E = metric2pixel(atoi(argv[opt_ind] + str_ind), resolution);
+				eye_dist = metric2pixel(atoi(argv[opt_ind] + str_ind), resolution);
 			}
-			if (E <= 0)
+			if (eye_dist <= 0)
 				print_usage();
 			break;
 		case 'f':
