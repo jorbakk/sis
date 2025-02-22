@@ -67,7 +67,7 @@
 
 /// The biggest and smallest distance in one line (!)
 /// of the depth-map. This is just for efficiency.
-z_t max_depth, min_depth;
+z_t max_depth_in_row, min_depth_in_row, max_depth, min_depth;
 
 int algorithm;
 /// Just for statistics.
@@ -121,10 +121,14 @@ DaddEntry(col_t index, z_t zval)
 {
 	if (invert)
 		zval = SIS_MAX_DEPTH - zval;
-	if (zval < min_depth)
-		min_depth = zval;
-	if (zval > max_depth)
-		max_depth = zval;
+	if (zval < min_depth_in_row)
+		min_depth_in_row = zval;
+	if (zval > max_depth_in_row)
+		max_depth_in_row = zval;
+	if (min_depth_in_row < min_depth)
+		min_depth = min_depth_in_row;
+	if (max_depth_in_row > max_depth)
+		max_depth = max_depth_in_row;
 
 	if (zvalue[index] == -1) {
 		zvalue[index] = zval;
@@ -198,7 +202,7 @@ CalcIdentLine(void)
 				/* check for hidden pixels: */
 				ZPos = z + dz[DBuffer[DBufInd]];
 				z_limit = (unsigned int)ZPos;
-				for (i = 1; z_limit < (unsigned int)max_depth; i++) {
+				for (i = 1; z_limit < (unsigned int)max_depth_in_row; i++) {
 					/* does right eye see all? */
 					if (zvalue[DBuffer[DBufInd + i]] > z_limit) {
 						visible = 0;
@@ -259,7 +263,7 @@ CalcIdentLine(void)
 			if (algorithm > 2) {
 				ZPos = z + dz[DBuffer[DBufInd]];
 				z_limit = (unsigned int)ZPos;
-				for (i = 1; z_limit < (unsigned int)max_depth; i++) {
+				for (i = 1; z_limit < (unsigned int)max_depth_in_row; i++) {
 					if (zvalue[DBuffer[DBufInd + i]] > z_limit) {
 						visible = 0;
 						forwards_obscure_c++;

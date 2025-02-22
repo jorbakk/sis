@@ -41,6 +41,8 @@
 
 int ImgFileFormat = SIS_IMGFMT_DFLT;
 /* int ImgFileFormat = SIS_IMGFMT_TIFF; */
+ind_t Tcolcount;
+
 char *DFileName = NULL;
 char *SISFileName = NULL;
 char *TFileName = NULL;
@@ -227,9 +229,9 @@ print_message_header(void)
 	printf("\n  DEPTH FILE:     %s (%ldx%ld)\n", DFileName, Dwidth, Dheight);
 	printf("  SIS FILE:       %s (%ldx%ld)\n\n", SISFileName, SISwidth,
 	       SISheight);
-	if (SIStype == SIS_TEXT_MAP)
+	if (SIStype == SIS_TEXT_MAP) {
 		printf("  ... using texture-map: %s\n\n\n", TFileName);
-
+	}
 	printf("  ----    --- PROPAGATE ---    ---- OBSCURE ----     --- DEPTH ---\n");
 	printf("  Line       inner    outer        forw    backw      min      max\n");
 }
@@ -241,10 +243,20 @@ print_statistics(void)
 	printf("  %4ld    %8ld %8ld    %8ld %8ld   %6ld   %6ld\r", SISLineNumber + 1,
 	       inner_propagate_c, outer_propagate_c,
 	       forwards_obscure_c, backwards_obscure_c,
-	       min_depth, max_depth);
+	       min_depth_in_row, max_depth_in_row);
 	if (fflush(stdout)) {
 		printf("stdout didn't flush\n");
 		verbose = 0;
+	}
+}
+
+
+static void
+print_summary(void)
+{
+	printf("  Depth map values [min,max]: [%ld, %ld]\n", min_depth, max_depth);
+	if (SIStype == SIS_TEXT_MAP) {
+		printf("  Texture unique color count: %ld\n", Tcolcount);
 	}
 }
 
@@ -280,11 +292,13 @@ main(int argc, char **argv)
 		print_message_header();
 	}
 
+	max_depth = SIS_MIN_DEPTH;
+	min_depth = SIS_MAX_DEPTH;
 	for (SISLineNumber = 0; SISLineNumber < SISheight; SISLineNumber++) {
 		DLineNumber = (int)DLinePosition;
 		DLinePosition += DLineStep;
-		max_depth = SIS_MIN_DEPTH;
-		min_depth = SIS_MAX_DEPTH;
+		max_depth_in_row = SIS_MIN_DEPTH;
+		min_depth_in_row = SIS_MAX_DEPTH;
 
 		ReadDBuffer(DLineNumber);            /// Read in one line of depth-map
 
@@ -300,8 +314,10 @@ main(int argc, char **argv)
 		if (verbose)
 			print_statistics();
 	}
-	if (verbose)
+	if (verbose) {
 		puts("\n");
+		print_summary();
+	}
 	CloseDFile();
 	if (SIStype == SIS_TEXT_MAP)
 		CloseTFile(Theight);

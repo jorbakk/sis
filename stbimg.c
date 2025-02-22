@@ -134,6 +134,7 @@ Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 	hmfree(colmap);
 	/// Number of unique colors is col_idx + black
 	// printf("texture unique color count: %d\n", col_idx + 1);
+	Tcolcount = col_idx + 1;
 }
 
 

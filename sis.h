@@ -69,7 +69,7 @@ extern cmap_t *SISred;
 extern cmap_t *SISgreen;
 extern cmap_t *SISblue;
 extern col_rgb_t *SIScolorRGB;
-extern ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight;
+extern ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight, Tcolcount;
 extern cmap_t white_value, black_value;
 
 /*
@@ -90,7 +90,7 @@ ind_t metric2pixel(int metric_val, int resolution);
 /*
    Interface to algorithm.c:
    */
-extern z_t min_depth, max_depth;
+extern z_t min_depth_in_row, max_depth_in_row, min_depth, max_depth;
 extern col_t black, white;
 extern ind_t halfstripwidth, halftriangwidth;
 extern long forwards_obscure_c, backwards_obscure_c;
