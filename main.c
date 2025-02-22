@@ -199,6 +199,25 @@ print_warnings(void)
 	if (algorithm < 4 && oversam > 1) {
 		fprintf(stderr, "warning: oversampling is currently only available for algorithm 4\n");
 	}
+	if (algorithm == 4 && (u != 0.67 || t != 1.0)) {
+		fprintf(stderr, "warning: near- and far plane adjustment is currently not available for algorithm 4\n");
+	}
+	if (algorithm == 4 && SIStype != SIS_TEXT_MAP) {
+		fprintf(stderr, "warning: random dot stereograms are currently not available for algorithm 4. You need to specify a texture map image, aborting!\n");
+		exit(1);
+	}
+	if (algorithm == 4 && mark) {
+		fprintf(stderr, "warning: eye markers are currently not available for algorithm 4\n");
+	}
+	if (algorithm == 4 && origin != (SISwidth >> 1)) {
+		fprintf(stderr, "warning: setting origin is currently not available for algorithm 4\n");
+	}
+	if (algorithm == 4 && verbose == 1) {
+		fprintf(stderr, "warning: verbose output is currently limited for algorithm 4\n");
+	}
+	// if (algorithm == 4 && SISwidth != Dwidth) {
+		// fprintf(stderr, "warning: setting SIS width is currently not available for algorithm 4\n");
+	// }
 }
 
 
@@ -256,6 +275,7 @@ main(int argc, char **argv)
 	InitVars();
 	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
 
+	print_warnings();
 	if (verbose) {
 		print_message_header();
 	}
@@ -282,7 +302,6 @@ main(int argc, char **argv)
 	}
 	if (verbose)
 		puts("\n");
-	print_warnings();
 	CloseDFile();
 	if (SIStype == SIS_TEXT_MAP)
 		CloseTFile(Theight);

@@ -57,8 +57,8 @@ print_usage(void)
 	        "              example: -e45i300 means 4.5inch at 300dpi\n"
 	        "   -y #     : height of SIS in dots (>0; height of depth-map)\n"
 	        "   -y #m|i# : height of SIS in tenths of (cm | inch) with resolution in dpi\n"
-	        "              example: -e32i300 means 3.2inch at 300dpi\n"
-	        "   -z       : output is compressed if possible\n" "\n");
+	        "              example: -e32i300 means 3.2inch at 300dpi\n");
+	        // "   -z       : output is compressed if possible\n" "\n");
 	exit(1);
 }
 
@@ -191,7 +191,7 @@ get_options(int argc, char **argv)
 		case 'i':
 		case 'm':
 		case 'v':
-		case 'z':
+		// case 'z':
 			for (str_ind = 1; argv[opt_ind][str_ind]; str_ind++)
 				switch (argv[opt_ind][str_ind]) {
 				case 'h':
@@ -206,9 +206,9 @@ get_options(int argc, char **argv)
 				case 'v':
 					verbose = 1;
 					break;
-				case 'z':
-					SIScompress = 1;
-					break;
+				// case 'z':
+					// SIScompress = 1;
+					// break;
 				default:
 					print_usage();
 				}
