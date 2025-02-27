@@ -174,7 +174,10 @@ InitVars(void)
 		halftriangwidth = 4;
 	DLineStep = (double)Dheight / (double)SISheight;
 	DLinePosition = 0.0;
-	if (origin == -1) {
+	/// Set the original default value for origin in case of algo #4,
+	/// it is not in the center of the image because some artifacts
+	/// in the background appear
+	if (origin == -1 && algorithm < 4) {
 		origin = SISwidth >> 1;
 	}
 

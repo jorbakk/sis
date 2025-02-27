@@ -384,44 +384,44 @@ asteer(ind_t LineNumber)
 	// int maxdepth = 675;    /// original distance from screen to far plane
 	int obsDist  = SIS_MAX_DEPTH / u;          /// distance from viewer to screen
 	int maxdepth = SIS_MAX_DEPTH / (u * t);    /// distance from screen to far plane
-
 	int lastlinked;
 	int i;
 	/// Shift texture map 4 pixels in vertical direction
 	int yShift = 4;
-	// int veyeSep = eye_dist * oversam;
+	/// Pattern must be at least this wide
+	int maxsep = (int)(((long)eye_dist * maxdepth) / (maxdepth + obsDist));
+	int vmaxsep = oversam * maxsep;
 	int vwidth = SISwidth * oversam;
+	int s = vwidth / 2 - vmaxsep / 2;
+	if (origin != -1) {
+		s = origin * oversam;
+	}
+	int poffset = vmaxsep - (s % vmaxsep);
+	int sep = 0;
+	int x, left, right;
+	bool vis;
 	int *lookL = (int *)calloc(vwidth, sizeof(int));
 	int *lookR = (int *)calloc(vwidth, sizeof(int));
 	col_t *color = (col_t *)calloc(vwidth, sizeof(col_t));
 	SIScolorRGB = (col_rgb_t *)calloc(vwidth, sizeof(col_rgb_t));
 
-	/// Pattern must be at least this wide
-	int maxsep = (int)(((long)eye_dist * maxdepth) / (maxdepth + obsDist));
-	int vmaxsep = oversam * maxsep;
-	int s = vwidth / 2 - vmaxsep / 2;
-	int poffset = vmaxsep - (s % vmaxsep);
-
-	// printf("PARAMS --------------------------------------------------------------\n");
-	// printf("SISwidth: %d\n", SISwidth);
-	// printf("vwidth: %d\n", vwidth);
-	// printf("xdpi: %d\n", xdpi);
-	// printf("ydpi: %d\n", ydpi);
-	// printf("yShift: %d\n", yShift);
-	// printf("obsDist: %d\n", obsDist);
-	// printf("E: %d\n", eyeSep);
-	// printf("veyeSep: %d\n", veyeSep);
-	// printf("maxdepth: %d\n", maxdepth);
-	// printf("maxsep: %d\n", maxsep);
-	// printf("oversam: %d\n", oversam);
-	// printf("vmaxsep: %d\n", vmaxsep);
-	// printf("s: %d\n", s);
-	// printf("poffset: %d\n", poffset);
-
-	// int featureZ = 0, sep = 0;
-	int sep = 0;
-	int x, left, right;
-	bool vis;
+	if (LineNumber == 0) {
+		// printf("PARAMS --------------------------------------------------------------\n");
+		// printf("SISwidth: %d\n", SISwidth);
+		// printf("vwidth: %d\n", vwidth);
+		// printf("xdpi: %d\n", xdpi);
+		// printf("ydpi: %d\n", ydpi);
+		// printf("yShift: %d\n", yShift);
+		// printf("obsDist: %d\n", obsDist);
+		// printf("eye_sep: %d\n", eye_sep);
+		// printf("veyeSep: %d\n", veyeSep);
+		// printf("maxdepth: %d\n", maxdepth);
+		// printf("maxsep: %d\n", maxsep);
+		// printf("oversam: %d\n", oversam);
+		// printf("vmaxsep: %d\n", vmaxsep);
+		// printf("s: %d\n", s);
+		// printf("poffset: %d\n", poffset);
+	}
 
 	/// Initialize ident buffer (IdentBuffer in algorithm < 4)
 	for (x = 0; x < vwidth; x++) {
