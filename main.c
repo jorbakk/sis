@@ -48,7 +48,6 @@ char *SISFileName = NULL;
 char *TFileName = NULL;
 
 col_t *DBuffer = NULL;
-col_t *SISBuffer = NULL;
 z_t zvalue[SIS_MAX_COLORS + 1];
 
 cmap_t *SISred, *SISgreen, *SISblue;
@@ -73,7 +72,7 @@ void (*CloseTFile)(ind_t height);
 void (*CloseSISFile)(void);
 void (*ReadDBuffer)(ind_t r);
 col_t(*ReadTPixel) (ind_t r, ind_t c);
-void (*WriteSISBuffer)(ind_t r);
+// void (*WriteSISBuffer)(ind_t r);
 void (*WriteSISColorBuffer)(ind_t r);
 
 static char *DefaultDFileName = "in.tif";
@@ -122,7 +121,7 @@ InitFuncs(void)
 	CloseTFile = Stb_CloseTFile;
 	CloseSISFile = Stb_CloseSISFile;
 	ReadTPixel = Stb_ReadTPixel;
-	WriteSISBuffer = Stb_WriteSISBuffer;
+	// WriteSISBuffer = Stb_WriteSISBuffer;
 	WriteSISColorBuffer = Stb_WriteSISColorBuffer;
 	/* switch (ImgFileFormat) { */
 	/*     case SIS_IMGFMT_TIFF: */
@@ -212,12 +211,7 @@ print_warnings(void)
 		oversam = 1;
 	}
 	if (algorithm == 4 && SIStype != SIS_TEXT_MAP) {
-		fprintf(stderr, "warning: random dot stereograms are currently not available for algorithm 4. You need to specify a texture map image, aborting!\n");
-		exit(1);
-	}
-	if (algorithm == 4 && origin != (SISwidth >> 1)) {
-		fprintf(stderr, "warning: setting origin is currently not available for algorithm 4\n");
-	}
+		fprintf(stderr, "warning: random dot stereograms currently don't work properly for algorithm 4. \n"); }
 	if (algorithm == 4 && verbose == 1) {
 		fprintf(stderr, "warning: verbose output is currently limited for algorithm 4\n");
 	}
@@ -309,8 +303,10 @@ main(int argc, char **argv)
 		if (algorithm < 4) {
 			CalcIdentLine();                     /// My SIS-algorithm
 			FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			FillRGBBuffer(SISLineNumber);
 			                                     /// according to the SIS-type
 		} else {
+			FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
 			asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
 		}
 		// WriteSISBuffer(SISLineNumber);    /// Write one line of output

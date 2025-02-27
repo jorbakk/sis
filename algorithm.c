@@ -79,6 +79,7 @@ double t, u;
 
 /// References to equally-colored pixels
 static ind_t *IdentBuffer;
+// static col_t *IdentBuffer;
 
 /// Separation of each possible z
 static ind_t separation[SIS_MAX_COLORS + 1];
@@ -89,6 +90,7 @@ static pos_t DBufStep;
 /// Proportions of near and far-plane
 static int numerator, denominator;
 
+col_t *SISBuffer = NULL;
 
 void
 InitAlgorithm(void)
@@ -115,6 +117,10 @@ InitAlgorithm(void)
 	// printf("denominator: %d\n", denominator);
 	if (algorithm == 4) {
 		eye_dist *= oversam;
+	}
+	if (SIStype != SIS_TEXT_MAP) {
+		Twidth = 1;
+		Theight = 1;
 	}
 }
 
@@ -144,23 +150,28 @@ DaddEntry(col_t index, z_t zval)
 void
 InitBuffers(void)
 {
-	if ((DBuffer = (col_t *) calloc(Dwidth, sizeof(col_t))) == NULL) {
+	if ((DBuffer = (col_t *)calloc(Dwidth * oversam, sizeof(col_t))) == NULL) {
 		fprintf(stderr, "Couldn't alloc space for DBuffer.\n");
 		exit(1);
 	}
-	if ((IdentBuffer = (ind_t *) calloc(SISwidth, sizeof(ind_t))) == NULL) {
+	if ((IdentBuffer = (ind_t *)calloc(SISwidth * oversam, sizeof(ind_t))) == NULL) {
+	// if ((IdentBuffer = (col_t *) calloc(SISwidth * oversam, sizeof(col_t))) == NULL) {
 		fprintf(stderr, "Couldn't alloc space for IdentBuffer\n");
 		free(DBuffer);
 		exit(1);
 	}
-	if ((SISBuffer = (col_t *) calloc(SISwidth, sizeof(col_t))) == NULL) {
+	if ((SISBuffer = (col_t *)calloc(SISwidth * oversam, sizeof(col_t))) == NULL) {
 		fprintf(stderr, "Couldn't alloc space for SISBuffer.\n");
 		free(DBuffer);
 		free(IdentBuffer);
 		exit(1);
 	}
-	if (algorithm < 4) {
-		SIScolorRGB = (col_rgb_t *)calloc(SISwidth, sizeof(col_rgb_t));
+	if ((SIScolorRGB = (col_rgb_t *)calloc(SISwidth * oversam, sizeof(col_rgb_t))) == NULL ) {;
+		fprintf(stderr, "Couldn't alloc space for SISBuffer.\n");
+		free(DBuffer);
+		free(IdentBuffer);
+		free(SISBuffer);
+		exit(1);
 	}
 }
 
@@ -171,9 +182,7 @@ FreeBuffers(void)
 	free(DBuffer);
 	free(IdentBuffer);
 	free(SISBuffer);
-	if (algorithm < 4) {
-		free(SIScolorRGB);
-	}
+	free(SIScolorRGB);
 }
 
 
@@ -261,7 +270,7 @@ CalcIdentLine(void)
 						}
 					}
 				}
-				/// Here's what the original SIS-algorithm does (nearly nothing)
+				/// Here's what the most simple SIS-algorithm does (nearly nothing)
 				IdentBuffer[right] = left;
 			}
 		}
@@ -326,9 +335,7 @@ CalcIdentLine(void)
 void
 FillSISBuffer(ind_t LineNumber)
 {
-	ind_t i;
-
-	for (i = 0; i < SISwidth; i++) {
+	for (ind_t i = 0; i < SISwidth * oversam; i++) {
 		switch (SIStype) {
 		case SIS_RANDOM_GREY:
 			if (rand_grey_num == 2)
@@ -344,6 +351,13 @@ FillSISBuffer(ind_t LineNumber)
 			break;
 		}
 	}
+}
+
+
+void
+FillRGBBuffer(ind_t LineNumber)
+{
+	ind_t i;
 	/// Set the color of two corresponding pixels to the same value.
 	/// right half:
 	for (i = origin; i < SISwidth; i++) {
@@ -368,7 +382,17 @@ FillSISBuffer(ind_t LineNumber)
 col_t
 get_pixel_from_pattern(int x, int y)
 {
-	col_t ret = ReadTPixel(y % Theight, x % Twidth);
+	col_t ret = {0};
+	switch (SIStype) {
+	case SIS_RANDOM_GREY:
+	case SIS_RANDOM_COLOR:
+		ret = SISBuffer[x];
+		break;
+	case SIS_TEXT_MAP:
+		ret = ReadTPixel(y % Theight, x % Twidth);
+		break;
+	}
+	// ret = ReadTPixel(y % Theight, x % Twidth);
 	// printf("get texture pixel from [x,y]: [%d,%d] -> %d\n", x, y, ret);
 	return ret;
 }
@@ -400,9 +424,10 @@ asteer(ind_t LineNumber)
 	int sep = 0;
 	int x, left, right;
 	bool vis;
+	/// IdentBuffer's equivalent in algo #4 are lookL and lookR
 	int *lookL = (int *)calloc(vwidth, sizeof(int));
 	int *lookR = (int *)calloc(vwidth, sizeof(int));
-	col_t *color = (col_t *)calloc(vwidth, sizeof(col_t));
+	// col_t *color = (col_t *)calloc(vwidth, sizeof(col_t));
 	SIScolorRGB = (col_rgb_t *)calloc(vwidth, sizeof(col_rgb_t));
 
 	if (LineNumber == 0) {
@@ -423,7 +448,7 @@ asteer(ind_t LineNumber)
 		// printf("poffset: %d\n", poffset);
 	}
 
-	/// Initialize ident buffer (IdentBuffer in algorithm < 4)
+	/// Initialize ident buffer (lookL, lookR correspond to IdentBuffer in algorithm < 4)
 	for (x = 0; x < vwidth; x++) {
 		lookL[x] = x;
 		lookR[x] = x;
@@ -482,14 +507,14 @@ asteer(ind_t LineNumber)
 	for (x = start; x < vwidth; x++) {
 		if ((lookL[x] == x) || (lookL[x] < start)) {
 			if (lastlinked == (x - 1))
-				color[x] = color[x - 1];
+				SISBuffer[x] = SISBuffer[x - 1];
 			else {
-				color[x] = get_pixel_from_pattern(
+				SISBuffer[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
 				   (LineNumber + ((x - start) / vmaxsep) * yShift) % Theight);
 			}
 		} else {
-			color[x] = color[lookL[x]];
+			SISBuffer[x] = SISBuffer[lookL[x]];
 			lastlinked = x;     // keep track of the last pixel to be constrained
 		}
 	}
@@ -498,14 +523,14 @@ asteer(ind_t LineNumber)
 	for (x = start - 1; x >= 0; x--) {
 		if (lookR[x] == x) {
 			if (lastlinked == (x + 1))
-				color[x] = color[x + 1];
+				SISBuffer[x] = SISBuffer[x + 1];
 			else {
-				color[x] = get_pixel_from_pattern(
+				SISBuffer[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
 				  (LineNumber + ((start - x) / vmaxsep + 1) * yShift) % Theight);
 			}
 		} else {
-			color[x] = color[lookR[x]];
+			SISBuffer[x] = SISBuffer[lookR[x]];
 			lastlinked = x;     // keep track of the last pixel to be constrained
 		}
 	}
@@ -517,18 +542,11 @@ asteer(ind_t LineNumber)
 		blue = 0;
 		/// Use average color of virtual pixels for screen pixel
 		for (i = x; i < (x + oversam); i++) {
-			// col = color[i];
 			/// Get RGB colors for color palette index col and sum them up
-			red += SISred[color[i]];
-			green += SISgreen[color[i]];
-			blue += SISblue[color[i]];
-			// red += col.r;
-			// green += col.g;
-			// blue += col.b;
+			red += SISred[SISBuffer[i]];
+			green += SISgreen[SISBuffer[i]];
+			blue += SISblue[SISBuffer[i]];
 		}
-		// col_rgb_t colrgb = rgb_value(red / oversam, green / oversam, blue / oversam);
-		// set_pixel(x / oversam, colrgb);
-		// SetSISPixel(x / oversam, colrgb);
 		col_rgb_t colrgb = { red / oversam, green / oversam, blue / oversam };
 		SIScolorRGB[x / oversam] = colrgb;
 	}
@@ -536,6 +554,4 @@ asteer(ind_t LineNumber)
 
 	free(lookL);
 	free(lookR);
-	free(color);
-	free(SIScolorRGB);
 }

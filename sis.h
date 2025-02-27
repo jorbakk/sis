@@ -62,7 +62,6 @@ extern char *TFileName;
 extern int SIStype; //, SIScompress;
 /// Color palettes for depth and sis image colors (from texture or random dots)
 extern col_t *DBuffer;
-extern col_t *SISBuffer;
 
 extern z_t zvalue[SIS_MAX_COLORS + 1];
 extern cmap_t *SISred;
@@ -97,13 +96,14 @@ extern long forwards_obscure_c, backwards_obscure_c;
 extern long inner_propagate_c, outer_propagate_c;
 
 extern col_t(*ReadTPixel) (ind_t r, ind_t c);
-extern void (*WriteSISBuffer)(ind_t r);
+// extern void (*WriteSISBuffer)(ind_t r);
 extern void (*WriteSISColorBuffer)(ind_t r);
 void InitAlgorithm(void);
 void DaddEntry(col_t index, z_t zval);
 void InitBuffers(void);
 void FreeBuffers(void);
 void FillSISBuffer(ind_t LineNumber);
+void FillRGBBuffer(ind_t LineNumber);
 void CalcIdentLine(void);
 void asteer(ind_t LineNumber);
 
