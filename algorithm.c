@@ -113,6 +113,9 @@ InitAlgorithm(void)
 	// printf("t: %f\n", t);
 	// printf("numerator: %d\n", numerator);
 	// printf("denominator: %d\n", denominator);
+	if (algorithm == 4) {
+		eye_dist *= oversam;
+	}
 }
 
 
@@ -386,7 +389,7 @@ asteer(ind_t LineNumber)
 	int i;
 	/// Shift texture map 4 pixels in vertical direction
 	int yShift = 4;
-	int veyeSep = eye_dist * oversam;
+	// int veyeSep = eye_dist * oversam;
 	int vwidth = SISwidth * oversam;
 	int *lookL = (int *)calloc(vwidth, sizeof(int));
 	int *lookR = (int *)calloc(vwidth, sizeof(int));
@@ -415,7 +418,8 @@ asteer(ind_t LineNumber)
 	// printf("s: %d\n", s);
 	// printf("poffset: %d\n", poffset);
 
-	int featureZ = 0, sep = 0;
+	// int featureZ = 0, sep = 0;
+	int sep = 0;
 	int x, left, right;
 	bool vis;
 
@@ -429,9 +433,14 @@ asteer(ind_t LineNumber)
 	for (x = 0; x < vwidth; x++) {
 		if ((x % oversam) == 0) // speedup for oversampled pictures
 		{
-	        featureZ = maxdepth - DBuffer[x / oversam] * maxdepth / 256;
-		    sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
+	        // featureZ = maxdepth - DBuffer[x / oversam] * maxdepth / 256;
+	        // featureZ = maxdepth - zvalue[x / oversam] * maxdepth / 256;
+		    // sep = (int)(((long)veyeSep * featureZ) / (featureZ + obsDist));
             // printf("sep: %d\n", sep);
+
+            // sep = separation[x / oversam];
+            ind_t DBufInd = (x / oversam) * DBufStep;
+            sep = separation[DBuffer[DBufInd]];
 		}
 		left = x - sep / 2;
 		right = left + sep;

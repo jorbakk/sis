@@ -59,10 +59,10 @@ extern int ImgFileFormat;
 extern char *DFileName;
 extern char *SISFileName;
 extern char *TFileName;
+extern int SIStype; //, SIScompress;
 /// Color palettes for depth and sis image colors (from texture or random dots)
 extern col_t *DBuffer;
 extern col_t *SISBuffer;
-extern int SIStype, SIScompress;
 
 extern z_t zvalue[SIS_MAX_COLORS + 1];
 extern cmap_t *SISred;

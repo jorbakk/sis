@@ -164,7 +164,8 @@ InitVars(void)
 	if (eye_dist == 0) {
 		eye_dist = metric2pixel(22, resolution);
 	}
-	halfstripwidth = eye_dist * t / (2 * (1 + t));
+	// halfstripwidth = eye_dist * t / (2 * (1 + t));
+	halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
 	halftriangwidth = SISwidth / 75;
 	if (!halftriangwidth)
 		halftriangwidth = 4;
@@ -202,9 +203,7 @@ print_warnings(void)
 {
 	if (algorithm < 4 && oversam > 1) {
 		fprintf(stderr, "warning: oversampling is currently only available for algorithm 4\n");
-	}
-	if (algorithm == 4 && (u != 0.67 || t != 1.0)) {
-		fprintf(stderr, "warning: near- and far plane adjustment is currently not available for algorithm 4\n");
+		oversam = 1;
 	}
 	if (algorithm == 4 && SIStype != SIS_TEXT_MAP) {
 		fprintf(stderr, "warning: random dot stereograms are currently not available for algorithm 4. You need to specify a texture map image, aborting!\n");
@@ -253,7 +252,7 @@ print_statistics(void)
 static void
 print_summary(void)
 {
-	printf("  Depth map values [min,max]: [%ld, %ld]\n", min_depth, max_depth);
+	printf("  Depth map values range: [%ld, %ld]\n", min_depth, max_depth);
 	if (SIStype == SIS_TEXT_MAP) {
 		printf("  Texture unique color count: %ld\n", Tcolcount);
 	}
