@@ -392,11 +392,11 @@ asteer(ind_t LineNumber)
 	int maxsep = (int)(((long)eye_dist * maxdepth) / (maxdepth + obsDist));
 	int vmaxsep = oversam * maxsep;
 	int vwidth = SISwidth * oversam;
-	int s = vwidth / 2 - vmaxsep / 2;
+	int start = vwidth / 2 - vmaxsep / 2;
 	if (origin != -1) {
-		s = origin * oversam;
+		start = origin * oversam;
 	}
-	int poffset = vmaxsep - (s % vmaxsep);
+	int poffset = vmaxsep - (start % vmaxsep);
 	int sep = 0;
 	int x, left, right;
 	bool vis;
@@ -419,7 +419,7 @@ asteer(ind_t LineNumber)
 		// printf("maxsep: %d\n", maxsep);
 		// printf("oversam: %d\n", oversam);
 		// printf("vmaxsep: %d\n", vmaxsep);
-		// printf("s: %d\n", s);
+		// printf("start: %d\n", start);
 		// printf("poffset: %d\n", poffset);
 	}
 
@@ -477,32 +477,32 @@ asteer(ind_t LineNumber)
 	// printf("\n");
 
 	/// Set color values based on the ident buffers and texture map
-	/// ... starting from roughly the center s, going right ...
+	/// ... starting from roughly the center start, going right ...
 	lastlinked = -10;           // dummy initial value
-	for (x = s; x < vwidth; x++) {
-		if ((lookL[x] == x) || (lookL[x] < s)) {
+	for (x = start; x < vwidth; x++) {
+		if ((lookL[x] == x) || (lookL[x] < start)) {
 			if (lastlinked == (x - 1))
 				color[x] = color[x - 1];
 			else {
 				color[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
-				   (LineNumber + ((x - s) / vmaxsep) * yShift) % Theight);
+				   (LineNumber + ((x - start) / vmaxsep) * yShift) % Theight);
 			}
 		} else {
 			color[x] = color[lookL[x]];
 			lastlinked = x;     // keep track of the last pixel to be constrained
 		}
 	}
-	/// ... starting from roughly the center s, going left ...
+	/// ... starting from roughly the center start, going left ...
 	lastlinked = -10;           // dummy initial value
-	for (x = s - 1; x >= 0; x--) {
+	for (x = start - 1; x >= 0; x--) {
 		if (lookR[x] == x) {
 			if (lastlinked == (x + 1))
 				color[x] = color[x + 1];
 			else {
 				color[x] = get_pixel_from_pattern(
 				  ((x + poffset) % vmaxsep) / oversam,
-				  (LineNumber + ((s - x) / vmaxsep + 1) * yShift) % Theight);
+				  (LineNumber + ((start - x) / vmaxsep + 1) * yShift) % Theight);
 			}
 		} else {
 			color[x] = color[lookR[x]];
