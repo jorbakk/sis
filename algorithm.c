@@ -204,46 +204,46 @@ CalcIdentLine(void)
 	for (i = 0; i < SISwidth; i++)  /* point to yourself */
 		IdentBuffer[i] = i;
 
-	/* handle the right half of the picture from the origin. */
+	/// Handle the right half of the picture from the origin
 	DBufPos = (SISwidth - 1) * DBufStep;
 	for (IdentBufInd = SISwidth - 1; IdentBufInd >= origin; IdentBufInd--) {
 		DBufInd = (int)DBufPos;
 		z = zvalue[DBuffer[DBufInd]];
 
-		/* left eye sees this: */
+		/// Left eye sees this:
 		left = IdentBufInd - (separation[DBuffer[DBufInd]] >> 1);
-		/* right eye sees this: */
+		/// Right eye sees this:
 		right = left + separation[DBuffer[DBufInd]];
-		/* both is within the SIS-picture */
+		/// Both is within the SIS-picture
 		if ((0 <= left) && (right < SISwidth)) {
 			visible = 1;
 			if (algorithm > 2) {
-				/* check for hidden pixels: */
+				/// Check for hidden pixels:
 				ZPos = z + dz[DBuffer[DBufInd]];
 				z_limit = (unsigned int)ZPos;
 				for (i = 1; z_limit < (unsigned int)max_depth_in_row; i++) {
-					/* does right eye see all? */
+					/// Does right eye see all?
 					if (zvalue[DBuffer[DBufInd + i]] > z_limit) {
 						visible = 0;
 						backwards_obscure_c++;
 						break;
 					}
-					/* does left eye see all? */
+					/// Does left eye see all?
 					if (zvalue[DBuffer[DBufInd - i]] > z_limit) {
 						visible = 0;
 						forwards_obscure_c++;
 						break;
 					}
 					ZPos += dz[DBuffer[DBufInd]];
-					/* don't go further than the nearest point */
+					/// Don't go further than the nearest point
 					z_limit = (unsigned int)ZPos;
 				}
 			}
 			if (visible) {
 				if (algorithm > 1) {
-					/* now do the propagation stuff */
+					/// Now do the propagation stuff
 					IdInd = IdentBuffer[right];
-					/* already pointed at a pixel between left and right */
+					/// Already pointed at a pixel between left and right
 					while ((origin <= left) && (IdInd != left)
 					       && (IdInd != right)) {
 						if (IdInd > left) {
@@ -251,7 +251,7 @@ CalcIdentLine(void)
 							right = IdInd;
 							IdInd = IdentBuffer[right];
 						}
-						/* already pointed at a pixel outside of left and right */
+						/// Already pointed at a pixel outside of left and right
 						else {
 							outer_propagate_c++;
 							IdentBuffer[right] = left;
@@ -261,14 +261,14 @@ CalcIdentLine(void)
 						}
 					}
 				}
-				/* here's what the original SIS-algorithm does (nearly nothing). */
+				/// Here's what the original SIS-algorithm does (nearly nothing)
 				IdentBuffer[right] = left;
 			}
 		}
 		DBufPos -= DBufStep;
 	}
 
-	/* handle the left half of the picture from the origin. */
+	/// Handle the left half of the picture from the origin
 	DBufPos = 0.0;
 	for (IdentBufInd = 0; IdentBufInd < origin; IdentBufInd++) {
 		DBufInd = (int)DBufPos;

@@ -164,8 +164,11 @@ InitVars(void)
 	if (eye_dist == 0) {
 		eye_dist = metric2pixel(22, resolution);
 	}
-	// halfstripwidth = eye_dist * t / (2 * (1 + t));
-	halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
+	if (algorithm < 4) {
+		halfstripwidth = eye_dist * t / (2 * (1 + t));
+	} else {
+		halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
+	}
 	halftriangwidth = SISwidth / 75;
 	if (!halftriangwidth)
 		halftriangwidth = 4;
