@@ -281,7 +281,7 @@ main(int argc, char **argv)
 	if (SIStype == SIS_TEXT_MAP)
 		OpenTFile(TFileName, &Twidth, &Theight);
 	InitAlgorithm();
-	InitBuffers();
+	AllocBuffers();
 	InitVars();
 	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
 
@@ -302,11 +302,11 @@ main(int argc, char **argv)
 
 		if (algorithm < 4) {
 			CalcIdentLine();                     /// My SIS-algorithm
-			FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
 			FillRGBBuffer(SISLineNumber);
 			                                     /// according to the SIS-type
 		} else {
-			FillSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
 			asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
 		}
 		// WriteSISBuffer(SISLineNumber);    /// Write one line of output

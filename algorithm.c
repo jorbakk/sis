@@ -29,7 +29,7 @@
 
 /*
 
- Overview of most important parameters and formulas for the algorithms:
+1. Overview of most important parameters and formulas for the algorithms:
 
 
       (_O_)     <-   eye_dist   ->     (_O_)
@@ -62,6 +62,25 @@
  sep / (screen_z - z_val)  =  eye_dist / (screen_z - z_val + view_dist)
 
  z values are zero at far plane and increase towards the viewer.
+
+
+2. Data structures
+
+DBuffer:
+Grey-scale values with depth information taken from the depth image.
+
+IdentBuffer:
+Contains for each pixel of the SIS output image of one row the column index
+of the pixel image that has the same color in this row. So, IdentBuffer
+contains indices of locations in the image, not color indices.
+
+SISBuffer:
+Color values (palette indices) of each pixel in the output SIS image.
+
+SIScolorRGB:
+Like the SISBuffer, but with rgb color values and not palette indices.
+This allows for having more colors in the output SIS image than
+the color palette taken from the texture image provides.
 
 */
 
@@ -148,26 +167,26 @@ DaddEntry(col_t index, z_t zval)
 
 
 void
-InitBuffers(void)
+AllocBuffers(void)
 {
 	if ((DBuffer = (col_t *)calloc(Dwidth * oversam, sizeof(col_t))) == NULL) {
-		fprintf(stderr, "Couldn't alloc space for DBuffer.\n");
+		fprintf(stderr, "Couldn't alloc memory for depth buffer.\n");
 		exit(1);
 	}
 	if ((IdentBuffer = (ind_t *)calloc(SISwidth * oversam, sizeof(ind_t))) == NULL) {
 	// if ((IdentBuffer = (col_t *) calloc(SISwidth * oversam, sizeof(col_t))) == NULL) {
-		fprintf(stderr, "Couldn't alloc space for IdentBuffer\n");
+		fprintf(stderr, "Couldn't alloc memory for ident buffer\n");
 		free(DBuffer);
 		exit(1);
 	}
 	if ((SISBuffer = (col_t *)calloc(SISwidth * oversam, sizeof(col_t))) == NULL) {
-		fprintf(stderr, "Couldn't alloc space for SISBuffer.\n");
+		fprintf(stderr, "Couldn't alloc memory for SIS buffer.\n");
 		free(DBuffer);
 		free(IdentBuffer);
 		exit(1);
 	}
 	if ((SIScolorRGB = (col_rgb_t *)calloc(SISwidth * oversam, sizeof(col_rgb_t))) == NULL ) {;
-		fprintf(stderr, "Couldn't alloc space for SISBuffer.\n");
+		fprintf(stderr, "Couldn't alloc memory for SIScolorRGB buffer.\n");
 		free(DBuffer);
 		free(IdentBuffer);
 		free(SISBuffer);
@@ -333,7 +352,7 @@ CalcIdentLine(void)
 
 
 void
-FillSISBuffer(ind_t LineNumber)
+InitSISBuffer(ind_t LineNumber)
 {
 	for (ind_t i = 0; i < SISwidth * oversam; i++) {
 		switch (SIStype) {
