@@ -211,7 +211,8 @@ print_warnings(void)
 		oversam = 1;
 	}
 	if (algorithm == 4 && SIStype != SIS_TEXT_MAP) {
-		fprintf(stderr, "warning: random dot stereograms currently don't work properly for algorithm 4. \n"); }
+		fprintf(stderr, "warning: random dot stereograms currently don't work properly for algorithm 4. \n");
+	}
 	if (algorithm == 4 && verbose == 1) {
 		fprintf(stderr, "warning: verbose output is currently limited for algorithm 4\n");
 	}

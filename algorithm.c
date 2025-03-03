@@ -351,9 +351,34 @@ CalcIdentLine(void)
 }
 
 
+#define random_texture_size (20)
+col_t random_texture[random_texture_size][random_texture_size];
+
+void
+init_random_texture(void)
+{
+	for (int line_number = 0; line_number < random_texture_size; ++line_number) {
+		for (int i = 0; i < random_texture_size; i++) {
+			switch (SIStype) {
+			case SIS_RANDOM_GREY:
+				if (rand_grey_num == 2)
+					random_texture[line_number][i] = (rand() > (RAND_MAX * density)) ? white : black;
+				else
+					random_texture[line_number][i] = rand() / (RAND_MAX / rand_grey_num);
+				break;
+			case SIS_RANDOM_COLOR:
+				random_texture[line_number][i] = rand() / (RAND_MAX / rand_col_num);
+				break;
+			}
+		}
+	}
+}
+
+
 void
 InitSISBuffer(ind_t LineNumber)
 {
+	init_random_texture();
 	for (ind_t i = 0; i < SISwidth * oversam; i++) {
 		switch (SIStype) {
 		case SIS_RANDOM_GREY:
@@ -405,7 +430,8 @@ get_pixel_from_pattern(int x, int y)
 	switch (SIStype) {
 	case SIS_RANDOM_GREY:
 	case SIS_RANDOM_COLOR:
-		ret = SISBuffer[x];
+		// ret = SISBuffer[x];
+		ret = random_texture[y % random_texture_size][x % random_texture_size];
 		break;
 	case SIS_TEXT_MAP:
 		ret = ReadTPixel(y % Theight, x % Twidth);
