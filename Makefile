@@ -31,13 +31,22 @@ B = build
 
 # LIB_TIFF = tiff
 # CC = gcc
-CFLAGS = -g -I$(S3)
+# CFLAGS = -Wall -g -I$(S3) -DNANOVG_USE_GLEW -DNANOVG_GL3
+CFLAGS = -g -I$(S3) -DNANOVG_USE_GLEW -DNANOVG_GL3
+# CFLAGS = -g -I$(S3) -DNANOVG_GL3
 # CFLAGS = -Wall -O2
 LDFLAGS = -lm
 LDFLAGS_LINUX = -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 
 # OBJS = $(B)/main.o $(B)/stbimg.o $(B)/tiff.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS = $(B)/main.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
+NVOBJS = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o
+TEST_SRCS = sisui.c nanovg.c nanovg_gl.c nanovg_gl_utils.c
+TEST_OBJS = $(B)/sisui.o $(NVOBJS)
+
+.PHONY: all
+
+all: build_dir $(B)/sis $(B)/sisui
 
 # $(B)/sis: build_dir $(OBJS)
 # 	$(CC) -o $(B)/sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
@@ -54,6 +63,16 @@ $(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
 # $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/tiff.h $(S)/sis.h
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
+$(B)/nanovg.o: $(S3)/nanovg.c $(S3)/nanovg.h $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h
+	$(CC) -c -o $(B)/nanovg.o $(CFLAGS) $(S3)/nanovg.c
+$(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
+	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS) $(S3)/nanovg_gl.c
+$(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
+	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS) $(S3)/nanovg_gl_utils.c
+$(B)/sisui.o: $(S)/sisui.c
+	$(CC) -c -o $(B)/sisui.o $(CFLAGS) $(S)/sisui.c
+$(B)/sisui: $(B)/sisui.o $(NVOBJS)
+	$(CC) -o $@ $^ $(LDFLAGS_LINUX)
 
 clean:
 	rm -rf $(B)
