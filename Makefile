@@ -36,7 +36,7 @@ CFLAGS = -g -I$(S3) -DNANOVG_USE_GLEW -DNANOVG_GL3
 # CFLAGS = -g -I$(S3) -DNANOVG_GL3
 # CFLAGS = -Wall -O2
 LDFLAGS = -lm
-LDFLAGS_LINUX = -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
+LDFLAGS_GUI_LINUX = -lglfw -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 
 # OBJS = $(B)/main.o $(B)/stbimg.o $(B)/tiff.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS = $(B)/main.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
@@ -72,7 +72,7 @@ $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_g
 $(B)/sisui.o: $(S)/sisui.c
 	$(CC) -c -o $(B)/sisui.o $(CFLAGS) $(S)/sisui.c
 $(B)/sisui: $(B)/sisui.o $(NVOBJS)
-	$(CC) -o $@ $^ $(LDFLAGS_LINUX)
+	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
 
 clean:
 	rm -rf $(B)

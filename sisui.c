@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define GLFW_BACKEND
+
+
 #if defined __ANDROID__ || defined __EMSCRIPTEN__
 #include <GLES3/gl3.h>
 #define SOKOL_GLES3
@@ -26,10 +29,16 @@
 
 #define SOKOL_GLCORE33
 #endif
+
+
+#ifdef GLFW_BACKEND
+#include <GLFW/glfw3.h>
+#else
 #define SOKOL_IMPL
 #include "sokol_app.h"
 #include "sokol_time.h"
-// #include <sokol/sokol_log.h>
+#endif
+
 
 #include "nanovg.h"
 #include "nanovg_gl.h"
@@ -191,7 +200,11 @@ ui_frame(NVGcontext * vg, float w, float h)
 	/// Render user interface
 	render_ui(vg, 0, BND_CORNER_NONE);
 	/// Process user events
-    uiProcess((int)(stm_sec(stm_now())*1000.0));
+#ifdef GLFW_BACKEND
+    uiProcess((int)(glfwGetTime() * 1e-3));
+#else
+    uiProcess((int)(stm_sec(stm_now()) * 1000.0));
+#endif
 }
 
 
@@ -256,7 +269,9 @@ init_app(void)
     bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
     bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
 #endif
+#ifndef GLFW_BACKEND
 	stm_setup();
+#endif
     mctx.ui_ctx = uiCreateContext(4096, 1<<20);
     uiMakeCurrent(mctx.ui_ctx);
     uiSetHandler(event_handler);
@@ -338,3 +353,38 @@ sokol_main(int argc, char *argv[])
 	};
 }
 #endif   /// SOKOL_APP_INCLUDED
+
+
+// #ifdef _glfw3h_
+#ifdef GLFW_BACKEND
+int
+main(void)
+{
+    GLFWwindow* window;
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /* Render here */
+        glClear(GL_COLOR_BUFFER_BIT);
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+        /* Poll for and process events */
+        glfwPollEvents();
+    }
+    glfwTerminate();
+    return 0;
+}
+
+#endif    /// _glfw3h_
