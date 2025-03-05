@@ -25,37 +25,40 @@ BIN_DIR = /usr/local/bin
 MAN_DIR = /usr/local/man/man1
 
 ######
+S = .
+S3 = $(S)/3rd-party
+B = build
 
 # LIB_TIFF = tiff
-CC = gcc
-CFLAGS = -Wall -g
+# CC = gcc
+CFLAGS = -g -I$(S3)
 # CFLAGS = -Wall -O2
 LDFLAGS = -lm
-SRC = .
-BUILD = build
-# OBJS = $(BUILD)/main.o $(BUILD)/stbimg.o $(BUILD)/tiff.o $(BUILD)/algorithm.o $(BUILD)/get_opt.o
-OBJS = $(BUILD)/main.o $(BUILD)/stbimg.o $(BUILD)/algorithm.o $(BUILD)/get_opt.o
+LDFLAGS_LINUX = -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 
-# $(BUILD)/sis: build_dir $(OBJS)
-# 	$(CC) -o $(BUILD)/sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
-$(BUILD)/sis: build_dir $(OBJS)
-	$(CC) -o $(BUILD)/sis $(OBJS) $(LDFLAGS)
-$(BUILD)/get_opt.o: $(SRC)/get_opt.c $(SRC)/sis.h
-	$(CC) -c -o $(BUILD)/get_opt.o $(CFLAGS) $(SRC)/get_opt.c
-$(BUILD)/algorithm.o: $(SRC)/algorithm.c $(SRC)/sis.h
-	$(CC) -c -o $(BUILD)/algorithm.o $(CFLAGS) $(SRC)/algorithm.c
-$(BUILD)/stbimg.o: $(SRC)/stbimg.c $(SRC)/stbimg.h $(SRC)/sis.h
-	$(CC) -c -o $(BUILD)/stbimg.o $(CFLAGS) $(SRC)/stbimg.c
-# $(BUILD)/tiff.o: $(SRC)/tiff.c $(SRC)/tiff.h $(SRC)/sis.h
-# 	$(CC) -c -o $(BUILD)/tiff.o $(CFLAGS) $(SRC)/tiff.c
-# $(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/tiff.h $(SRC)/sis.h
-$(BUILD)/main.o: $(SRC)/main.c $(SRC)/stbimg.h $(SRC)/sis.h
-	$(CC) -c -o $(BUILD)/main.o $(CFLAGS) $(SRC)/main.c
+# OBJS = $(B)/main.o $(B)/stbimg.o $(B)/tiff.o $(B)/algorithm.o $(B)/get_opt.o
+OBJS = $(B)/main.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
+
+# $(B)/sis: build_dir $(OBJS)
+# 	$(CC) -o $(B)/sis $(OBJS) -l$(LIB_TIFF) $(LDFLAGS)
+$(B)/sis: build_dir $(OBJS)
+	$(CC) -o $(B)/sis $(OBJS) $(LDFLAGS)
+$(B)/get_opt.o: $(S)/get_opt.c $(S)/sis.h
+	$(CC) -c -o $(B)/get_opt.o $(CFLAGS) $(S)/get_opt.c
+$(B)/algorithm.o: $(S)/algorithm.c $(S)/sis.h
+	$(CC) -c -o $(B)/algorithm.o $(CFLAGS) $(S)/algorithm.c
+$(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
+	$(CC) -c -o $(B)/stbimg.o $(CFLAGS) $(S)/stbimg.c
+# $(B)/tiff.o: $(S)/tiff.c $(S)/tiff.h $(S)/sis.h
+# 	$(CC) -c -o $(B)/tiff.o $(CFLAGS) $(S)/tiff.c
+# $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/tiff.h $(S)/sis.h
+$(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
+	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
 
 clean:
-	rm -rf $(BUILD)
+	rm -rf $(B)
 build_dir:
-	@mkdir -p $(BUILD)
+	@mkdir -p $(B)
 install:
-	install -s $(BUILD)/sis $(BIN_DIR)
+	install -s $(B)/sis $(BIN_DIR)
 	install -m 0644 doc/sis.1 $(MAN_DIR)

@@ -207,17 +207,17 @@ static void
 print_warnings(void)
 {
 	if (algorithm < 4 && oversam > 1) {
-		fprintf(stderr, "warning: oversampling is currently only available for algorithm 4\n");
+		fprintf(stderr, "warning: oversampling is currently only available with algorithm 4\n");
 		oversam = 1;
 	}
 	if (algorithm == 4 && SIStype != SIS_TEXT_MAP) {
-		fprintf(stderr, "warning: random dot stereograms currently don't work properly for algorithm 4. \n");
+		fprintf(stderr, "warning: random dot stereograms currently don't work properly with algorithm 4. \n");
 	}
 	if (algorithm == 4 && verbose == 1) {
-		fprintf(stderr, "warning: verbose output is currently limited for algorithm 4\n");
+		fprintf(stderr, "warning: verbose output is currently limited with algorithm 4\n");
 	}
 	// if (algorithm == 4 && SISwidth != Dwidth) {
-		// fprintf(stderr, "warning: setting SIS width is currently not available for algorithm 4\n");
+		// fprintf(stderr, "warning: setting SIS width is currently not available with algorithm 4\n");
 	// }
 }
 

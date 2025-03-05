@@ -351,12 +351,14 @@ CalcIdentLine(void)
 }
 
 
-#define random_texture_size (20)
+#define random_texture_size (200)
 col_t random_texture[random_texture_size][random_texture_size];
 
 void
 init_random_texture(void)
 {
+	Theight = random_texture_size;
+	Twidth = random_texture_size;
 	for (int line_number = 0; line_number < random_texture_size; ++line_number) {
 		for (int i = 0; i < random_texture_size; i++) {
 			switch (SIStype) {
