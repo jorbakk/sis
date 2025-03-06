@@ -54,7 +54,7 @@ GLFWwindow *window;
 
 const char *window_title = "SIS UI";
 
-int depth_map_img;
+int depth_map_img, texture_img;
 
 struct main_ctx {
 	NVGcontext *vg;
@@ -229,13 +229,17 @@ ui_frame(NVGcontext * vg, float w, float h)
     uiSetEvents(root, UI_BUTTON0_DOWN);
     uiSetBox(root, UI_COLUMN);
 
-	int hello_button = button(BND_ICON_GHOST, "Hello OUI", button_handler);
+	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
     uiSetLayout(hello_button, UI_HFILL | UI_TOP);
     uiInsert(root, hello_button);
 
 	int depth_map_view = image(depth_map_img, NULL);
     uiSetLayout(depth_map_view, UI_HFILL | UI_VFILL | UI_TOP);
     uiInsert(root, depth_map_view);
+
+	int texture_view = image(texture_img, NULL);
+    uiSetLayout(texture_view, UI_HFILL | UI_VFILL | UI_TOP);
+    uiInsert(root, texture_view);
 
 	uiEndLayout();
 
@@ -315,6 +319,7 @@ init_app(void)
     bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
     bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
     depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
+    texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
 #endif
 #ifndef GLFW_BACKEND
 	stm_setup();
