@@ -54,6 +54,8 @@ GLFWwindow *window;
 
 const char *window_title = "SIS UI";
 
+int depth_map_img;
+
 struct main_ctx {
 	NVGcontext *vg;
     UIcontext *ui_ctx;
@@ -63,6 +65,7 @@ struct main_ctx {
 typedef enum {
     ST_PANEL = 1,
     ST_BUTTON,
+    ST_IMAGE,
 } widget_sub_type;
 
 typedef struct {
@@ -75,6 +78,11 @@ typedef struct {
     int iconid;
     const char *label;
 } button_head;
+
+typedef struct {
+    widget_head head;
+    int img;
+} image_head;
 
 
 void
@@ -138,6 +146,22 @@ button(int iconid, const char *label, UIhandler handler)
 }
 
 
+int
+image(int img, UIhandler handler)
+{
+	int item = uiItem();
+	// set size of widget; horizontal and vertical sizes are dynamic
+	uiSetSize(item, 0, 0);
+	uiSetEvents(item, UI_BUTTON0_HOT_UP);
+	// store some custom data with the button that we use for styling
+	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
+	data->head.subtype = ST_IMAGE;
+	data->head.handler = handler;
+	data->img = img;
+	return item;
+}
+
+
 void
 render_ui(NVGcontext * vg, int item, int corners);
 
@@ -176,6 +200,16 @@ render_ui(NVGcontext * vg, int item, int corners)
 				              data->iconid, data->label);
 			}
 			break;
+		case ST_IMAGE:{
+				const image_head *data = (image_head *) head;
+				NVGpaint img_paint = nvgImagePattern(vg,
+				  rect.x, rect.y, rect.w, rect.h, 0, data->img, 1.0f);
+				nvgBeginPath(vg);
+				nvgRect(vg, rect.x, rect.y, rect.w, rect.h);
+				nvgFillPaint(vg, img_paint);
+				nvgFill(vg);
+			}
+			break;
 		}
 	}
 }
@@ -197,8 +231,11 @@ ui_frame(NVGcontext * vg, float w, float h)
 
 	int hello_button = button(BND_ICON_GHOST, "Hello OUI", button_handler);
     uiSetLayout(hello_button, UI_HFILL | UI_TOP);
-    // uiSetLayout(hello_button, UI_HCENTER | UI_TOP);
     uiInsert(root, hello_button);
+
+	int depth_map_view = image(depth_map_img, NULL);
+    uiSetLayout(depth_map_view, UI_HFILL | UI_VFILL | UI_TOP);
+    uiInsert(root, depth_map_view);
 
 	uiEndLayout();
 
@@ -277,6 +314,7 @@ init_app(void)
 #else
     bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
     bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
+    depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
 #endif
 #ifndef GLFW_BACKEND
 	stm_setup();
