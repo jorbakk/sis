@@ -48,6 +48,11 @@
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 
+#ifdef GLFW_BACKEND
+GLFWwindow *window;
+#endif
+
+const char *window_title = "SIS UI";
 
 struct main_ctx {
 	NVGcontext *vg;
@@ -216,7 +221,11 @@ frame(void)
 	int fbWidth, fbHeight;
 	float pxRatio;
 
-#ifdef SOKOL_APP_INCLUDED
+	glfwGetCursorPos(window, &mctx.mx, &mctx.my);
+#ifdef GLFW_BACKEND
+	glfwGetWindowSize(window, &winWidth, &winHeight);
+	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+#else
 	winWidth = sapp_width();
 	winHeight = sapp_height();
 	fbWidth = sapp_width();
@@ -291,8 +300,87 @@ cleanup(void)
 }
 
 
+#ifdef GLFW_BACKEND
 
-#ifdef SOKOL_APP_INCLUDED
+static void
+mousebutton(GLFWwindow * window, int button, int action, int mods)
+{
+	NVG_NOTUSED(window);
+	switch (button) {
+	case 1:
+		button = 2;
+		break;
+	case 2:
+		button = 1;
+		break;
+	}
+	uiSetButton(button, mods, (action == GLFW_PRESS) ? 1 : 0);
+}
+
+static void
+cursorpos(GLFWwindow * window, double x, double y)
+{
+	NVG_NOTUSED(window);
+	uiSetCursor((int)x, (int)y);
+}
+
+static void
+scrollevent(GLFWwindow * window, double x, double y)
+{
+	NVG_NOTUSED(window);
+	uiSetScroll((int)x, (int)y);
+}
+
+static void
+charevent(GLFWwindow * window, unsigned int value)
+{
+	NVG_NOTUSED(window);
+	uiSetChar(value);
+}
+
+static void
+key(GLFWwindow * window, int key, int scancode, int action, int mods)
+{
+	NVG_NOTUSED(scancode);
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	uiSetKey(key, mods, action);
+}
+
+int
+main(void)
+{
+	if (!glfwInit())
+		return -1;
+	window = glfwCreateWindow(640, 480, window_title, NULL, NULL);
+	if (!window) {
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, key);
+	glfwSetCharCallback(window, charevent);
+	glfwSetCursorPosCallback(window, cursorpos);
+	glfwSetMouseButtonCallback(window, mousebutton);
+	glfwSetScrollCallback(window, scrollevent);
+
+	init_app();
+	while (!glfwWindowShouldClose(window)) {
+		/* Render here */
+		glClear(GL_COLOR_BUFFER_BIT);
+		frame();
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
+		/* Poll for and process events */
+		glfwPollEvents();
+	}
+	cleanup();
+	glfwTerminate();
+	return 0;
+}
+
+#else
+
 void
 event_cb(const sapp_event* ev)
 {
@@ -347,44 +435,10 @@ sokol_main(int argc, char *argv[])
 		.frame_cb = frame,
 		.cleanup_cb = cleanup,
 		.event_cb = event_cb,
-		.width = 650,.height = 650,
-		.window_title = "OUI Button",
-		// .logger.func = slog_func,
+		.width = 640,
+		.height = 480,
+		.window_title = window_title,
 	};
 }
-#endif   /// SOKOL_APP_INCLUDED
 
-
-// #ifdef _glfw3h_
-#ifdef GLFW_BACKEND
-int
-main(void)
-{
-    GLFWwindow* window;
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
-    glfwTerminate();
-    return 0;
-}
-
-#endif    /// _glfw3h_
+#endif    /// GLFW_BACKEND

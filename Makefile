@@ -41,8 +41,8 @@ LDFLAGS_GUI_LINUX = -lglfw -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 # OBJS = $(B)/main.o $(B)/stbimg.o $(B)/tiff.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS = $(B)/main.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 NVOBJS = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o
-TEST_SRCS = sisui.c nanovg.c nanovg_gl.c nanovg_gl_utils.c
-TEST_OBJS = $(B)/sisui.o $(NVOBJS)
+TEST_SRCS = mainui.c nanovg.c nanovg_gl.c nanovg_gl_utils.c
+TEST_OBJS = $(B)/mainui.o $(NVOBJS)
 
 .PHONY: all
 
@@ -69,9 +69,9 @@ $(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
 	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS) $(S3)/nanovg_gl.c
 $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
 	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS) $(S3)/nanovg_gl_utils.c
-$(B)/sisui.o: $(S)/sisui.c
-	$(CC) -c -o $(B)/sisui.o $(CFLAGS) $(S)/sisui.c
-$(B)/sisui: $(B)/sisui.o $(NVOBJS)
+$(B)/mainui.o: $(S)/mainui.c
+	$(CC) -c -o $(B)/mainui.o $(CFLAGS) $(S)/mainui.c
+$(B)/sisui: $(B)/mainui.o $(NVOBJS)
 	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
 
 clean:
