@@ -48,18 +48,21 @@
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 
+#include "sis.h"
+
+
 #ifdef GLFW_BACKEND
 GLFWwindow *window;
 #endif
 
-const char *window_title = "SIS UI";
 
-int depth_map_img, texture_img;
+const char *window_title = "SIS UI";
 
 struct main_ctx {
 	NVGcontext *vg;
     UIcontext *ui_ctx;
 	double mx, my;
+	int depth_map_img, texture_img;
 } mctx;
 
 typedef enum {
@@ -221,25 +224,25 @@ ui_frame(NVGcontext * vg, float w, float h)
 	/// Layout user interface
 	uiBeginLayout();
 
-    int root = panel();
-    // Set size of root element
-    // uiSetSize(root, w, h);
-    uiSetSize(root, 200, 100);
-    ((widget_head*)uiGetHandle(root))->handler = root_handler;
-    uiSetEvents(root, UI_BUTTON0_DOWN);
-    uiSetBox(root, UI_COLUMN);
+	int root = panel();
+	// Set size of root element
+	// uiSetSize(root, w, h);
+	uiSetSize(root, 200, 100);
+	((widget_head *) uiGetHandle(root))->handler = root_handler;
+	uiSetEvents(root, UI_BUTTON0_DOWN);
+	uiSetBox(root, UI_COLUMN);
 
 	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
-    uiSetLayout(hello_button, UI_HFILL | UI_TOP);
-    uiInsert(root, hello_button);
+	uiSetLayout(hello_button, UI_HFILL | UI_TOP);
+	uiInsert(root, hello_button);
 
-	int depth_map_view = image(depth_map_img, NULL);
-    uiSetLayout(depth_map_view, UI_HFILL | UI_VFILL | UI_TOP);
-    uiInsert(root, depth_map_view);
+	int depth_map_view = image(mctx.depth_map_img, NULL);
+	uiSetLayout(depth_map_view, UI_HFILL | UI_VFILL | UI_TOP);
+	uiInsert(root, depth_map_view);
 
-	int texture_view = image(texture_img, NULL);
-    uiSetLayout(texture_view, UI_HFILL | UI_VFILL | UI_TOP);
-    uiInsert(root, texture_view);
+	int texture_view = image(mctx.texture_img, NULL);
+	uiSetLayout(texture_view, UI_HFILL | UI_VFILL | UI_TOP);
+	uiInsert(root, texture_view);
 
 	uiEndLayout();
 
@@ -247,9 +250,9 @@ ui_frame(NVGcontext * vg, float w, float h)
 	render_ui(vg, 0, BND_CORNER_NONE);
 	/// Process user events
 #ifdef GLFW_BACKEND
-    uiProcess((int)(glfwGetTime() * 1e-3));
+	uiProcess((int)(glfwGetTime() * 1e-3));
 #else
-    uiProcess((int)(stm_sec(stm_now()) * 1000.0));
+	uiProcess((int)(stm_sec(stm_now()) * 1000.0));
 #endif
 }
 
@@ -318,8 +321,8 @@ init_app(void)
 #else
     bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
     bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
-    depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
-    texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
+    mctx.depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
+    mctx.texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
 #endif
 #ifndef GLFW_BACKEND
 	stm_setup();
