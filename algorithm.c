@@ -380,7 +380,7 @@ init_random_texture(void)
 void
 InitSISBuffer(ind_t LineNumber)
 {
-	init_random_texture();
+	// init_random_texture();
 	for (ind_t i = 0; i < SISwidth * oversam; i++) {
 		switch (SIStype) {
 		case SIS_RANDOM_GREY:
@@ -432,8 +432,8 @@ get_pixel_from_pattern(int x, int y)
 	switch (SIStype) {
 	case SIS_RANDOM_GREY:
 	case SIS_RANDOM_COLOR:
-		// ret = SISBuffer[x];
-		ret = random_texture[y % random_texture_size][x % random_texture_size];
+		ret = SISBuffer[x];
+		// ret = random_texture[y % random_texture_size][x % random_texture_size];
 		break;
 	case SIS_TEXT_MAP:
 		ret = ReadTPixel(y % Theight, x % Twidth);
