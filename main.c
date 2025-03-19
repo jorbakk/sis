@@ -83,6 +83,13 @@ print_summary(void)
 }
 
 
+void
+show_statistics(void)
+{
+	print_statistics();
+}
+
+
 int
 main(int argc, char **argv)
 {
@@ -91,29 +98,7 @@ main(int argc, char **argv)
 	if (verbose) {
 		print_message_header();
 	}
-
-	for (SISLineNumber = 0; SISLineNumber < SISheight; SISLineNumber++) {
-		DLineNumber = (int)DLinePosition;
-		DLinePosition += DLineStep;
-		max_depth_in_row = SIS_MIN_DEPTH;
-		min_depth_in_row = SIS_MAX_DEPTH;
-
-		ReadDBuffer(DLineNumber);            /// Read in one line of depth-map
-
-		if (algorithm < 4) {
-			CalcIdentLine();                     /// My SIS-algorithm
-			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
-			FillRGBBuffer(SISLineNumber);
-			                                     /// according to the SIS-type
-		} else {
-			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
-			asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
-		}
-		// WriteSISBuffer(SISLineNumber);    /// Write one line of output
-		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
-		if (verbose)
-			print_statistics();
-	}
+	render_sis();
 	if (verbose) {
 		puts("\n");
 		print_summary();

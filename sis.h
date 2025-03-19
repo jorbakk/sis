@@ -109,7 +109,9 @@ extern int oversam;
 
 void get_options(int argc, char **argv);
 void init_sis(int argc, char **argv);
+void render_sis(void);
 void finish_sis(void);
+void show_statistics(void);
 ind_t metric2pixel(int metric_val, int resolution);
 
 /*

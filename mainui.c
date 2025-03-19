@@ -89,6 +89,12 @@ typedef struct {
 
 
 void
+show_statistics(void)
+{
+}
+
+
+void
 event_handler(int item, UIevent event)
 {
 	widget_head *data = (widget_head *) uiGetHandle(item);
@@ -417,6 +423,7 @@ main(int argc, char **argv)
 	glfwSetScrollCallback(window, scrollevent);
 
 	init_sis(argc, argv);
+	render_sis();
 	init_app();
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */

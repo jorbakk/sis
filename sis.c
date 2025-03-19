@@ -58,15 +58,15 @@ SetDefaults(void)
 	SISFileName = DefaultSISFileName;
 	SIStype = SIS_RANDOM_GREY;
 	SISwidth = SISheight = 0;
-	algorithm = 4;
+	algorithm = 2;
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
 	verbose = 0;
 	invert = 0;
-	mark = 0;
+	mark = 1;
 	metric = 'i';
 	resolution = 75;
 	oversam = 4;
-	eye_dist = 0;
+	eye_dist = 300;
 	t = 1.0;
 	u = 0.67;
 	rand_grey_num = 2;
@@ -192,3 +192,33 @@ finish_sis(void)
 	free(SISgreen);
 	free(SISblue);
 }
+
+
+void
+render_sis(void)
+{
+	for (SISLineNumber = 0; SISLineNumber < SISheight; SISLineNumber++) {
+		DLineNumber = (int)DLinePosition;
+		DLinePosition += DLineStep;
+		max_depth_in_row = SIS_MIN_DEPTH;
+		min_depth_in_row = SIS_MAX_DEPTH;
+
+		ReadDBuffer(DLineNumber);            /// Read in one line of depth-map
+
+		if (algorithm < 4) {
+			CalcIdentLine();                     /// My SIS-algorithm
+			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			FillRGBBuffer(SISLineNumber);
+			                                     /// according to the SIS-type
+		} else {
+			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
+		}
+		// WriteSISBuffer(SISLineNumber);    /// Write one line of output
+		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output
+		if (verbose) {
+			show_statistics();
+		}
+	}
+}
+
