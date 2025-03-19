@@ -48,6 +48,8 @@
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 
+// #include "stb_image.h"
+
 #include "sis.h"
 
 
@@ -62,7 +64,7 @@ struct main_ctx {
 	NVGcontext *vg;
     UIcontext *ui_ctx;
 	double mx, my;
-	int depth_map_img, texture_img;
+	int depth_map_img, texture_img, sis_img;
 } mctx;
 
 typedef enum {
@@ -225,13 +227,30 @@ ui_frame(NVGcontext * vg, float w, float h)
 	int panel_margin_v = 5;
 	int img_width = panel_width - 2 * panel_margin_h;
 
+	int root = panel();
+	uiSetSize(root, w, h);
+	uiSetBox(root, UI_LAYOUT);
+	uiSetLayout(root, UI_FILL);
+
 	int ctl_panel = panel();
 	// Set size of ctl_panel element
 	uiSetSize(ctl_panel, panel_width, panel_height);
-	uiSetEvents(ctl_panel, UI_BUTTON0_DOWN);
+	// uiSetEvents(ctl_panel, UI_BUTTON0_DOWN);
 	// uiSetLayout(ctl_panel, UI_TOP);
-	uiSetMargins(ctl_panel, 10, 10, 0, 0);
+	uiSetLayout(ctl_panel, UI_LEFT | UI_TOP);
+	uiSetMargins(ctl_panel, 10, 10, 5, 10);
 	uiSetBox(ctl_panel, UI_COLUMN);
+	uiInsert(root, ctl_panel);
+
+	int sis_view = panel();
+	// Set size of sis_view element
+	uiSetSize(sis_view, w - panel_width - 4 * panel_margin_h, h - 4 * panel_margin_v);
+	// uiSetEvents(sis_view, UI_BUTTON0_DOWN);
+	// uiSetLayout(sis_view, UI_TOP);
+	uiSetLayout(sis_view, UI_RIGHT | UI_TOP);
+	uiSetMargins(sis_view, 5, 10, 5, 10);
+	uiSetBox(sis_view, UI_COLUMN);
+	uiInsert(root, sis_view);
 
 	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
 	uiSetLayout(hello_button, UI_HFILL | UI_TOP);
@@ -299,20 +318,32 @@ frame(void)
 }
 
 
-void
+bool
 update_depth_image(void)
 {
-	// int imageFlags = 0;
 	mctx.depth_map_img = nvgCreateImage(mctx.vg, DFileName, 0);
-	// mctx.depth_map_img = nvgCreateImageRGBA(mctx.vg, Dwidth, Dheight, imageFlags, GetDFileBuffer());
+
+	/// This only works if image in memory is still in an image container format
+	// int imageFlags = 0;
+	// int w, h, n;
+	// unsigned char* img = stbi_load_from_memory(GetDFileBuffer(), Dwidth * Dheight, &w, &h, &n, 1);
+	// if (!img) {
+		// fprintf(stderr, "failed to convert channels in: %s\n", DFileName);
+		// return false;
+	// }
+	// mctx.depth_map_img = nvgCreateImageRGBA(mctx.vg, w, h, imageFlags, img);
+	// stbi_image_free(img);
+
+	return true;
 }
 
 
-void
+bool
 update_texture_image(void)
 {
 	mctx.texture_img = nvgCreateImage(mctx.vg, TFileName, 0);
 	// mctx.texture_img = nvgCreateImageRGBA(mctx.vg, Twidth, Theight, imageFlags, GetTFileBuffer());
+	return true;
 }
 
 
@@ -423,8 +454,8 @@ main(int argc, char **argv)
 	glfwSetScrollCallback(window, scrollevent);
 
 	init_sis(argc, argv);
-	render_sis();
 	init_app();
+	render_sis();
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
