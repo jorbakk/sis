@@ -105,12 +105,6 @@ Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 			fprintf(stderr, "Failed to allocate texture readbuf.\n");
 			exit(1);
 		}
-		// TODO We also need to downsample the texture image to 256 different
-		// colors, as col_t is unsigned char and SIS_MAX_COLORS is 0xff.
-		// However, currently the tiff implementation rejects texture images
-		// with more than 256 different colors (BITSPERSAMPLE != 8). We could
-		// raise this limit for both implementations (tiff and stb_image) or
-		// remove tiff and fix it with stb_image.
 		for (ind_t c = 0; c < *width; ++c) {
 			ind_t row_pos = r * (*width) * channel_count;
 			ind_t col_base_pos = c * channel_count;
@@ -201,7 +195,7 @@ Stb_WriteSISColorBuffer(ind_t r)
 col_t
 Stb_ReadTPixel(ind_t r, ind_t c)
 {
-	// TODO is cur_Tread actually used in stbimg.c and tiff.c?
+	// TODO is cur_Tread actually used in stbimg.c?
 	if (cur_Tread != r) {
 		cur_Tread = r;
 	}

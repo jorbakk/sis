@@ -5,7 +5,6 @@
 
 
 int ImgFileFormat = SIS_IMGFMT_DFLT;
-/* int ImgFileFormat = SIS_IMGFMT_TIFF; */
 ind_t Tcolcount;
 
 char *DFileName = NULL;
@@ -91,30 +90,6 @@ InitFuncs(void)
 	WriteSISColorBuffer = Stb_WriteSISColorBuffer;
 	GetDFileBuffer = Stb_GetDFileBuffer;
 	GetTFileBuffer = Stb_GetTFileBuffer;
-	/* switch (ImgFileFormat) { */
-	/*     case SIS_IMGFMT_TIFF: */
-	/*         OpenDFile = Tiff_OpenDFile; */
-	/*         CloseDFile = Tiff_CloseDFile; */
-	/*         ReadDBuffer = Tiff_ReadDBuffer; */
-	/*         OpenSISFile = Tiff_OpenSISFile; */
-	/*         OpenTFile = Tiff_OpenTFile; */
-	/*         CloseTFile = Tiff_CloseTFile; */
-	/*         CloseSISFile = Tiff_CloseSISFile; */
-	/*         ReadTPixel = Tiff_ReadTPixel; */
-	/*         WriteSISBuffer = Tiff_WriteSISBuffer; */
-	/*         break; */
-	/*     default: */
-	/*         OpenDFile = Stb_OpenDFile; */
-	/*         CloseDFile = Stb_CloseDFile; */
-	/*         ReadDBuffer = Stb_ReadDBuffer; */
-	/*         OpenSISFile = Stb_OpenSISFile; */
-	/*         OpenTFile = Stb_OpenTFile; */
-	/*         CloseTFile = Stb_CloseTFile; */
-	/*         CloseSISFile = Stb_CloseSISFile; */
-	/*         ReadTPixel = Stb_ReadTPixel; */
-	/*         WriteSISBuffer = Stb_WriteSISBuffer; */
-	/*         break; */
-	/* } */
 }
 
 

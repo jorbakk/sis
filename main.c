@@ -25,18 +25,6 @@
 
 #include "sis.h"
 
-// CURRENT TODO LIST ////////////////////////////////////////////////////////////////////////
-//
-// 1. Set the image format for input and output images based on the filenames
-//    given at the command line or introduce a new command line option.
-//    Beware that the input image (depth-map) can be read from stdin.
-// 2. Update docs (build process, supported image formats, add input images:
-//    depth map and texture, ...)
-// 3. Support color palette for the texture image with more than 256 colors,
-//    depalettize input images while reading
-//
-//////////////////////////////////////////////////////////////////////////////////////////////
-
 
 static void
 print_warnings(void)
