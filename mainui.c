@@ -70,6 +70,7 @@ struct main_ctx {
 typedef enum {
     ST_PANEL = 1,
     ST_BUTTON,
+    ST_SLIDER,
     ST_IMAGE,
 } widget_sub_type;
 
@@ -83,6 +84,12 @@ typedef struct {
     int iconid;
     const char *label;
 } button_head;
+
+typedef struct {
+    widget_head head;
+    const char *label;
+    double *progress;
+} slider_head;
 
 typedef struct {
     widget_head head;
@@ -140,6 +147,43 @@ button(int iconid, const char *label, UIhandler handler)
 }
 
 
+void
+slider_handler(int item, UIevent event)
+{
+	const slider_head *data = (const slider_head *)uiGetHandle(item);
+	// printf("clicked slider pointer: %p, label: %s\n", uiGetHandle(item), data->label);
+	UIrect r = uiGetRect(item);
+	UIvec2 c = uiGetCursor();
+	float v = (float)(c.x - r.x) / (float)r.w;
+	v = v >= 0.0f ? v : 0.0f;
+	v = v <= 1.0f ? v : 1.0f;
+	*(data->progress) = v;
+}
+
+
+bool update_sis_image(void);
+
+
+int
+slider(const char *label, double *progress, UIhandler handler)
+{
+	// create new ui item
+	int item = uiItem();
+	// set size of wiget; horizontal size is dynamic, vertical is fixed
+	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+	uiSetEvents(item, UI_BUTTON0_CAPTURE);
+	// store some custom data with the slider that we use for styling
+	slider_head *data = (slider_head *) uiAllocHandle(item, sizeof(slider_head));
+	data->head.subtype = ST_SLIDER;
+	data->head.handler = handler;
+	data->label = label;
+	data->progress = progress;
+	// render_sis();
+	update_sis_image();
+	return item;
+}
+
+
 int
 image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
 {
@@ -148,7 +192,7 @@ image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
 	nvgImageSize(vg, img, &iw, &ih);
 	float aspect_ratio = (float)w / (float)h;
 	float aspect_ratio_i = (float)iw / (float)ih;
-	if (iw < w && ih << h) {
+	if (iw < w && ih < h) {
 		uiSetSize(item, iw, ih);
 	}
 	else if (aspect_ratio > aspect_ratio_i) {
@@ -221,6 +265,15 @@ render_ui(NVGcontext * vg, int item, int corners)
 				              data->iconid, data->label);
 			}
 			break;
+		case ST_SLIDER: {
+				const slider_head *data = (slider_head *) head;
+				BNDwidgetState state = (BNDwidgetState) uiGetState(item);
+				static char value[32];
+				sprintf(value, "%.0f%%", (*data->progress) * 100.0f);
+				// fprintf(stderr, "%f", (*data->progress));
+				bndSlider(vg, rect.x, rect.y, rect.w, rect.h,
+				          corners, state, *data->progress, data->label, value);
+			} break;
 		case ST_IMAGE:{
 				const image_head *data = (image_head *) head;
 				NVGpaint img_paint = nvgImagePattern(vg,
@@ -276,10 +329,20 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(sis_view_panel, sis_view);
 
-	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
-	uiSetLayout(hello_button, UI_HFILL | UI_TOP);
-	uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
-	uiInsert(ctl_panel, hello_button);
+	// int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
+	// uiSetLayout(hello_button, UI_HFILL | UI_TOP);
+	// uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
+	// uiInsert(ctl_panel, hello_button);
+
+	int far_plane_slider = slider("far plane", &t, slider_handler);
+    uiSetLayout(far_plane_slider, UI_HFILL | UI_VCENTER);
+	uiSetMargins(far_plane_slider, 5, 3, 5, 3);
+    uiInsert(ctl_panel, far_plane_slider);
+
+	int near_plane_slider = slider("near plane", &u, slider_handler);
+    uiSetLayout(near_plane_slider, UI_HFILL | UI_VCENTER);
+	uiSetMargins(near_plane_slider, 5, 3, 5, 3);
+    uiInsert(ctl_panel, near_plane_slider);
 
 	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
 	uiSetLayout(depth_map_view, UI_TOP);
