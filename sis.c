@@ -1,6 +1,7 @@
-#include <stddef.h>
+#include <stdlib.h>
 
 #include "sis.h"
+#include "stbimg.h"
 
 
 int ImgFileFormat = SIS_IMGFMT_DFLT;
@@ -40,3 +41,132 @@ col_t(*ReadTPixel) (ind_t r, ind_t c);
 void (*WriteSISColorBuffer)(ind_t r);
 unsigned char *(*GetDFileBuffer)(void);
 unsigned char *(*GetTFileBuffer)(void);
+
+char *DefaultDFileName = "in.tif";
+char *DefaultSISFileName = "out.tif";
+char *DefaultTFileName = "texture.tif";
+pos_t DLinePosition, DLineStep;
+ind_t SISLineNumber;
+ind_t DLineNumber;
+
+
+void
+SetDefaults(void)
+{
+	DFileName = DefaultDFileName;
+	TFileName = DefaultTFileName;
+	SISFileName = DefaultSISFileName;
+	SIStype = SIS_RANDOM_GREY;
+	SISwidth = SISheight = 0;
+	algorithm = 4;
+	origin = -1;                /* that means, it is set to SISwidth/2 later */
+	verbose = 0;
+	invert = 0;
+	mark = 0;
+	metric = 'i';
+	resolution = 75;
+	oversam = 4;
+	eye_dist = 0;
+	t = 1.0;
+	u = 0.67;
+	rand_grey_num = 2;
+	rand_col_num = SIS_MAX_COLORS;
+	density = 0.5;
+	debug = 0;
+}
+
+
+void
+InitFuncs(void)
+{
+	OpenDFile = Stb_OpenDFile;
+	CloseDFile = Stb_CloseDFile;
+	ReadDBuffer = Stb_ReadDBuffer;
+	OpenSISFile = Stb_OpenSISFile;
+	OpenTFile = Stb_OpenTFile;
+	CloseTFile = Stb_CloseTFile;
+	CloseSISFile = Stb_CloseSISFile;
+	ReadTPixel = Stb_ReadTPixel;
+	// WriteSISBuffer = Stb_WriteSISBuffer;
+	WriteSISColorBuffer = Stb_WriteSISColorBuffer;
+	GetDFileBuffer = Stb_GetDFileBuffer;
+	GetTFileBuffer = Stb_GetTFileBuffer;
+	/* switch (ImgFileFormat) { */
+	/*     case SIS_IMGFMT_TIFF: */
+	/*         OpenDFile = Tiff_OpenDFile; */
+	/*         CloseDFile = Tiff_CloseDFile; */
+	/*         ReadDBuffer = Tiff_ReadDBuffer; */
+	/*         OpenSISFile = Tiff_OpenSISFile; */
+	/*         OpenTFile = Tiff_OpenTFile; */
+	/*         CloseTFile = Tiff_CloseTFile; */
+	/*         CloseSISFile = Tiff_CloseSISFile; */
+	/*         ReadTPixel = Tiff_ReadTPixel; */
+	/*         WriteSISBuffer = Tiff_WriteSISBuffer; */
+	/*         break; */
+	/*     default: */
+	/*         OpenDFile = Stb_OpenDFile; */
+	/*         CloseDFile = Stb_CloseDFile; */
+	/*         ReadDBuffer = Stb_ReadDBuffer; */
+	/*         OpenSISFile = Stb_OpenSISFile; */
+	/*         OpenTFile = Stb_OpenTFile; */
+	/*         CloseTFile = Stb_CloseTFile; */
+	/*         CloseSISFile = Stb_CloseSISFile; */
+	/*         ReadTPixel = Stb_ReadTPixel; */
+	/*         WriteSISBuffer = Stb_WriteSISBuffer; */
+	/*         break; */
+	/* } */
+}
+
+
+void
+InitVars(void)
+{
+	int i;
+
+	inner_propagate_c = 0;
+	outer_propagate_c = 0;
+	forwards_obscure_c = 0;
+	backwards_obscure_c = 0;
+	metric = 'i';
+	if (eye_dist == 0) {
+		eye_dist = metric2pixel(22, resolution);
+	}
+	if (algorithm < 4) {
+		halfstripwidth = eye_dist * t / (2 * (1 + t));
+	} else {
+		halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
+	}
+	halftriangwidth = SISwidth / 75;
+	if (!halftriangwidth)
+		halftriangwidth = 4;
+	DLineStep = (double)Dheight / (double)SISheight;
+	DLinePosition = 0.0;
+	/// Set the original default value for origin in case of algo #4,
+	/// it is not in the center of the image because some artifacts
+	/// in the background appear
+	if (origin == -1 && algorithm < 4) {
+		origin = SISwidth >> 1;
+	}
+
+	switch (SIStype) {
+	case SIS_RANDOM_GREY:
+		SISred[0] = SISgreen[0] = SISblue[0] = white_value;
+		white = 0;
+		for (i = 1; i < rand_grey_num; i++) {
+			SISred[i] = SISgreen[i] = SISblue[i] =
+			    i * (float)SIS_MAX_CMAP / (float)rand_grey_num;
+		}
+		break;
+	case SIS_RANDOM_COLOR:
+		for (i = 0; i < rand_col_num; i++) {
+			SISred[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISgreen[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISblue[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+		}
+		break;
+	}
+	SISred[SIS_MAX_COLORS] = SISgreen[SIS_MAX_COLORS] = SISblue[SIS_MAX_COLORS]
+	    = black_value;
+	black = SIS_MAX_COLORS;
+}
+

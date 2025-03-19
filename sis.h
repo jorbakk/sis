@@ -84,6 +84,17 @@ extern void (*WriteSISColorBuffer)(ind_t r);
 extern unsigned char *(*GetDFileBuffer)(void);
 extern unsigned char *(*GetTFileBuffer)(void);
 
+extern char *DefaultDFileName;
+extern char *DefaultSISFileName;
+extern char *DefaultTFileName;
+extern pos_t DLinePosition, DLineStep;
+extern ind_t SISLineNumber;
+extern ind_t DLineNumber;
+
+void SetDefaults(void);
+void InitFuncs(void);
+void InitVars(void);
+
 /*
    Interface to get_opt.c:
    */
