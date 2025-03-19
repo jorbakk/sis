@@ -48,8 +48,10 @@ Stb_OpenDFile(char *DFileName, ind_t *width, ind_t *height)
 	stbi_convert_iphone_png_to_rgb(1);
 	int channel_count = 0, desired_channel_count = 1;
 	if (! (inpic_p = (unsigned char *)stbi_load(DFileName, (int *)width, (int *)height,
-	                                &channel_count, desired_channel_count)))
+	                                &channel_count, desired_channel_count))) {
+	    fprintf(stderr, "Failed to load %s: %s\n", DFileName, stbi_failure_reason());
 		exit(1);
+	}
 	if (channel_count != desired_channel_count) {
 		fprintf(stderr,
 		        "Input depth map image has more than one color channel, it should be a grayscale image\n");
@@ -79,8 +81,10 @@ Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 {
 	int channel_count = 0, desired_channel_count = 3;
 	if (!(texpic_p = (unsigned char *)stbi_load(TFileName, (int *)width, (int *)height,
-	                                &channel_count, desired_channel_count)))
+	                                &channel_count, desired_channel_count))) {
+	    fprintf(stderr, "Failed to load %s: %s\n", TFileName, stbi_failure_reason());
 		exit(1);
+	}
 	if (channel_count != desired_channel_count) {
 		fprintf(stderr,
 		        "Input texture map image must have three color channels\n");
