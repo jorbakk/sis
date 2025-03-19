@@ -42,7 +42,7 @@ static const int SISChannelCount = 3;
 
 
 void
-Stb_OpenDFile(char *DFileName, ind_t * width, ind_t * height)
+Stb_OpenDFile(char *DFileName, ind_t *width, ind_t *height)
 {
 	int channel_count = 0, desired_channel_count = 1;
 	if (! (inpic_p = (unsigned char *)stbi_load(DFileName, (int *)width, (int *)height,
@@ -138,6 +138,20 @@ Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
 }
 
 
+unsigned char *
+Stb_GetDFileBuffer(void)
+{
+	return inpic_p;
+}
+
+
+unsigned char *
+Stb_GetTFileBuffer(void)
+{
+	return texpic_p;
+}
+
+
 void
 Stb_ReadDBuffer(ind_t r)
 {
@@ -209,7 +223,7 @@ Stb_CloseTFile(ind_t height)
 		free(Tread_buf[r]);
 	}
 	free(Tread_buf);
-	free(texpic_p);
+	stbi_image_free(texpic_p);
 }
 
 

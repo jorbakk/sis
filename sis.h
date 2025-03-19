@@ -59,7 +59,7 @@ extern int ImgFileFormat;
 extern char *DFileName;
 extern char *SISFileName;
 extern char *TFileName;
-extern int SIStype; //, SIScompress;
+extern int SIStype;
 /// Color palettes for depth and sis image colors (from texture or random dots)
 extern col_t *DBuffer;
 
@@ -70,6 +70,19 @@ extern cmap_t *SISblue;
 extern col_rgb_t *SIScolorRGB;
 extern ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight, Tcolcount;
 extern cmap_t white_value, black_value;
+
+extern void (*OpenDFile)(char *DFileName, ind_t * width, ind_t * height);
+extern void (*OpenSISFile)(char *SISFileName, ind_t width, ind_t height, int SIStype);
+extern void (*OpenTFile)(char *TFileName, ind_t * width, ind_t * height);
+extern void (*CloseDFile)(void);
+extern void (*CloseTFile)(ind_t height);
+extern void (*CloseSISFile)(void);
+extern void (*ReadDBuffer)(ind_t r);
+extern col_t(*ReadTPixel) (ind_t r, ind_t c);
+// void (*WriteSISBuffer)(ind_t r);
+extern void (*WriteSISColorBuffer)(ind_t r);
+extern unsigned char *(*GetDFileBuffer)(void);
+extern unsigned char *(*GetTFileBuffer)(void);
 
 /*
    Interface to get_opt.c:

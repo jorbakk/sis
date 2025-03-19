@@ -26,6 +26,9 @@ void Stb_OpenDFile(char *DFileName, ind_t * width, ind_t * height);
 void Stb_OpenSISFile(char *SISFileName, ind_t width, ind_t height, int SIStype);
 void Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height);
 
+unsigned char *Stb_GetDFileBuffer(void);
+unsigned char *Stb_GetTFileBuffer(void);
+
 void Stb_ReadDBuffer(ind_t r);
 void Stb_WriteSISBuffer(ind_t r);
 void Stb_WriteSISColorBuffer(ind_t r);

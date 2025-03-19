@@ -39,7 +39,7 @@ LDFLAGS = -lm
 LDFLAGS_GUI_LINUX = -lglfw -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 
 # OBJS = $(B)/main.o $(B)/stbimg.o $(B)/tiff.o $(B)/algorithm.o $(B)/get_opt.o
-OBJS = $(B)/main.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
+OBJS = $(B)/main.o $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 NVOBJS = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o
 TEST_SRCS = mainui.c nanovg.c nanovg_gl.c nanovg_gl_utils.c
 TEST_OBJS = $(B)/mainui.o $(NVOBJS)
@@ -63,6 +63,8 @@ $(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
 # $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/tiff.h $(S)/sis.h
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
+$(B)/sis.o: $(S)/sis.c $(S)/stbimg.h $(S)/sis.h
+	$(CC) -c -o $(B)/sis.o $(CFLAGS) $(S)/sis.c
 $(B)/nanovg.o: $(S3)/nanovg.c $(S3)/nanovg.h $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h
 	$(CC) -c -o $(B)/nanovg.o $(CFLAGS) $(S3)/nanovg.c
 $(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
