@@ -41,6 +41,7 @@ col_t(*ReadTPixel) (ind_t r, ind_t c);
 void (*WriteSISColorBuffer)(ind_t r);
 unsigned char *(*GetDFileBuffer)(void);
 unsigned char *(*GetTFileBuffer)(void);
+unsigned char *(*GetSISFileBuffer)(void);
 
 char *DefaultDFileName = "depthmaps/flowers.png";
 char *DefaultSISFileName = "/tmp/out.png";
@@ -56,7 +57,8 @@ SetDefaults(void)
 	DFileName = DefaultDFileName;
 	TFileName = DefaultTFileName;
 	SISFileName = DefaultSISFileName;
-	SIStype = SIS_RANDOM_GREY;
+	// SIStype = SIS_RANDOM_GREY;
+	SIStype = SIS_TEXT_MAP;
 	SISwidth = SISheight = 0;
 	algorithm = 2;
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
@@ -91,6 +93,7 @@ InitFuncs(void)
 	WriteSISColorBuffer = Stb_WriteSISColorBuffer;
 	GetDFileBuffer = Stb_GetDFileBuffer;
 	GetTFileBuffer = Stb_GetTFileBuffer;
+	GetSISFileBuffer = Stb_GetSISFileBuffer;
 }
 
 

@@ -226,6 +226,8 @@ ui_frame(NVGcontext * vg, float w, float h)
 	int panel_margin_h = 5;
 	int panel_margin_v = 5;
 	int img_width = panel_width - 2 * panel_margin_h;
+	int sis_view_width = w - panel_width - 4 * panel_margin_h;
+	int sis_view_height = h - 4 * panel_margin_v;
 
 	int root = panel();
 	uiSetSize(root, w, h);
@@ -242,15 +244,19 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetBox(ctl_panel, UI_COLUMN);
 	uiInsert(root, ctl_panel);
 
-	int sis_view = panel();
-	// Set size of sis_view element
-	uiSetSize(sis_view, w - panel_width - 4 * panel_margin_h, h - 4 * panel_margin_v);
-	// uiSetEvents(sis_view, UI_BUTTON0_DOWN);
-	// uiSetLayout(sis_view, UI_TOP);
-	uiSetLayout(sis_view, UI_RIGHT | UI_TOP);
-	uiSetMargins(sis_view, 5, 10, 5, 10);
-	uiSetBox(sis_view, UI_COLUMN);
-	uiInsert(root, sis_view);
+	int sis_view_panel = panel();
+	uiSetSize(sis_view_panel, sis_view_width, sis_view_height);
+	// uiSetEvents(sis_view_panel, UI_BUTTON0_DOWN);
+	// uiSetLayout(sis_view_panel, UI_TOP);
+	uiSetLayout(sis_view_panel, UI_RIGHT | UI_TOP);
+	uiSetMargins(sis_view_panel, 5, 10, 5, 10);
+	uiSetBox(sis_view_panel, UI_COLUMN);
+	uiInsert(root, sis_view_panel);
+
+	int sis_view = image(mctx.vg, mctx.sis_img, sis_view_width, NULL);
+	uiSetLayout(sis_view, UI_TOP);
+	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
+	uiInsert(sis_view_panel, sis_view);
 
 	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
 	uiSetLayout(hello_button, UI_HFILL | UI_TOP);
@@ -318,6 +324,20 @@ frame(void)
 }
 
 
+unsigned char *
+rgb_to_rgba(unsigned char *img, int pixels)
+{
+	unsigned char *ret = malloc(4 * pixels);
+	for (int i = 0; i < pixels; ++i) {
+		ret[4 * i + 0] = img[3 * i + 0];
+		ret[4 * i + 1] = img[3 * i + 1];
+		ret[4 * i + 2] = img[3 * i + 2];
+		ret[4 * i + 3] = 0xff;
+	}
+	return ret;
+}
+
+
 bool
 update_depth_image(void)
 {
@@ -343,6 +363,17 @@ update_texture_image(void)
 {
 	mctx.texture_img = nvgCreateImage(mctx.vg, TFileName, 0);
 	// mctx.texture_img = nvgCreateImageRGBA(mctx.vg, Twidth, Theight, imageFlags, GetTFileBuffer());
+	return true;
+}
+
+
+bool
+update_sis_image(void)
+{
+	int imageFlags = 0;
+	unsigned char *img = rgb_to_rgba(GetSISFileBuffer(), SISwidth * SISheight);
+	mctx.sis_img = nvgCreateImageRGBA(mctx.vg, SISwidth, SISheight, imageFlags, img);
+	free(img);
 	return true;
 }
 
@@ -373,6 +404,7 @@ init_app(void)
 
 	update_depth_image();
 	update_texture_image();
+	update_sis_image();
 }
 
 
@@ -454,8 +486,8 @@ main(int argc, char **argv)
 	glfwSetScrollCallback(window, scrollevent);
 
 	init_sis(argc, argv);
-	init_app();
 	render_sis();
+	init_app();
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);

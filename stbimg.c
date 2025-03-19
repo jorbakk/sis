@@ -153,6 +153,13 @@ Stb_GetTFileBuffer(void)
 }
 
 
+unsigned char *
+Stb_GetSISFileBuffer(void)
+{
+	return outpic_buf_p;
+}
+
+
 void
 Stb_ReadDBuffer(ind_t r)
 {

@@ -28,6 +28,7 @@ void Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height);
 
 unsigned char *Stb_GetDFileBuffer(void);
 unsigned char *Stb_GetTFileBuffer(void);
+unsigned char *Stb_GetSISFileBuffer(void);
 
 void Stb_ReadDBuffer(ind_t r);
 void Stb_WriteSISBuffer(ind_t r);

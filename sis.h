@@ -83,6 +83,7 @@ extern col_t(*ReadTPixel) (ind_t r, ind_t c);
 extern void (*WriteSISColorBuffer)(ind_t r);
 extern unsigned char *(*GetDFileBuffer)(void);
 extern unsigned char *(*GetTFileBuffer)(void);
+extern unsigned char *(*GetSISFileBuffer)(void);
 
 extern char *DefaultDFileName;
 extern char *DefaultSISFileName;
