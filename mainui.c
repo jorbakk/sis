@@ -128,12 +128,9 @@ panel()
 int
 button(int iconid, const char *label, UIhandler handler)
 {
-	// create new ui item
 	int item = uiItem();
-	// set size of widget; horizontal size is dynamic, vertical is fixed
 	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
 	uiSetEvents(item, UI_BUTTON0_HOT_UP);
-	// store some custom data with the button that we use for styling
 	button_head *data = (button_head *) uiAllocHandle(item, sizeof(button_head));
 	data->head.subtype = ST_BUTTON;
 	data->head.handler = handler;
@@ -144,16 +141,21 @@ button(int iconid, const char *label, UIhandler handler)
 
 
 int
-image(NVGcontext *vg, int img, int w, UIhandler handler)
+image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
 {
 	int item = uiItem();
-	// set size of widget; horizontal and vertical sizes are dynamic
 	int iw, ih;
 	nvgImageSize(vg, img, &iw, &ih);
-	ih *= (float)w / (float)iw;
-	uiSetSize(item, w, ih);
+	float aspect_ratio = (float)w / (float)h;
+	float aspect_ratio_i = (float)iw / (float)ih;
+	if (aspect_ratio > aspect_ratio_i) {
+		iw *= (float)h / (float)ih;
+		uiSetSize(item, iw, h);
+	} else {
+		ih *= (float)w / (float)iw;
+		uiSetSize(item, w, ih);
+	}
 	uiSetEvents(item, UI_BUTTON0_HOT_UP);
-	// store some custom data with the button that we use for styling
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
 	data->head.handler = handler;
@@ -162,8 +164,24 @@ image(NVGcontext *vg, int img, int w, UIhandler handler)
 }
 
 
-void
-render_ui(NVGcontext * vg, int item, int corners);
+int
+image_vert(NVGcontext *vg, int img, int w, UIhandler handler)
+{
+	int item = uiItem();
+	int iw, ih;
+	nvgImageSize(vg, img, &iw, &ih);
+	ih *= (float)w / (float)iw;
+	uiSetSize(item, w, ih);
+	uiSetEvents(item, UI_BUTTON0_HOT_UP);
+	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
+	data->head.subtype = ST_IMAGE;
+	data->head.handler = handler;
+	data->img = img;
+	return item;
+}
+
+
+void render_ui(NVGcontext * vg, int item, int corners);
 
 
 void
@@ -235,10 +253,8 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetLayout(root, UI_FILL);
 
 	int ctl_panel = panel();
-	// Set size of ctl_panel element
 	uiSetSize(ctl_panel, panel_width, panel_height);
 	// uiSetEvents(ctl_panel, UI_BUTTON0_DOWN);
-	// uiSetLayout(ctl_panel, UI_TOP);
 	uiSetLayout(ctl_panel, UI_LEFT | UI_TOP);
 	uiSetMargins(ctl_panel, 10, 10, 5, 10);
 	uiSetBox(ctl_panel, UI_COLUMN);
@@ -247,13 +263,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	int sis_view_panel = panel();
 	uiSetSize(sis_view_panel, sis_view_width, sis_view_height);
 	// uiSetEvents(sis_view_panel, UI_BUTTON0_DOWN);
-	// uiSetLayout(sis_view_panel, UI_TOP);
 	uiSetLayout(sis_view_panel, UI_RIGHT | UI_TOP);
 	uiSetMargins(sis_view_panel, 5, 10, 5, 10);
 	uiSetBox(sis_view_panel, UI_COLUMN);
 	uiInsert(root, sis_view_panel);
 
-	int sis_view = image(mctx.vg, mctx.sis_img, sis_view_width, NULL);
+	int sis_view = image(mctx.vg, mctx.sis_img, sis_view_width - 10, sis_view_height - 10, NULL);
 	uiSetLayout(sis_view, UI_TOP);
 	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(sis_view_panel, sis_view);
@@ -263,12 +278,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(ctl_panel, hello_button);
 
-	int depth_map_view = image(mctx.vg, mctx.depth_map_img, img_width, NULL);
+	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
 	uiSetLayout(depth_map_view, UI_TOP);
 	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
 
-	int texture_view = image(mctx.vg, mctx.texture_img, img_width, NULL);
+	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width, NULL);
 	uiSetLayout(texture_view, UI_TOP);
 	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(ctl_panel, texture_view);
@@ -342,17 +357,6 @@ bool
 update_depth_image(void)
 {
 	mctx.depth_map_img = nvgCreateImage(mctx.vg, DFileName, 0);
-
-	/// This only works if image in memory is still in an image container format
-	// int imageFlags = 0;
-	// int w, h, n;
-	// unsigned char* img = stbi_load_from_memory(GetDFileBuffer(), Dwidth * Dheight, &w, &h, &n, 1);
-	// if (!img) {
-		// fprintf(stderr, "failed to convert channels in: %s\n", DFileName);
-		// return false;
-	// }
-	// mctx.depth_map_img = nvgCreateImageRGBA(mctx.vg, w, h, imageFlags, img);
-	// stbi_image_free(img);
 
 	return true;
 }
