@@ -46,28 +46,28 @@ TEST_OBJS = $(B)/mainui.o $(NVOBJS)
 
 all: build_dir $(B)/sis $(B)/sisui
 
-$(B)/sis: build_dir $(OBJS)
+$(B)/sis: $(OBJS)
 	$(CC) -o $(B)/sis $(OBJS) $(LDFLAGS)
-$(B)/get_opt.o: $(S)/get_opt.c $(S)/sis.h
-	$(CC) -c -o $(B)/get_opt.o $(CFLAGS) $(S)/get_opt.c
-$(B)/algorithm.o: $(S)/algorithm.c $(S)/sis.h
-	$(CC) -c -o $(B)/algorithm.o $(CFLAGS) $(S)/algorithm.c
-$(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
-	$(CC) -c -o $(B)/stbimg.o $(CFLAGS) $(S)/stbimg.c
+$(B)/sisui: $(B)/mainui.o $(NVOBJS)
+	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
+$(B)/mainui.o: $(S)/mainui.c
+	$(CC) -c -o $(B)/mainui.o $(CFLAGS) $(S)/mainui.c
 $(B)/sis.o: $(S)/sis.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/sis.o $(CFLAGS) $(S)/sis.c
+$(B)/algorithm.o: $(S)/algorithm.c $(S)/sis.h
+	$(CC) -c -o $(B)/algorithm.o $(CFLAGS) $(S)/algorithm.c
+$(B)/get_opt.o: $(S)/get_opt.c $(S)/sis.h
+	$(CC) -c -o $(B)/get_opt.o $(CFLAGS) $(S)/get_opt.c
+$(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
+	$(CC) -c -o $(B)/stbimg.o $(CFLAGS) $(S)/stbimg.c
 $(B)/nanovg.o: $(S3)/nanovg.c $(S3)/nanovg.h $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h
 	$(CC) -c -o $(B)/nanovg.o $(CFLAGS) $(S3)/nanovg.c
 $(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
 	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS) $(S3)/nanovg_gl.c
 $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
 	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS) $(S3)/nanovg_gl_utils.c
-$(B)/mainui.o: $(S)/mainui.c
-	$(CC) -c -o $(B)/mainui.o $(CFLAGS) $(S)/mainui.c
-$(B)/sisui: $(B)/mainui.o $(NVOBJS)
-	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
 
 clean:
 	rm -rf $(B)

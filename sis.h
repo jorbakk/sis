@@ -29,7 +29,7 @@
 #define SIS_TEXT_MAP     3
 
 #define SIS_IMGFMT_DFLT  0
-#define SIS_IMGFMT_TIFF  1
+// #define SIS_IMGFMT_TIFF  1
 
 #define SIS_MAX_COLORS   0xffff    /// Max index in color palette
 #define SIS_MAX_CMAP     0xffff    /// Max value for color component (gray, r, g, b)
@@ -52,7 +52,7 @@ typedef struct {
 } col_rgb_t;
 
 /*
-   Interface to bitmap handlers (stbimg.c, tiff.c):
+   Interface to bitmap handlers (stbimg.c):
    */
 
 extern int ImgFileFormat;
