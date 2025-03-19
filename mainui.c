@@ -342,10 +342,11 @@ ui_frame(NVGcontext * vg, float w, float h)
 	/// Layout user interface
 	uiBeginLayout();
 
-	int panel_width = 200;
-	int panel_height = 400;
 	int panel_margin_h = 5;
 	int panel_margin_v = 5;
+	int panel_width = 200;
+	// int panel_height = 400;
+	int panel_height = h - 4 * panel_margin_v;
 	int img_width = panel_width - 2 * panel_margin_h;
 	int sis_view_width = w - panel_width - 4 * panel_margin_h;
 	int sis_view_height = h - 4 * panel_margin_v;
@@ -491,11 +492,22 @@ update_texture_image(void)
 
 
 bool
-update_sis_image(void)
+load_sis_image(void)
 {
 	int imageFlags = 0;
 	unsigned char *img = rgb_to_rgba(GetSISFileBuffer(), SISwidth * SISheight);
 	mctx.sis_img = nvgCreateImageRGBA(mctx.vg, SISwidth, SISheight, imageFlags, img);
+	free(img);
+	return true;
+}
+
+
+bool
+update_sis_image(void)
+{
+	int imageFlags = 0;
+	unsigned char *img = rgb_to_rgba(GetSISFileBuffer(), SISwidth * SISheight);
+	nvgUpdateImage(mctx.vg, mctx.sis_img, img);
 	free(img);
 	return true;
 }
@@ -527,7 +539,7 @@ init_app(void)
 
 	update_depth_image();
 	update_texture_image();
-	update_sis_image();
+	load_sis_image();
 }
 
 
