@@ -71,6 +71,7 @@ typedef enum {
     ST_PANEL = 1,
     ST_BUTTON,
     ST_SLIDER,
+    ST_CHECK,
     ST_IMAGE,
 } widget_sub_type;
 
@@ -90,6 +91,12 @@ typedef struct {
     const char *label;
     double *progress;
 } slider_head;
+
+typedef struct {
+    widget_head head;
+    const char *label;
+    bool *option;
+} check_head;
 
 typedef struct {
     widget_head head;
@@ -186,6 +193,36 @@ slider(const char *label, double *progress, UIhandler handler)
 }
 
 
+void
+checkhandler(int item, UIevent event)
+{
+    const check_head *data = (const check_head *)uiGetHandle(item);
+    *data->option = !(*data->option);
+	init_sis(-1, NULL);
+	render_sis();
+	finish_sis();
+	update_sis_image();
+}
+
+
+int
+check(const char *label, bool *option)
+{
+    int item = uiItem();
+    // set size of wiget; horizontal size is dynamic, vertical is fixed
+    uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+    // attach event handler e.g. demohandler above
+    uiSetEvents(item, UI_BUTTON0_DOWN);
+    // store some custom data with the button that we use for styling
+    check_head *data = (check_head *)uiAllocHandle(item, sizeof(check_head));
+    data->head.subtype = ST_CHECK;
+    data->head.handler = checkhandler;
+    data->label = label;
+    data->option = option;
+    return item;
+}
+
+
 int
 image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
 {
@@ -276,6 +313,14 @@ render_ui(NVGcontext * vg, int item, int corners)
 				bndSlider(vg, rect.x, rect.y, rect.w, rect.h,
 				          corners, state, *data->progress, data->label, value);
 			} break;
+		case ST_CHECK: {
+				const check_head *data = (check_head*)head;
+				BNDwidgetState state = (BNDwidgetState)uiGetState(item);
+				if (*data->option)
+					state = BND_ACTIVE;
+				bndOptionButton(vg,rect.x,rect.y,rect.w,rect.h, state,
+					data->label);
+			} break;
 		case ST_IMAGE:{
 				const image_head *data = (image_head *) head;
 				NVGpaint img_paint = nvgImagePattern(vg,
@@ -345,6 +390,12 @@ ui_frame(NVGcontext * vg, float w, float h)
     uiSetLayout(near_plane_slider, UI_HFILL | UI_VCENTER);
 	uiSetMargins(near_plane_slider, 5, 3, 5, 3);
     uiInsert(ctl_panel, near_plane_slider);
+
+	int opt_show_marker = check("show markers", &mark);
+	uiSetLayout(opt_show_marker, UI_HFILL);
+	uiSetSize(opt_show_marker, 0, BND_WIDGET_HEIGHT);
+	uiSetMargins(opt_show_marker, 10, 5, 10, 5);
+	uiInsert(ctl_panel, opt_show_marker);
 
 	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
 	uiSetLayout(depth_map_view, UI_TOP);
