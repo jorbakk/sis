@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "sis.h"
 #include "stbimg.h"
@@ -41,9 +42,9 @@ void (*WriteSISColorBuffer)(ind_t r);
 unsigned char *(*GetDFileBuffer)(void);
 unsigned char *(*GetTFileBuffer)(void);
 
-char *DefaultDFileName = "in.tif";
-char *DefaultSISFileName = "out.tif";
-char *DefaultTFileName = "texture.tif";
+char *DefaultDFileName = "depthmaps/flowers.png";
+char *DefaultSISFileName = "/tmp/out.png";
+char *DefaultTFileName = "textures/clover.png";
 pos_t DLinePosition, DLineStep;
 ind_t SISLineNumber;
 ind_t DLineNumber;
@@ -154,7 +155,10 @@ init_sis(int argc, char **argv)
 	SISblue = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 
 	SetDefaults();
-	get_options(argc, argv);
+	if (argc > 1 || strcmp(strrchr(argv[0], '/') + 1, "sisui") != 0) {
+		/// TODO this may fail on systems like Win* where dir delimiter is not '/'
+		get_options(argc, argv);
+	}
 	InitFuncs();
 	OpenDFile(DFileName, &Dwidth, &Dheight);
 	if (!SISwidth && !SISheight) {

@@ -47,6 +47,7 @@ Stb_OpenDFile(char *DFileName, ind_t *width, ind_t *height)
 	stbi_set_unpremultiply_on_load(1);
 	stbi_convert_iphone_png_to_rgb(1);
 	int channel_count = 0, desired_channel_count = 1;
+	// int channel_count = 0, desired_channel_count = 4;
 	if (! (inpic_p = (unsigned char *)stbi_load(DFileName, (int *)width, (int *)height,
 	                                &channel_count, desired_channel_count))) {
 	    fprintf(stderr, "Failed to load %s: %s\n", DFileName, stbi_failure_reason());

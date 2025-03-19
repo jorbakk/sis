@@ -294,6 +294,23 @@ frame(void)
 
 
 void
+update_depth_image(void)
+{
+	// int imageFlags = 0;
+	mctx.depth_map_img = nvgCreateImage(mctx.vg, DFileName, 0);
+	// mctx.depth_map_img = nvgCreateImageRGBA(mctx.vg, Dwidth, Dheight, imageFlags, GetDFileBuffer());
+}
+
+
+void
+update_texture_image(void)
+{
+	mctx.texture_img = nvgCreateImage(mctx.vg, TFileName, 0);
+	// mctx.texture_img = nvgCreateImageRGBA(mctx.vg, Twidth, Theight, imageFlags, GetTFileBuffer());
+}
+
+
+void
 init_app(void)
 {
 	mctx = (struct main_ctx) {
@@ -317,12 +334,8 @@ init_app(void)
 	uiMakeCurrent(mctx.ui_ctx);
 	uiSetHandler(event_handler);
 
-	int imageFlags = 0;
-	unsigned char *img;
-	img = GetDFileBuffer();
-	// mctx.depth_map_img = nvgCreateImageRGBA(mctx.vg, Dwidth, Dheight, imageFlags, img);
-	mctx.depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
-	mctx.texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
+	update_depth_image();
+	update_texture_image();
 }
 
 
