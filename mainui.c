@@ -147,6 +147,9 @@ button(int iconid, const char *label, UIhandler handler)
 }
 
 
+bool update_sis_image(void);
+
+
 void
 slider_handler(int item, UIevent event)
 {
@@ -158,10 +161,11 @@ slider_handler(int item, UIevent event)
 	v = v >= 0.0f ? v : 0.0f;
 	v = v <= 1.0f ? v : 1.0f;
 	*(data->progress) = v;
+	init_sis(-1, NULL);
+	render_sis();
+	finish_sis();
+	update_sis_image();
 }
-
-
-bool update_sis_image(void);
 
 
 int
@@ -178,8 +182,6 @@ slider(const char *label, double *progress, UIhandler handler)
 	data->head.handler = handler;
 	data->label = label;
 	data->progress = progress;
-	// render_sis();
-	update_sis_image();
 	return item;
 }
 
@@ -568,7 +570,7 @@ main(int argc, char **argv)
 		glfwPollEvents();
 	}
 	cleanup();
-	finish_sis();
+	// finish_sis();
 	glfwTerminate();
 	return 0;
 }

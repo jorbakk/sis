@@ -157,10 +157,12 @@ init_sis(int argc, char **argv)
 	SISgreen = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 	SISblue = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 
-	SetDefaults();
-	if (argc > 1 || strcmp(strrchr(argv[0], '/') + 1, "sisui") != 0) {
-		/// TODO this may fail on systems like Win* where dir delimiter is not '/'
-		get_options(argc, argv);
+	if (argc > 0) {
+		SetDefaults();
+		if (argc > 1 || strcmp(strrchr(argv[0], '/') + 1, "sisui") != 0) {
+			/// TODO this may fail on systems like Win* where dir delimiter is not '/'
+			get_options(argc, argv);
+		}
 	}
 	InitFuncs();
 	OpenDFile(DFileName, &Dwidth, &Dheight);
