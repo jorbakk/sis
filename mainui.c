@@ -5,7 +5,7 @@
 #define GLFW_BACKEND
 
 
-#if defined __ANDROID__ || defined __EMSCRIPTEN__
+#if defined __EMSCRIPTEN__
 #include <GLES3/gl3.h>
 #define SOKOL_GLES3
 #else
@@ -299,7 +299,7 @@ init_app(void)
 	mctx = (struct main_ctx) {
 		.mx = 0.0, .my = 0.0, .vg = NULL,
 	};
-#if defined __ANDROID__ || defined __EMSCRIPTEN__
+#if defined __EMSCRIPTEN__
 	mctx.vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 #else
 	mctx.vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
@@ -308,20 +308,10 @@ init_app(void)
 		printf("Could not init nanovg.\n");
 		return;
 	}
-#ifdef __ANDROID__
-	/// Get an asset manager on android
-	ANativeActivity *jni_activity = (ANativeActivity *) sapp_android_get_native_activity();
-	AAssetManager *pAssetManager = jni_activity->assetManager;
-	// JNIEnv *env = jni_activity->env;
-	nvgSetAndroidAssetManager(pAssetManager);
-    bndSetFont(nvgCreateFont(mctx.vg, "system", "DejaVuSans.ttf"));
-    bndSetIconImage(nvgCreateImage(mctx.vg, "blender_icons16.png", 0));
-#else
     bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
     bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
     mctx.depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
     mctx.texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
-#endif
 #ifndef GLFW_BACKEND
 	stm_setup();
 #endif
@@ -336,7 +326,7 @@ cleanup(void)
 {
     uiDestroyContext(mctx.ui_ctx);
 
-#if defined __ANDROID__ || defined __EMSCRIPTEN__
+#if defined __EMSCRIPTEN__
 	nvgDeleteGLES3(mctx.vg);
 #else
 	nvgDeleteGL3(mctx.vg);
