@@ -86,36 +86,12 @@ print_summary(void)
 int
 main(int argc, char **argv)
 {
-	SISred = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
-	SISgreen = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
-	SISblue = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
-
-	SetDefaults();
-	get_options(argc, argv);
-	InitFuncs();
-	OpenDFile(DFileName, &Dwidth, &Dheight);
-	if (!SISwidth && !SISheight) {
-		SISwidth = Dwidth;
-		SISheight = Dheight;
-	}
-	if (!SISwidth)
-		SISwidth = SISheight * (float)Dwidth / (float)Dheight;
-	if (!SISheight)
-		SISheight = SISwidth * (float)Dheight / (float)Dwidth;
-	if (SIStype == SIS_TEXT_MAP)
-		OpenTFile(TFileName, &Twidth, &Theight);
-	InitAlgorithm();
-	AllocBuffers();
-	InitVars();
-	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
-
+	init_sis(argc, argv);
 	print_warnings();
 	if (verbose) {
 		print_message_header();
 	}
 
-	max_depth = SIS_MIN_DEPTH;
-	min_depth = SIS_MAX_DEPTH;
 	for (SISLineNumber = 0; SISLineNumber < SISheight; SISLineNumber++) {
 		DLineNumber = (int)DLinePosition;
 		DLinePosition += DLineStep;
@@ -142,13 +118,6 @@ main(int argc, char **argv)
 		puts("\n");
 		print_summary();
 	}
-	CloseDFile();
-	if (SIStype == SIS_TEXT_MAP)
-		CloseTFile(Theight);
-	CloseSISFile();
-	FreeBuffers();
-	free(SISred);
-	free(SISgreen);
-	free(SISblue);
+	finish_sis();
 	return EXIT_SUCCESS;
 }

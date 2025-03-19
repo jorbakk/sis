@@ -308,16 +308,21 @@ init_app(void)
 		printf("Could not init nanovg.\n");
 		return;
 	}
-    bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
-    bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
-    mctx.depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
-    mctx.texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
+	bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
+	bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
 #ifndef GLFW_BACKEND
 	stm_setup();
 #endif
-    mctx.ui_ctx = uiCreateContext(4096, 1<<20);
-    uiMakeCurrent(mctx.ui_ctx);
-    uiSetHandler(event_handler);
+	mctx.ui_ctx = uiCreateContext(4096, 1<<20);
+	uiMakeCurrent(mctx.ui_ctx);
+	uiSetHandler(event_handler);
+
+	int imageFlags = 0;
+	unsigned char *img;
+	img = GetDFileBuffer();
+	// mctx.depth_map_img = nvgCreateImageRGBA(mctx.vg, Dwidth, Dheight, imageFlags, img);
+	mctx.depth_map_img = nvgCreateImage(mctx.vg, "depthmaps/flowers.png", 0);
+	mctx.texture_img = nvgCreateImage(mctx.vg, "textures/clover.png", 0);
 }
 
 
@@ -382,7 +387,7 @@ key(GLFWwindow * window, int key, int scancode, int action, int mods)
 }
 
 int
-main(void)
+main(int argc, char **argv)
 {
 	if (!glfwInit())
 		return -1;
@@ -398,6 +403,7 @@ main(void)
 	glfwSetMouseButtonCallback(window, mousebutton);
 	glfwSetScrollCallback(window, scrollevent);
 
+	init_sis(argc, argv);
 	init_app();
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
@@ -409,6 +415,7 @@ main(void)
 		glfwPollEvents();
 	}
 	cleanup();
+	finish_sis();
 	glfwTerminate();
 	return 0;
 }

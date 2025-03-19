@@ -37,7 +37,7 @@ CFLAGS = -g -I$(S3) -DNANOVG_USE_GLEW -DNANOVG_GL3
 LDFLAGS = -lm
 LDFLAGS_GUI_LINUX = -lglfw -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 
-OBJS = $(B)/main.o $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
+OBJS = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 NVOBJS = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o
 TEST_SRCS = mainui.c nanovg.c nanovg_gl.c nanovg_gl_utils.c
 TEST_OBJS = $(B)/mainui.o $(NVOBJS)
@@ -46,13 +46,13 @@ TEST_OBJS = $(B)/mainui.o $(NVOBJS)
 
 all: build_dir $(B)/sis $(B)/sisui
 
-$(B)/sis: $(OBJS)
-	$(CC) -o $(B)/sis $(OBJS) $(LDFLAGS)
-$(B)/sisui: $(B)/mainui.o $(NVOBJS)
+$(B)/sis: $(B)/main.o $(OBJS)
+	$(CC) -o $(B)/sis $^ $(LDFLAGS)
+$(B)/sisui: $(B)/mainui.o $(OBJS) $(NVOBJS)
 	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
-$(B)/mainui.o: $(S)/mainui.c
+$(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/mainui.o $(CFLAGS) $(S)/mainui.c
 $(B)/sis.o: $(S)/sis.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/sis.o $(CFLAGS) $(S)/sis.c
