@@ -98,20 +98,6 @@ event_handler(int item, UIevent event)
 }
 
 
-// static void
-// root_handler(int parent, UIevent event)
-// {
-	// switch (event) {
-	// default:
-		// break;
-	// case UI_BUTTON0_DOWN:{
-			// printf("root panel: %d clicks\n", uiGetClicks());
-		// }
-		// break;
-	// }
-// }
-
-
 void
 button_handler(int item, UIevent event)
 {
@@ -233,29 +219,28 @@ ui_frame(NVGcontext * vg, float w, float h)
 	int panel_margin_v = 5;
 	int img_width = panel_width - 2 * panel_margin_h;
 
-	int root = panel();
-	// Set size of root element
-	// uiSetSize(root, w, h);
-	uiSetSize(root, panel_width, panel_height);
-	// ((widget_head *) uiGetHandle(root))->handler = root_handler;
-	uiSetEvents(root, UI_BUTTON0_DOWN);
-	// uiSetLayout(root, UI_TOP);
-	uiSetBox(root, UI_COLUMN);
+	int ctl_panel = panel();
+	// Set size of ctl_panel element
+	uiSetSize(ctl_panel, panel_width, panel_height);
+	uiSetEvents(ctl_panel, UI_BUTTON0_DOWN);
+	// uiSetLayout(ctl_panel, UI_TOP);
+	uiSetMargins(ctl_panel, 10, 10, 0, 0);
+	uiSetBox(ctl_panel, UI_COLUMN);
 
 	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
 	uiSetLayout(hello_button, UI_HFILL | UI_TOP);
 	uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
-	uiInsert(root, hello_button);
+	uiInsert(ctl_panel, hello_button);
 
 	int depth_map_view = image(mctx.vg, mctx.depth_map_img, img_width, NULL);
 	uiSetLayout(depth_map_view, UI_TOP);
 	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
-	uiInsert(root, depth_map_view);
+	uiInsert(ctl_panel, depth_map_view);
 
 	int texture_view = image(mctx.vg, mctx.texture_img, img_width, NULL);
 	uiSetLayout(texture_view, UI_TOP);
 	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
-	uiInsert(root, texture_view);
+	uiInsert(ctl_panel, texture_view);
 
 	uiEndLayout();
 
