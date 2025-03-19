@@ -148,7 +148,10 @@ image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
 	nvgImageSize(vg, img, &iw, &ih);
 	float aspect_ratio = (float)w / (float)h;
 	float aspect_ratio_i = (float)iw / (float)ih;
-	if (aspect_ratio > aspect_ratio_i) {
+	if (iw < w && ih << h) {
+		uiSetSize(item, iw, ih);
+	}
+	else if (aspect_ratio > aspect_ratio_i) {
 		iw *= (float)h / (float)ih;
 		uiSetSize(item, iw, h);
 	} else {
