@@ -56,7 +56,7 @@ GLFWwindow *window;
 #endif
 
 
-const char *window_title = "SIS UI";
+const char *window_title = "SIS Stereogram Generator";
 
 struct main_ctx {
 	NVGcontext *vg;
@@ -98,18 +98,18 @@ event_handler(int item, UIevent event)
 }
 
 
-static void
-root_handler(int parent, UIevent event)
-{
-	switch (event) {
-	default:
-		break;
-	case UI_BUTTON0_DOWN:{
-			printf("root panel: %d clicks\n", uiGetClicks());
-		}
-		break;
-	}
-}
+// static void
+// root_handler(int parent, UIevent event)
+// {
+	// switch (event) {
+	// default:
+		// break;
+	// case UI_BUTTON0_DOWN:{
+			// printf("root panel: %d clicks\n", uiGetClicks());
+		// }
+		// break;
+	// }
+// }
 
 
 void
@@ -150,11 +150,14 @@ button(int iconid, const char *label, UIhandler handler)
 
 
 int
-image(int img, UIhandler handler)
+image(NVGcontext *vg, int img, int w, UIhandler handler)
 {
 	int item = uiItem();
 	// set size of widget; horizontal and vertical sizes are dynamic
-	uiSetSize(item, 0, 0);
+	int iw, ih;
+	nvgImageSize(vg, img, &iw, &ih);
+	ih *= (float)w / (float)iw;
+	uiSetSize(item, w, ih);
 	uiSetEvents(item, UI_BUTTON0_HOT_UP);
 	// store some custom data with the button that we use for styling
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
@@ -224,24 +227,34 @@ ui_frame(NVGcontext * vg, float w, float h)
 	/// Layout user interface
 	uiBeginLayout();
 
+	int panel_width = 200;
+	int panel_height = 400;
+	int panel_margin_h = 5;
+	int panel_margin_v = 5;
+	int img_width = panel_width - 2 * panel_margin_h;
+
 	int root = panel();
 	// Set size of root element
 	// uiSetSize(root, w, h);
-	uiSetSize(root, 200, 100);
-	((widget_head *) uiGetHandle(root))->handler = root_handler;
+	uiSetSize(root, panel_width, panel_height);
+	// ((widget_head *) uiGetHandle(root))->handler = root_handler;
 	uiSetEvents(root, UI_BUTTON0_DOWN);
+	// uiSetLayout(root, UI_TOP);
 	uiSetBox(root, UI_COLUMN);
 
 	int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
 	uiSetLayout(hello_button, UI_HFILL | UI_TOP);
+	uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(root, hello_button);
 
-	int depth_map_view = image(mctx.depth_map_img, NULL);
-	uiSetLayout(depth_map_view, UI_HFILL | UI_VFILL | UI_TOP);
+	int depth_map_view = image(mctx.vg, mctx.depth_map_img, img_width, NULL);
+	uiSetLayout(depth_map_view, UI_TOP);
+	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(root, depth_map_view);
 
-	int texture_view = image(mctx.texture_img, NULL);
-	uiSetLayout(texture_view, UI_HFILL | UI_VFILL | UI_TOP);
+	int texture_view = image(mctx.vg, mctx.texture_img, img_width, NULL);
+	uiSetLayout(texture_view, UI_TOP);
+	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	uiInsert(root, texture_view);
 
 	uiEndLayout();
