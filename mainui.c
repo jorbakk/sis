@@ -70,6 +70,7 @@ struct main_ctx {
 typedef enum {
     ST_PANEL = 1,
     ST_BUTTON,
+    ST_TEXT,
     ST_SLIDER,
     ST_SLIDER_INT,
     ST_CHECK,
@@ -91,6 +92,12 @@ typedef struct {
     int iconid;
     const char *label;
 } button_head;
+
+typedef struct {
+    widget_head head;
+    char *text;
+    int maxsize;
+} text_head;
 
 typedef struct {
     widget_head head;
@@ -156,6 +163,29 @@ panel(bool border)
 }
 
 
+static bool update_sis_view;
+
+
+void
+algo_plus_button_handler(int item, UIevent event)
+{
+	if (algorithm < SIS_MAX_ALGO) {
+		algorithm++;
+		update_sis_view = true;
+	}
+}
+
+
+void
+algo_minus_button_handler(int item, UIevent event)
+{
+	if (algorithm > SIS_MIN_ALGO) {
+		algorithm--;
+		update_sis_view = true;
+	}
+}
+
+
 int
 button(int iconid, const char *label, UIhandler handler)
 {
@@ -171,6 +201,54 @@ button(int iconid, const char *label, UIhandler handler)
 }
 
 
+void
+textboxhandler(int item, UIevent event) {
+    text_head *data = (text_head *)uiGetHandle(item);
+    switch(event) {
+        default: break;
+        case UI_BUTTON0_DOWN: {
+            uiFocus(item);
+        } break;
+        case UI_KEY_DOWN: {
+            unsigned int key = uiGetKey();
+            switch(key) {
+                default: break;
+                // case GLFW_KEY_BACKSPACE: {
+                    // int size = strlen(data->text);
+                    // if (!size) return;
+                    // data->text[size-1] = 0;
+                // } break;
+                // case GLFW_KEY_ENTER: {
+                    // uiFocus(-1);
+                // } break;
+            }
+        } break;
+        case UI_CHAR: {
+            unsigned int key = uiGetKey();
+            if ((key > 255)||(key < 32)) return;
+            int size = strlen(data->text);
+            if (size >= (data->maxsize-1)) return;
+            data->text[size] = (char)key;
+        } break;
+    }
+}
+
+
+int
+textbox(char *text, int maxsize)
+{
+	int item = uiItem();
+	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+	// uiSetEvents(item, UI_BUTTON0_DOWN | UI_KEY_DOWN | UI_CHAR);
+	text_head *data = (text_head *) uiAllocHandle(item, sizeof(text_head));
+	data->head.subtype = ST_TEXT;
+	data->head.handler = textboxhandler;
+	data->text = text;
+	data->maxsize = maxsize;
+	return item;
+}
+
+
 bool update_sis_image(void);
 
 
@@ -181,9 +259,6 @@ update_sis()
 	render_sis();
 	update_sis_image();
 }
-
-
-static bool update_sis_view;
 
 
 void
@@ -369,6 +444,13 @@ render_ui(NVGcontext * vg, int item, int corners)
 				              data->iconid, data->label);
 			}
 			break;
+        case ST_TEXT: {
+				const text_head *data = (text_head*)head;
+				BNDwidgetState state = (BNDwidgetState)uiGetState(item);
+				int idx = strlen(data->text);
+				bndTextField(vg, rect.x, rect.y, rect.w, rect.h,
+				             corners, state, -1, data->text, idx, idx);
+            } break;
 		case ST_SLIDER: {
 				const slider_head *data = (slider_head *) head;
 				BNDwidgetState state = (BNDwidgetState) uiGetState(item);
@@ -451,7 +533,6 @@ ui_frame(NVGcontext * vg, float w, float h)
 
 	int ctl_panel = panel(true);
 	uiSetSize(ctl_panel, panel_width, panel_height);
-	// uiSetEvents(ctl_panel, UI_BUTTON0_DOWN);
 	uiSetLayout(ctl_panel, UI_TOP | UI_LEFT);
 	uiSetMargins(ctl_panel, 10, 10, 5, 10);
 	uiSetBox(ctl_panel, UI_COLUMN);
@@ -459,7 +540,6 @@ ui_frame(NVGcontext * vg, float w, float h)
 
 	int sis_view_panel = panel(false);
 	uiSetSize(sis_view_panel, sis_view_width, sis_view_height);
-	// uiSetEvents(sis_view_panel, UI_BUTTON0_DOWN);
 	uiSetLayout(sis_view_panel, UI_RIGHT | UI_TOP);
 	uiSetMargins(sis_view_panel, 5, 10, 5, 10);
 	uiSetBox(sis_view_panel, UI_COLUMN);
@@ -501,14 +581,44 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiInsert(ctl_panel, far_plane_slider);
 
 	int opt_show_marker = check("show markers", &mark);
-	uiSetSize(opt_show_marker, 0, BND_WIDGET_HEIGHT);
 	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_show_marker);
 
 	int opt_invert_depth_map = check("invert depth", &invert);
-	uiSetSize(opt_invert_depth_map, 0, BND_WIDGET_HEIGHT);
 	uiSetMargins(opt_invert_depth_map, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_invert_depth_map);
+
+	int algo_panel = panel(false);
+	uiSetLayout(algo_panel, UI_HFILL);
+	uiSetSize(algo_panel, 0, BND_WIDGET_HEIGHT);
+	uiSetMargins(algo_panel, M, 5, M, 5);
+	uiSetBox(algo_panel, UI_ROW);
+	uiInsert(ctl_panel, algo_panel);
+
+	int algo_plus_button;
+	algo_plus_button = button(-1, "+", algo_plus_button_handler);
+	// uiSetLayout(algo_plus_button, UI_LEFT | UI_VCENTER);
+	uiSetLayout(algo_plus_button, UI_LEFT);
+	uiSetSize(algo_plus_button, 23, BND_WIDGET_HEIGHT);
+	uiSetMargins(algo_plus_button, 2, 2, 2, 2);
+	uiInsert(algo_panel, algo_plus_button);
+
+	int algo_minus_button;
+	algo_minus_button = button(-1, "-", algo_minus_button_handler);
+	// uiSetLayout(algo_minus_button, UI_LEFT | UI_VCENTER);
+	uiSetLayout(algo_minus_button, UI_LEFT);
+	uiSetSize(algo_minus_button, 23, BND_WIDGET_HEIGHT);
+	uiSetMargins(algo_minus_button, 2, 2, 2, 2);
+	uiInsert(algo_panel, algo_minus_button);
+
+	static char algo_value_str[8];
+	sprintf(algo_value_str, "%d", algorithm);
+	int algo_value = textbox(algo_value_str, 8);
+	uiSetLayout(algo_value, UI_LEFT);
+	uiSetSize(algo_value, 25, BND_WIDGET_HEIGHT);
+	uiSetMargins(algo_value, 2, 2, 2, 2);
+	uiInsert(algo_panel, algo_value);
+
 
 	int depth_map_view =
 	    image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);

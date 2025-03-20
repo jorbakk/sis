@@ -120,6 +120,7 @@ ind_t metric2pixel(int metric_val, int resolution);
 /*
    Interface to algorithm.c:
    */
+extern int algorithm;
 extern z_t min_depth_in_row, max_depth_in_row, min_depth, max_depth;
 extern col_t black, white;
 extern ind_t halfstripwidth, halftriangwidth;
