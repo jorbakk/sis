@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "sis.h"
 
@@ -91,11 +92,11 @@ get_options(int argc, char **argv)
 	if (opt_ind == argc)
 		print_usage();
 	if ((opt_ind < argc) && (argv[opt_ind][0] != '-')) {
-		DFileName = argv[opt_ind];
+		strncpy(DFileName, argv[opt_ind], PATH_MAX);
 		opt_ind++;
 	}
 	if ((opt_ind < argc) && (argv[opt_ind][0] != '-')) {
-		SISFileName = argv[opt_ind];
+		strncpy(SISFileName, argv[opt_ind], PATH_MAX);
 		opt_ind++;
 	}
 	while (opt_ind < argc) {
@@ -273,11 +274,11 @@ get_options(int argc, char **argv)
 		case 't':
 			SIStype = SIS_TEXT_MAP;
 			if (argv[opt_ind][2] != 0)
-				TFileName = argv[opt_ind] + 2;
+				strncpy(TFileName, argv[opt_ind] + 2, PATH_MAX);
 			else {
 				if ((opt_ind + 1 < argc) && (argv[opt_ind + 1][0] != '-')) {
 					opt_ind++;
-					TFileName = argv[opt_ind];
+					strncpy(TFileName, argv[opt_ind], PATH_MAX);
 				}
 			}
 			break;

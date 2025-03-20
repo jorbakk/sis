@@ -8,9 +8,9 @@
 int ImgFileFormat = SIS_IMGFMT_DFLT;
 ind_t Tcolcount;
 
-char *DFileName = NULL;
-char *SISFileName = NULL;
-char *TFileName = NULL;
+char DFileName[PATH_MAX] = {0};
+char TFileName[PATH_MAX] = {0};
+char SISFileName[PATH_MAX] = {0};
 
 col_t *DBuffer = NULL;
 z_t zvalue[SIS_MAX_COLORS + 1];
@@ -56,9 +56,9 @@ ind_t DLineNumber;
 void
 SetDefaults(void)
 {
-	DFileName = DefaultDFileName;
-	TFileName = DefaultTFileName;
-	SISFileName = DefaultSISFileName;
+	strncpy(DFileName, DefaultDFileName, PATH_MAX);
+	strncpy(TFileName, DefaultTFileName, PATH_MAX);
+	strncpy(SISFileName, DefaultSISFileName, PATH_MAX);
 	// SIStype = SIS_RANDOM_GREY;
 	SIStype = SIS_TEXT_MAP;
 	SISwidth = SISheight = 0;

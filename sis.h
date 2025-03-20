@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #define SIS_RANDOM_GREY  1
 #define SIS_RANDOM_COLOR 2
@@ -57,9 +58,9 @@ typedef struct {
    */
 
 extern int ImgFileFormat;
-extern char *DFileName;
-extern char *SISFileName;
-extern char *TFileName;
+extern char DFileName[PATH_MAX];
+extern char TFileName[PATH_MAX];
+extern char SISFileName[PATH_MAX];
 extern int SIStype;
 /// Color palettes for depth and sis image colors (from texture or random dots)
 extern col_t *DBuffer;

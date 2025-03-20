@@ -261,7 +261,10 @@ textbox(char *text, int maxsize)
 
 
 bool update_sis_image(void);
+#if 0
 bool update_texture_image(void);
+#endif
+bool load_texture_image(void);
 
 
 void
@@ -278,8 +281,11 @@ update_texture()
 {
 	CloseTFile(Theight);
 	SIStype = SIS_TEXT_MAP;
-	OpenTFile(dropped_file, &Twidth, &Theight);
+	OpenTFile(TFileName, &Twidth, &Theight);
+#if 0
 	update_texture_image();
+#endif
+	load_texture_image();
 }
 
 
@@ -687,10 +693,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	UIvec2 c = uiGetCursor();
 	if (dropped_file_len && uiContains(depth_map_view, c.x, c.y) && (uiGetButton(0) == 0)) {
 		printf("dropped file '%s' on depth map view\n", dropped_file);
+		strncpy(DFileName, dropped_file, PATH_MAX);
 		dropped_file_len = 0;
 	}
 	if (dropped_file_len && uiContains(texture_view, c.x, c.y) && (uiGetButton(0) == 0)) {
 		printf("dropped file '%s' on texture view\n", dropped_file);
+		strncpy(TFileName, dropped_file, PATH_MAX);
 		update_texture();
 		update_sis();
 		dropped_file_len = 0;
@@ -770,6 +778,17 @@ load_depth_image(void)
 
 
 bool
+update_depth_image(void)
+{
+	int imageFlags = 0;
+	unsigned char *img = rgb_to_rgba(GetDFileBuffer(), Dwidth * Dheight);
+	nvgUpdateImage(mctx.vg, mctx.depth_map_img, img);
+	free(img);
+	return true;
+}
+
+
+bool
 load_texture_image(void)
 {
 	mctx.texture_img = nvgCreateImage(mctx.vg, TFileName, 0);
@@ -778,6 +797,7 @@ load_texture_image(void)
 }
 
 
+#if 0
 bool
 update_texture_image(void)
 {
@@ -787,6 +807,7 @@ update_texture_image(void)
 	free(img);
 	return true;
 }
+#endif
 
 
 bool
