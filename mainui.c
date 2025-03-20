@@ -206,12 +206,10 @@ int
 slider(const char *label, float *value, UIhandler handler, float min, float max, bool perc)
 {
 	assert(min < max);
-	// create new ui item
 	int item = uiItem();
-	// set size of wiget; horizontal size is dynamic, vertical is fixed
 	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+	uiSetLayout(item, UI_HFILL);
 	uiSetEvents(item, UI_BUTTON0_CAPTURE);
-	// store some custom data with the slider that we use for styling
 	slider_head *data = (slider_head *) uiAllocHandle(item, sizeof(slider_head));
 	data->head.subtype = ST_SLIDER;
 	data->head.handler = handler;
@@ -245,12 +243,10 @@ int
 slider_int(const char *label, long int *value, UIhandler handler, long int min, long int max, bool perc)
 {
 	assert(min < max);
-	// create new ui item
 	int item = uiItem();
-	// set size of wiget; horizontal size is dynamic, vertical is fixed
 	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+	uiSetLayout(item, UI_HFILL);
 	uiSetEvents(item, UI_BUTTON0_CAPTURE);
-	// store some custom data with the slider that we use for styling
 	slider_int_head *data = (slider_int_head *) uiAllocHandle(item, sizeof(slider_int_head));
 	data->head.subtype = ST_SLIDER_INT;
 	data->head.handler = handler;
@@ -277,11 +273,9 @@ int
 check(const char *label, bool *option)
 {
     int item = uiItem();
-    // set size of wiget; horizontal size is dynamic, vertical is fixed
     uiSetSize(item, 0, BND_WIDGET_HEIGHT);
-    // attach event handler e.g. demohandler above
+	uiSetLayout(item, UI_HFILL);
     uiSetEvents(item, UI_BUTTON0_DOWN);
-    // store some custom data with the button that we use for styling
     check_head *data = (check_head *)uiAllocHandle(item, sizeof(check_head));
     data->head.subtype = ST_CHECK;
     data->head.handler = checkhandler;
@@ -490,34 +484,28 @@ ui_frame(NVGcontext * vg, float w, float h)
 
 	int eye_dist_slider = slider_int("eye distance",
 	  &eye_dist, slider_int_handler, 25, 0.5 * Dwidth, false);
-	uiSetLayout(eye_dist_slider, UI_HFILL);
-	uiSetMargins(eye_dist_slider, M, 3, M, 3);
+	uiSetMargins(eye_dist_slider, M, 10, M, 3);
 	uiInsert(ctl_panel, eye_dist_slider);
 
 	int origin_slider = slider_int("algo origin",
 	  &origin, slider_int_handler, 0, Dwidth, false);
-	uiSetLayout(origin_slider, UI_HFILL);
 	uiSetMargins(origin_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, origin_slider);
 
 	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
-	uiSetLayout(near_plane_slider, UI_HFILL);
 	uiSetMargins(near_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, near_plane_slider);
 
 	int far_plane_slider = slider("back distance", &t, slider_handler, 0.25f, 2.0f, true);
-	uiSetLayout(far_plane_slider, UI_HFILL);
 	uiSetMargins(far_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, far_plane_slider);
 
 	int opt_show_marker = check("show markers", &mark);
-	uiSetLayout(opt_show_marker, UI_HFILL);
 	uiSetSize(opt_show_marker, 0, BND_WIDGET_HEIGHT);
 	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_show_marker);
 
 	int opt_invert_depth_map = check("invert depth", &invert);
-	uiSetLayout(opt_invert_depth_map, UI_HFILL);
 	uiSetSize(opt_invert_depth_map, 0, BND_WIDGET_HEIGHT);
 	uiSetMargins(opt_invert_depth_map, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_invert_depth_map);
