@@ -160,9 +160,8 @@ bool update_sis_image(void);
 void
 update_sis()
 {
-	init_all(0, NULL);
+	InitAlgorithm();
 	render_sis();
-	finish_all();
 	update_sis_image();
 }
 
