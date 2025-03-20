@@ -23,7 +23,8 @@ int rand_grey_num, rand_col_num;
 col_t white, black;
 ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight;
 ind_t eye_dist, origin, halfstripwidth, halftriangwidth;
-int SIStype, SIScompress, verbose, invert;
+int SIStype, SIScompress, verbose;
+bool invert;
 bool mark;
 char metric;
 int resolution;
@@ -64,7 +65,7 @@ SetDefaults(void)
 	algorithm = 2;
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
 	verbose = 0;
-	invert = 0;
+	invert = false;
 	mark = 0;
 	metric = 'i';
 	resolution = 75;

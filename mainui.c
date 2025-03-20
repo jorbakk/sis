@@ -516,6 +516,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_show_marker);
 
+	int opt_invert_depth_map = check("invert depth", &invert);
+	uiSetLayout(opt_invert_depth_map, UI_HFILL);
+	uiSetSize(opt_invert_depth_map, 0, BND_WIDGET_HEIGHT);
+	uiSetMargins(opt_invert_depth_map, 2 * M, 5, 2 * M, 5);
+	uiInsert(ctl_panel, opt_invert_depth_map);
+
 	int depth_map_view =
 	    image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
 	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h,

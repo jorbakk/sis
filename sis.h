@@ -100,7 +100,8 @@ void InitFuncs(void);
    Interface to get_opt.c:
    */
 extern ind_t eye_dist, origin;
-extern int verbose, debug, algorithm, invert;
+extern int verbose, debug, algorithm;
+extern bool invert;
 extern bool mark;
 extern int rand_grey_num, rand_col_num;
 extern float t, u;
