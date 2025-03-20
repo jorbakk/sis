@@ -494,6 +494,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(eye_dist_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, eye_dist_slider);
 
+	int origin_slider = slider_int("algo origin",
+	  &origin, slider_int_handler, 0, Dwidth, false);
+	uiSetLayout(origin_slider, UI_HFILL);
+	uiSetMargins(origin_slider, M, 3, M, 3);
+	uiInsert(ctl_panel, origin_slider);
+
 	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
 	uiSetLayout(near_plane_slider, UI_HFILL);
 	uiSetMargins(near_plane_slider, M, 3, M, 3);
@@ -501,7 +507,7 @@ ui_frame(NVGcontext * vg, float w, float h)
 
 	int far_plane_slider = slider("back distance", &t, slider_handler, 0.25f, 2.0f, true);
 	uiSetLayout(far_plane_slider, UI_HFILL);
-	uiSetMargins(far_plane_slider, M, 10, M, 3);
+	uiSetMargins(far_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, far_plane_slider);
 
 	int opt_show_marker = check("show markers", &mark);
