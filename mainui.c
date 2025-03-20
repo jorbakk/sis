@@ -548,7 +548,6 @@ init_app(void)
 	uiMakeCurrent(mctx.ui_ctx);
 	uiSetHandler(event_handler);
 
-	mark = 1;
 	load_depth_image();
 	load_texture_image();
 	load_sis_image();
