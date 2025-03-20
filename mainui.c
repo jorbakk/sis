@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #define GLFW_BACKEND
 
@@ -59,6 +60,8 @@ GLFWwindow *window;
 
 
 const char *window_title = "SIS Stereogram Generator";
+static char dropped_file[PATH_MAX];
+static int  dropped_file_len = 0;
 
 struct main_ctx {
 	NVGcontext *vg;
@@ -202,35 +205,43 @@ button(int iconid, const char *label, UIhandler handler)
 
 
 void
-textboxhandler(int item, UIevent event) {
-    text_head *data = (text_head *)uiGetHandle(item);
-    switch(event) {
-        default: break;
-        case UI_BUTTON0_DOWN: {
-            uiFocus(item);
-        } break;
-        case UI_KEY_DOWN: {
-            unsigned int key = uiGetKey();
-            switch(key) {
-                default: break;
-                // case GLFW_KEY_BACKSPACE: {
-                    // int size = strlen(data->text);
-                    // if (!size) return;
-                    // data->text[size-1] = 0;
-                // } break;
-                // case GLFW_KEY_ENTER: {
-                    // uiFocus(-1);
-                // } break;
-            }
-        } break;
-        case UI_CHAR: {
-            unsigned int key = uiGetKey();
-            if ((key > 255)||(key < 32)) return;
-            int size = strlen(data->text);
-            if (size >= (data->maxsize-1)) return;
-            data->text[size] = (char)key;
-        } break;
-    }
+textboxhandler(int item, UIevent event)
+{
+	printf("textboxhandler\n");
+	text_head *data = (text_head *) uiGetHandle(item);
+	switch (event) {
+	default:
+		break;
+	case UI_BUTTON0_DOWN:{
+			uiFocus(item);
+		}
+		break;
+	case UI_KEY_DOWN:{
+			unsigned int key = uiGetKey();
+			switch (key) {
+			default:
+				break;
+				// case GLFW_KEY_BACKSPACE: {
+				// int size = strlen(data->text);
+				// if (!size) return;
+				// data->text[size-1] = 0;
+				// } break;
+				// case GLFW_KEY_ENTER: {
+				// uiFocus(-1);
+				// } break;
+			}
+		}
+		break;
+	case UI_CHAR:{
+			unsigned int key = uiGetKey();
+			if ((key > 255) || (key < 32))
+				return;
+			int size = strlen(data->text);
+			if (size >= (data->maxsize - 1))
+				return;
+			data->text[size] = (char)key;
+		} break;
+	}
 }
 
 
@@ -361,7 +372,7 @@ check(const char *label, bool *option)
 
 
 int
-image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
+image(NVGcontext *vg, int img, int w, int h)
 {
 	int item = uiItem();
 	int iw, ih;
@@ -381,24 +392,51 @@ image(NVGcontext *vg, int img, int w, int h, UIhandler handler)
 	uiSetEvents(item, UI_BUTTON0_HOT_UP);
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
-	data->head.handler = handler;
+	data->head.handler = NULL;
 	data->img = img;
 	return item;
 }
 
 
+#if 0
+void
+image_vert_handler(int item, UIevent event)
+{
+	printf("image_vert_handler\n");
+
+	switch (event) {
+	default:
+		break;
+	case UI_DROP:{
+			uiFocus(item);
+		}
+		break;
+	}
+
+	UIvec2 c = uiGetCursor();
+	if (dropped_file_len && uiContains(item, c.x, c.y)) {
+		printf("dropped file '%s' on depth map view\n", dropped_file);
+		dropped_file_len = 0;
+	}
+}
+#endif
+
+
 int
-image_vert(NVGcontext *vg, int img, int w, UIhandler handler)
+image_vert(NVGcontext *vg, int img, int w)
 {
 	int item = uiItem();
 	int iw, ih;
 	nvgImageSize(vg, img, &iw, &ih);
 	ih *= (float)w / (float)iw;
 	uiSetSize(item, w, ih);
-	uiSetEvents(item, UI_BUTTON0_HOT_UP);
+	// uiSetEvents(item, UI_BUTTON0_HOT_UP);
+	// uiSetEvents(item, UI_DROP);
+	// uiSetEvents(item, UI_CHAR);
+	// uiSetEvents(item, UI_DROP | UI_BUTTON0_DOWN | UI_KEY_DOWN | UI_CHAR);
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
-	data->head.handler = handler;
+	// data->head.handler = image_vert_handler;
 	data->img = img;
 	return item;
 }
@@ -549,9 +587,7 @@ ui_frame(NVGcontext * vg, float w, float h)
 		update_sis();
 		update_sis_view = false;
 	}
-	int sis_view =
-	    image(mctx.vg, mctx.sis_img, sis_view_width - 10, sis_view_height - 10,
-	          NULL);
+	int sis_view = image(mctx.vg, mctx.sis_img, sis_view_width - 10, sis_view_height - 10);
 	uiSetLayout(sis_view, UI_TOP);
 	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
@@ -619,14 +655,13 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(algo_value, 2, 2, 2, 2);
 	uiInsert(algo_panel, algo_value);
 
-
-	int depth_map_view =
-	    image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
+	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img,
+	                                img_width);
 	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
 
-	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width, NULL);
+	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width);
 	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, texture_view);
@@ -636,6 +671,13 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiInsert(ctl_panel, fill_panel);
 
 	uiEndLayout();
+
+	/// Need to handle dropping zones here, for now
+	UIvec2 c = uiGetCursor();
+	if (dropped_file_len && uiContains(depth_map_view, c.x, c.y) && (uiGetButton(0) == 0)) {
+		printf("dropped file '%s' on depth map view\n", dropped_file);
+		dropped_file_len = 0;
+	}
 
 	/// Render user interface
 	render_ui(vg, 0, BND_CORNER_NONE);
@@ -788,7 +830,7 @@ cleanup(void)
 #ifdef GLFW_BACKEND
 
 static void
-mousebutton(GLFWwindow * window, int button, int action, int mods)
+mousebutton(GLFWwindow *window, int button, int action, int mods)
 {
 	NVG_NOTUSED(window);
 	switch (button) {
@@ -803,33 +845,51 @@ mousebutton(GLFWwindow * window, int button, int action, int mods)
 }
 
 static void
-cursorpos(GLFWwindow * window, double x, double y)
+cursorpos(GLFWwindow *window, double x, double y)
 {
 	NVG_NOTUSED(window);
 	uiSetCursor((int)x, (int)y);
 }
 
 static void
-scrollevent(GLFWwindow * window, double x, double y)
+scrollevent(GLFWwindow *window, double x, double y)
 {
 	NVG_NOTUSED(window);
 	uiSetScroll((int)x, (int)y);
 }
 
 static void
-charevent(GLFWwindow * window, unsigned int value)
+charevent(GLFWwindow *window, unsigned int value)
 {
 	NVG_NOTUSED(window);
 	uiSetChar(value);
 }
 
 static void
-key(GLFWwindow * window, int key, int scancode, int action, int mods)
+key(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	NVG_NOTUSED(scancode);
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
 	uiSetKey(key, mods, action);
+}
+
+static void
+drop_callback(GLFWwindow *window, int count, const char **paths)
+{
+	if (count > 0) {
+		dropped_file_len = strlen(paths[0]);
+		strncpy(dropped_file, paths[0], PATH_MAX);
+#if 0
+	    UIinputEvent event = { 0, 0, UI_DROP };
+	    uiAddInputEvent(event);
+	    uiSetChar('D');
+#endif
+	}
+	// for (int i = 0; i < count; i++) {
+		// printf("dropped: %s\n", paths[i]);
+	// }
 }
 
 int
@@ -848,6 +908,7 @@ main(int argc, char **argv)
 	glfwSetCursorPosCallback(window, cursorpos);
 	glfwSetMouseButtonCallback(window, mousebutton);
 	glfwSetScrollCallback(window, scrollevent);
+	glfwSetDropCallback(window, drop_callback);
 
 	init_all(argc, argv);
 	render_sis();

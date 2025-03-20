@@ -397,6 +397,10 @@ typedef enum UIevent {
     // item is focused and has received a character event
     // the respective character can be queried using uiGetKey()
     UI_CHAR = 0x40000,
+#if 0
+    /// Added drop event
+    UI_DROP = 0x80000,
+#endif
 } UIevent;
 
 enum {
