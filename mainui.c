@@ -158,6 +158,19 @@ bool update_sis_image(void);
 
 
 void
+update_sis()
+{
+	init_sis(0, NULL);
+	render_sis();
+	finish_sis();
+	update_sis_image();
+}
+
+
+static bool update_sis_view;
+
+
+void
 slider_handler(int item, UIevent event)
 {
 	const slider_head *data = (const slider_head *)uiGetHandle(item);
@@ -168,10 +181,7 @@ slider_handler(int item, UIevent event)
 	v = v >= 0.0f ? v : 0.0f;
 	v = v <= 1.0f ? v : 1.0f;
 	*(data->progress) = v;
-	init_sis(-1, NULL);
-	render_sis();
-	finish_sis();
-	update_sis_image();
+	update_sis_view = true;
 }
 
 
@@ -198,10 +208,7 @@ checkhandler(int item, UIevent event)
 {
     const check_head *data = (const check_head *)uiGetHandle(item);
     *data->option = !(*data->option);
-	init_sis(-1, NULL);
-	render_sis();
-	finish_sis();
-	update_sis_image();
+	update_sis_view = true;
 }
 
 
@@ -372,6 +379,10 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetBox(sis_view_panel, UI_COLUMN);
 	uiInsert(root, sis_view_panel);
 
+	if (update_sis_view) {
+		update_sis();
+		update_sis_view = false;
+	}
 	int sis_view = image(mctx.vg, mctx.sis_img, sis_view_width - 10, sis_view_height - 10, NULL);
 	uiSetLayout(sis_view, UI_TOP);
 	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
@@ -494,6 +505,7 @@ update_texture_image(void)
 bool
 load_sis_image(void)
 {
+	update_sis_view = false;
 	int imageFlags = 0;
 	unsigned char *img = rgb_to_rgba(GetSISFileBuffer(), SISwidth * SISheight);
 	mctx.sis_img = nvgCreateImageRGBA(mctx.vg, SISwidth, SISheight, imageFlags, img);
