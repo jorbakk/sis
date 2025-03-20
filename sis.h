@@ -103,7 +103,7 @@ extern ind_t eye_dist, origin;
 extern int verbose, debug, algorithm, invert;
 extern bool mark;
 extern int rand_grey_num, rand_col_num;
-extern double t, u;
+extern float t, u;
 extern double density;
 extern char metric;
 extern int resolution;

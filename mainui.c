@@ -94,7 +94,9 @@ typedef struct {
 typedef struct {
     widget_head head;
     const char *label;
-    double *progress;
+    float *value;
+    float min, max;
+    bool perc;
 } slider_head;
 
 typedef struct {
@@ -183,16 +185,18 @@ slider_handler(int item, UIevent event)
 	UIrect r = uiGetRect(item);
 	UIvec2 c = uiGetCursor();
 	float v = (float)(c.x - r.x) / (float)r.w;
-	v = v >= 0.0f ? v : 0.0f;
-	v = v <= 1.0f ? v : 1.0f;
-	*(data->progress) = v;
+	if (v < 0.0f) v = 0.0f;
+	if (v > 1.0f) v = 1.0f;
+	// *(data->progress) = v;
+	*(data->value) = v * (data->max - data->min) + data->min;
 	update_sis_view = true;
 }
 
 
 int
-slider(const char *label, double *progress, UIhandler handler)
+slider(const char *label, float *value, UIhandler handler, float min, float max, bool perc)
 {
+	assert(min < max);
 	// create new ui item
 	int item = uiItem();
 	// set size of wiget; horizontal size is dynamic, vertical is fixed
@@ -203,7 +207,11 @@ slider(const char *label, double *progress, UIhandler handler)
 	data->head.subtype = ST_SLIDER;
 	data->head.handler = handler;
 	data->label = label;
-	data->progress = progress;
+	data->value = value;
+	// data->progress = *progress * (max - min) + min;
+	data->min = min;
+	data->max = max;
+	data->perc = perc;
 	return item;
 }
 
@@ -322,11 +330,20 @@ render_ui(NVGcontext * vg, int item, int corners)
 		case ST_SLIDER: {
 				const slider_head *data = (slider_head *) head;
 				BNDwidgetState state = (BNDwidgetState) uiGetState(item);
-				static char value[32];
-				sprintf(value, "%.0f%%", (*data->progress) * 100.0f);
-				// fprintf(stderr, "%f", (*data->progress));
+				static char value_str[32];
+				float progress = (*data->value - data->min) / (data->max - data->min);
+				float value = *data->value;
+				if (data->perc) {
+					value *= 100.0f;
+					sprintf(value_str, "%.0f%%", value);
+				} else {
+					sprintf(value_str, "%.0f", value);
+				}
 				bndSlider(vg, rect.x, rect.y, rect.w, rect.h,
-				          corners, state, *data->progress, data->label, value);
+				          corners,
+				          state,
+				          progress,
+				          data->label, value_str);
 			} break;
 		case ST_CHECK: {
 				const check_head *data = (check_head*)head;
@@ -405,15 +422,15 @@ ui_frame(NVGcontext * vg, float w, float h)
 	// uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	// uiInsert(ctl_panel, hello_button);
 
-	int far_plane_slider = slider("far plane", &t, slider_handler);
-	uiSetLayout(far_plane_slider, UI_HFILL);
-	uiSetMargins(far_plane_slider, M, 10, M, 3);
-	uiInsert(ctl_panel, far_plane_slider);
-
-	int near_plane_slider = slider("near plane", &u, slider_handler);
+	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
 	uiSetLayout(near_plane_slider, UI_HFILL);
 	uiSetMargins(near_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, near_plane_slider);
+
+	int far_plane_slider = slider("back distance", &t, slider_handler, 0.25f, 2.0f, true);
+	uiSetLayout(far_plane_slider, UI_HFILL);
+	uiSetMargins(far_plane_slider, M, 10, M, 3);
+	uiInsert(ctl_panel, far_plane_slider);
 
 	int opt_show_marker = check("show markers", &mark);
 	uiSetLayout(opt_show_marker, UI_HFILL);

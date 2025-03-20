@@ -94,7 +94,7 @@ long forwards_obscure_c, backwards_obscure_c;
 long inner_propagate_c, outer_propagate_c;
 
 /// Near and far plane
-double t, u;
+float t, u;
 
 /// References to equally-colored pixels
 static ind_t *IdentBuffer;
