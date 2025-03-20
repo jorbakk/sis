@@ -82,6 +82,11 @@ typedef struct {
 
 typedef struct {
     widget_head head;
+    bool border;
+} panel_head;
+
+typedef struct {
+    widget_head head;
     int iconid;
     const char *label;
 } button_head;
@@ -129,12 +134,13 @@ button_handler(int item, UIevent event)
 
 
 int
-panel()
+panel(bool border)
 {
 	int item = uiItem();
-	widget_head *data = (widget_head *) uiAllocHandle(item, sizeof(widget_head));
-	data->subtype = ST_PANEL;
-	data->handler = NULL;
+	panel_head *data = (panel_head *) uiAllocHandle(item, sizeof(panel_head));
+	data->head.subtype = ST_PANEL;
+	data->head.handler = NULL;
+	data->border = border;
 	return item;
 }
 
@@ -298,12 +304,15 @@ render_ui(NVGcontext * vg, int item, int corners)
 				render_ui_items(vg, item, corners);
 			}
 			break;
-		case ST_PANEL:{
-				bndBevel(vg, rect.x, rect.y, rect.w, rect.h);
+		case ST_PANEL: {
+				const panel_head *data = (panel_head *) head;
+				if (data->border) {
+					bndBevel(vg, rect.x, rect.y, rect.w, rect.h);
+				}
 				render_ui_items(vg, item, corners);
 			}
 			break;
-		case ST_BUTTON:{
+		case ST_BUTTON: {
 				const button_head *data = (button_head *) head;
 				bndToolButton(vg, rect.x, rect.y, rect.w, rect.h,
 				              corners, (BNDwidgetState) uiGetState(item),
@@ -327,7 +336,7 @@ render_ui(NVGcontext * vg, int item, int corners)
 				bndOptionButton(vg,rect.x,rect.y,rect.w,rect.h, state,
 					data->label);
 			} break;
-		case ST_IMAGE:{
+		case ST_IMAGE: {
 				const image_head *data = (image_head *) head;
 				NVGpaint img_paint = nvgImagePattern(vg,
 				  rect.x, rect.y, rect.w, rect.h, 0, data->img, 1.0f);
@@ -348,7 +357,8 @@ ui_frame(NVGcontext * vg, float w, float h)
 	/// Layout user interface
 	uiBeginLayout();
 
-	int panel_margin_h = 5;
+	int M = 6;
+	int panel_margin_h = M;
 	int panel_margin_v = 5;
 	int panel_width = 200;
 	// int panel_height = 400;
@@ -357,20 +367,20 @@ ui_frame(NVGcontext * vg, float w, float h)
 	int sis_view_width = w - panel_width - 4 * panel_margin_h;
 	int sis_view_height = h - 4 * panel_margin_v;
 
-	int root = panel();
+	int root = panel(false);
 	uiSetSize(root, w, h);
 	uiSetBox(root, UI_LAYOUT);
 	uiSetLayout(root, UI_FILL);
 
-	int ctl_panel = panel();
+	int ctl_panel = panel(true);
 	uiSetSize(ctl_panel, panel_width, panel_height);
 	// uiSetEvents(ctl_panel, UI_BUTTON0_DOWN);
-	uiSetLayout(ctl_panel, UI_LEFT | UI_TOP);
+	uiSetLayout(ctl_panel, UI_TOP | UI_LEFT);
 	uiSetMargins(ctl_panel, 10, 10, 5, 10);
 	uiSetBox(ctl_panel, UI_COLUMN);
 	uiInsert(root, ctl_panel);
 
-	int sis_view_panel = panel();
+	int sis_view_panel = panel(false);
 	uiSetSize(sis_view_panel, sis_view_width, sis_view_height);
 	// uiSetEvents(sis_view_panel, UI_BUTTON0_DOWN);
 	uiSetLayout(sis_view_panel, UI_RIGHT | UI_TOP);
@@ -382,9 +392,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 		update_sis();
 		update_sis_view = false;
 	}
-	int sis_view = image(mctx.vg, mctx.sis_img, sis_view_width - 10, sis_view_height - 10, NULL);
+	int sis_view =
+	    image(mctx.vg, mctx.sis_img, sis_view_width - 10, sis_view_height - 10,
+	          NULL);
 	uiSetLayout(sis_view, UI_TOP);
-	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
+	uiSetMargins(sis_view, panel_margin_h, panel_margin_v, panel_margin_h,
+	             panel_margin_v);
 	uiInsert(sis_view_panel, sis_view);
 
 	// int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
@@ -393,30 +406,35 @@ ui_frame(NVGcontext * vg, float w, float h)
 	// uiInsert(ctl_panel, hello_button);
 
 	int far_plane_slider = slider("far plane", &t, slider_handler);
-    uiSetLayout(far_plane_slider, UI_HFILL | UI_VCENTER);
-	uiSetMargins(far_plane_slider, 5, 3, 5, 3);
-    uiInsert(ctl_panel, far_plane_slider);
+	uiSetLayout(far_plane_slider, UI_HFILL);
+	uiSetMargins(far_plane_slider, M, 10, M, 3);
+	uiInsert(ctl_panel, far_plane_slider);
 
 	int near_plane_slider = slider("near plane", &u, slider_handler);
-    uiSetLayout(near_plane_slider, UI_HFILL | UI_VCENTER);
-	uiSetMargins(near_plane_slider, 5, 3, 5, 3);
-    uiInsert(ctl_panel, near_plane_slider);
+	uiSetLayout(near_plane_slider, UI_HFILL);
+	uiSetMargins(near_plane_slider, M, 3, M, 3);
+	uiInsert(ctl_panel, near_plane_slider);
 
 	int opt_show_marker = check("show markers", &mark);
 	uiSetLayout(opt_show_marker, UI_HFILL);
 	uiSetSize(opt_show_marker, 0, BND_WIDGET_HEIGHT);
-	uiSetMargins(opt_show_marker, 10, 5, 10, 5);
+	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_show_marker);
 
-	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
-	uiSetLayout(depth_map_view, UI_TOP);
-	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
+	int depth_map_view =
+	    image_vert(mctx.vg, mctx.depth_map_img, img_width, NULL);
+	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h,
+	             panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
 
 	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width, NULL);
-	uiSetLayout(texture_view, UI_TOP);
-	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
+	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h,
+	             panel_margin_v);
 	uiInsert(ctl_panel, texture_view);
+
+	int fill_panel = panel(false);
+	uiSetLayout(fill_panel, UI_VFILL);
+	uiInsert(ctl_panel, fill_panel);
 
 	uiEndLayout();
 
@@ -429,6 +447,7 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiProcess((int)(stm_sec(stm_now()) * 1000.0));
 #endif
 }
+
 
 
 void

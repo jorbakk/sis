@@ -65,7 +65,7 @@ SetDefaults(void)
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
 	verbose = 0;
 	invert = 0;
-	mark = 1;
+	mark = 0;
 	metric = 'i';
 	resolution = 75;
 	oversam = 4;
