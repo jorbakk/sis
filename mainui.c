@@ -660,7 +660,7 @@ main(int argc, char **argv)
 		glfwPollEvents();
 	}
 	cleanup();
-	// finish_all();
+	finish_all();
 	glfwTerminate();
 	return 0;
 }
