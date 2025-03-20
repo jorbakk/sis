@@ -71,6 +71,7 @@ typedef enum {
     ST_PANEL = 1,
     ST_BUTTON,
     ST_SLIDER,
+    ST_SLIDER_INT,
     ST_CHECK,
     ST_IMAGE,
 } widget_sub_type;
@@ -98,6 +99,14 @@ typedef struct {
     float min, max;
     bool perc;
 } slider_head;
+
+typedef struct {
+    widget_head head;
+    const char *label;
+    long int *value;
+    long int min, max;
+    bool perc;
+} slider_int_head;
 
 typedef struct {
     widget_head head;
@@ -205,6 +214,45 @@ slider(const char *label, float *value, UIhandler handler, float min, float max,
 	// store some custom data with the slider that we use for styling
 	slider_head *data = (slider_head *) uiAllocHandle(item, sizeof(slider_head));
 	data->head.subtype = ST_SLIDER;
+	data->head.handler = handler;
+	data->label = label;
+	data->value = value;
+	// data->progress = *progress * (max - min) + min;
+	data->min = min;
+	data->max = max;
+	data->perc = perc;
+	return item;
+}
+
+
+void
+slider_int_handler(int item, UIevent event)
+{
+	const slider_int_head *data = (const slider_int_head *)uiGetHandle(item);
+	// printf("clicked slider pointer: %p, label: %s\n", uiGetHandle(item), data->label);
+	UIrect r = uiGetRect(item);
+	UIvec2 c = uiGetCursor();
+	float v = (float)(c.x - r.x) / (float)r.w;
+	if (v < 0.0f) v = 0.0f;
+	if (v > 1.0f) v = 1.0f;
+	// *(data->progress) = v;
+	*(data->value) = v * (data->max - data->min) + data->min;
+	update_sis_view = true;
+}
+
+
+int
+slider_int(const char *label, long int *value, UIhandler handler, long int min, long int max, bool perc)
+{
+	assert(min < max);
+	// create new ui item
+	int item = uiItem();
+	// set size of wiget; horizontal size is dynamic, vertical is fixed
+	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+	uiSetEvents(item, UI_BUTTON0_CAPTURE);
+	// store some custom data with the slider that we use for styling
+	slider_int_head *data = (slider_int_head *) uiAllocHandle(item, sizeof(slider_int_head));
+	data->head.subtype = ST_SLIDER_INT;
 	data->head.handler = handler;
 	data->label = label;
 	data->value = value;
@@ -345,6 +393,24 @@ render_ui(NVGcontext * vg, int item, int corners)
 				          progress,
 				          data->label, value_str);
 			} break;
+		case ST_SLIDER_INT: {
+				const slider_int_head *data = (slider_int_head *) head;
+				BNDwidgetState state = (BNDwidgetState) uiGetState(item);
+				static char value_str[32];
+				float progress = (float)(*data->value - data->min) / (float)(data->max - data->min);
+				long int value = *data->value;
+				if (data->perc) {
+					float value_float = value * 1e-2;
+					sprintf(value_str, "%.0f%%", value_float);
+				} else {
+					sprintf(value_str, "%ld", value);
+				}
+				bndSlider(vg, rect.x, rect.y, rect.w, rect.h,
+				          corners,
+				          state,
+				          progress,
+				          data->label, value_str);
+			} break;
 		case ST_CHECK: {
 				const check_head *data = (check_head*)head;
 				BNDwidgetState state = (BNDwidgetState)uiGetState(item);
@@ -421,6 +487,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	// uiSetLayout(hello_button, UI_HFILL | UI_TOP);
 	// uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
 	// uiInsert(ctl_panel, hello_button);
+
+	int eye_dist_slider = slider_int("eye distance",
+	  &eye_dist, slider_int_handler, 25, 0.5 * Dwidth, false);
+	uiSetLayout(eye_dist_slider, UI_HFILL);
+	uiSetMargins(eye_dist_slider, M, 3, M, 3);
+	uiInsert(ctl_panel, eye_dist_slider);
 
 	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
 	uiSetLayout(near_plane_slider, UI_HFILL);
