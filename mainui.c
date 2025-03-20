@@ -261,6 +261,7 @@ textbox(char *text, int maxsize)
 
 
 bool update_sis_image(void);
+bool update_texture_image(void);
 
 
 void
@@ -269,6 +270,16 @@ update_sis()
 	InitAlgorithm();
 	render_sis();
 	update_sis_image();
+}
+
+
+void
+update_texture()
+{
+	CloseTFile(Theight);
+	SIStype = SIS_TEXT_MAP;
+	OpenTFile(dropped_file, &Twidth, &Theight);
+	update_texture_image();
 }
 
 
@@ -678,6 +689,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 		printf("dropped file '%s' on depth map view\n", dropped_file);
 		dropped_file_len = 0;
 	}
+	if (dropped_file_len && uiContains(texture_view, c.x, c.y) && (uiGetButton(0) == 0)) {
+		printf("dropped file '%s' on texture view\n", dropped_file);
+		update_texture();
+		update_sis();
+		dropped_file_len = 0;
+	}
 
 	/// Render user interface
 	render_ui(vg, 0, BND_CORNER_NONE);
@@ -757,6 +774,17 @@ load_texture_image(void)
 {
 	mctx.texture_img = nvgCreateImage(mctx.vg, TFileName, 0);
 	// mctx.texture_img = nvgCreateImageRGBA(mctx.vg, Twidth, Theight, imageFlags, GetTFileBuffer());
+	return true;
+}
+
+
+bool
+update_texture_image(void)
+{
+	int imageFlags = 0;
+	unsigned char *img = rgb_to_rgba(GetTFileBuffer(), Twidth * Theight);
+	nvgUpdateImage(mctx.vg, mctx.texture_img, img);
+	free(img);
 	return true;
 }
 
