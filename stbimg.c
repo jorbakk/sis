@@ -71,14 +71,14 @@ Stb_OpenSISFile(char *SISFileName, ind_t width, ind_t height, int SIStype)
 	outpic_height = height;
 	// Allocate buffer for the output image data that can be directly written with stb_image_write()
 	if (! (outpic_buf_p = (unsigned char *)calloc(height * width, SISChannelCount))) {
-		fprintf(stderr, "No space for output image buffer.\n");
+		fprintf(stderr, "Failed to allocate output image buffer.\n");
 		exit(1);
 	}
 }
 
 
 void
-Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height)
+Stb_OpenTFile(char *TFileName, ind_t *width, ind_t *height)
 {
 	int channel_count = 0, desired_channel_count = 3;
 	if (!(texpic_p = (unsigned char *)stbi_load(TFileName, (int *)width, (int *)height,

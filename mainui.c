@@ -160,9 +160,9 @@ bool update_sis_image(void);
 void
 update_sis()
 {
-	init_sis(0, NULL);
+	init_all(0, NULL);
 	render_sis();
-	finish_sis();
+	finish_all();
 	update_sis_image();
 }
 
@@ -485,7 +485,7 @@ rgb_to_rgba(unsigned char *img, int pixels)
 
 
 bool
-update_depth_image(void)
+load_depth_image(void)
 {
 	mctx.depth_map_img = nvgCreateImage(mctx.vg, DFileName, 0);
 
@@ -494,7 +494,7 @@ update_depth_image(void)
 
 
 bool
-update_texture_image(void)
+load_texture_image(void)
 {
 	mctx.texture_img = nvgCreateImage(mctx.vg, TFileName, 0);
 	// mctx.texture_img = nvgCreateImageRGBA(mctx.vg, Twidth, Theight, imageFlags, GetTFileBuffer());
@@ -549,8 +549,9 @@ init_app(void)
 	uiMakeCurrent(mctx.ui_ctx);
 	uiSetHandler(event_handler);
 
-	update_depth_image();
-	update_texture_image();
+	mark = 1;
+	load_depth_image();
+	load_texture_image();
 	load_sis_image();
 }
 
@@ -632,20 +633,17 @@ main(int argc, char **argv)
 	glfwSetMouseButtonCallback(window, mousebutton);
 	glfwSetScrollCallback(window, scrollevent);
 
-	init_sis(argc, argv);
+	init_all(argc, argv);
 	render_sis();
 	init_app();
 	while (!glfwWindowShouldClose(window)) {
-		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 		frame();
-		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
-		/* Poll for and process events */
 		glfwPollEvents();
 	}
 	cleanup();
-	// finish_sis();
+	// finish_all();
 	glfwTerminate();
 	return 0;
 }

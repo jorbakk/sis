@@ -114,6 +114,17 @@ col_t *SISBuffer = NULL;
 void
 InitAlgorithm(void)
 {
+	if (!SISwidth && !SISheight) {
+		SISwidth = Dwidth;
+		SISheight = Dheight;
+	}
+	if (!SISwidth) {
+		SISwidth = SISheight * (float)Dwidth / (float)Dheight;
+	}
+	if (!SISheight) {
+		SISheight = SISwidth * (float)Dheight / (float)Dwidth;
+	}
+
 	/// max(int) > SIS_MAX_DEPTH
 	int i;
 
@@ -141,6 +152,53 @@ InitAlgorithm(void)
 		Twidth = 1;
 		Theight = 1;
 	}
+
+	if (eye_dist == 0) {
+		eye_dist = metric2pixel(22, resolution);
+	}
+	if (algorithm < 4) {
+		halfstripwidth = eye_dist * t / (2 * (1 + t));
+	} else {
+		halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
+	}
+	halftriangwidth = SISwidth / 75;
+	if (!halftriangwidth)
+		halftriangwidth = 4;
+	DLineStep = (double)Dheight / (double)SISheight;
+	DLinePosition = 0.0;
+	/// Set the original default value for origin in case of algo #4,
+	/// it is not in the center of the image because some artifacts
+	/// in the background appear
+	if (origin == -1 && algorithm < 4) {
+		origin = SISwidth >> 1;
+	}
+	switch (SIStype) {
+	case SIS_RANDOM_GREY:
+		SISred[0] = SISgreen[0] = SISblue[0] = white_value;
+		white = 0;
+		for (int i = 1; i < rand_grey_num; i++) {
+			SISred[i] = SISgreen[i] = SISblue[i] =
+			    i * (float)SIS_MAX_CMAP / (float)rand_grey_num;
+		}
+		break;
+	case SIS_RANDOM_COLOR:
+		for (int i = 0; i < rand_col_num; i++) {
+			SISred[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISgreen[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISblue[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+		}
+		break;
+	}
+	SISred[SIS_MAX_COLORS] = SISgreen[SIS_MAX_COLORS] = SISblue[SIS_MAX_COLORS]
+	    = black_value;
+	black = SIS_MAX_COLORS;
+	max_depth = SIS_MIN_DEPTH;
+	min_depth = SIS_MAX_DEPTH;
+
+	inner_propagate_c = 0;
+	outer_propagate_c = 0;
+	forwards_obscure_c = 0;
+	backwards_obscure_c = 0;
 }
 
 

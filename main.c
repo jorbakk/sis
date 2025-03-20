@@ -93,7 +93,7 @@ show_statistics(void)
 int
 main(int argc, char **argv)
 {
-	init_sis(argc, argv);
+	init_all(argc, argv);
 	print_warnings();
 	if (verbose) {
 		print_message_header();
@@ -103,6 +103,6 @@ main(int argc, char **argv)
 		puts("\n");
 		print_summary();
 	}
-	finish_sis();
+	finish_all();
 	return EXIT_SUCCESS;
 }

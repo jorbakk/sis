@@ -65,7 +65,7 @@ SetDefaults(void)
 	origin = -1;                /* that means, it is set to SISwidth/2 later */
 	verbose = 0;
 	invert = 0;
-	mark = 1;
+	mark = 0;
 	metric = 'i';
 	resolution = 75;
 	oversam = 4;
@@ -99,60 +99,7 @@ InitFuncs(void)
 
 
 void
-InitVars(void)
-{
-	int i;
-
-	inner_propagate_c = 0;
-	outer_propagate_c = 0;
-	forwards_obscure_c = 0;
-	backwards_obscure_c = 0;
-	metric = 'i';
-	if (eye_dist == 0) {
-		eye_dist = metric2pixel(22, resolution);
-	}
-	if (algorithm < 4) {
-		halfstripwidth = eye_dist * t / (2 * (1 + t));
-	} else {
-		halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
-	}
-	halftriangwidth = SISwidth / 75;
-	if (!halftriangwidth)
-		halftriangwidth = 4;
-	DLineStep = (double)Dheight / (double)SISheight;
-	DLinePosition = 0.0;
-	/// Set the original default value for origin in case of algo #4,
-	/// it is not in the center of the image because some artifacts
-	/// in the background appear
-	if (origin == -1 && algorithm < 4) {
-		origin = SISwidth >> 1;
-	}
-
-	switch (SIStype) {
-	case SIS_RANDOM_GREY:
-		SISred[0] = SISgreen[0] = SISblue[0] = white_value;
-		white = 0;
-		for (i = 1; i < rand_grey_num; i++) {
-			SISred[i] = SISgreen[i] = SISblue[i] =
-			    i * (float)SIS_MAX_CMAP / (float)rand_grey_num;
-		}
-		break;
-	case SIS_RANDOM_COLOR:
-		for (i = 0; i < rand_col_num; i++) {
-			SISred[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
-			SISgreen[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
-			SISblue[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
-		}
-		break;
-	}
-	SISred[SIS_MAX_COLORS] = SISgreen[SIS_MAX_COLORS] = SISblue[SIS_MAX_COLORS]
-	    = black_value;
-	black = SIS_MAX_COLORS;
-}
-
-
-void
-init_sis(int argc, char **argv)
+init_base(int argc, char **argv)
 {
 	SISred = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 	SISgreen = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
@@ -166,23 +113,27 @@ init_sis(int argc, char **argv)
 		}
 	}
 	InitFuncs();
+}
+
+
+void
+init_sis(void)
+{
 	OpenDFile(DFileName, &Dwidth, &Dheight);
-	if (!SISwidth && !SISheight) {
-		SISwidth = Dwidth;
-		SISheight = Dheight;
-	}
-	if (!SISwidth)
-		SISwidth = SISheight * (float)Dwidth / (float)Dheight;
-	if (!SISheight)
-		SISheight = SISwidth * (float)Dheight / (float)Dwidth;
-	if (SIStype == SIS_TEXT_MAP)
+	if (SIStype == SIS_TEXT_MAP) {
 		OpenTFile(TFileName, &Twidth, &Theight);
+	}
 	InitAlgorithm();
 	AllocBuffers();
-	InitVars();
 	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
-	max_depth = SIS_MIN_DEPTH;
-	min_depth = SIS_MAX_DEPTH;
+}
+
+
+void
+init_all(int argc, char **argv)
+{
+	init_base(argc, argv);
+	init_sis();
 }
 
 
@@ -190,13 +141,21 @@ void
 finish_sis(void)
 {
 	CloseDFile();
-	if (SIStype == SIS_TEXT_MAP)
+	if (SIStype == SIS_TEXT_MAP) {
 		CloseTFile(Theight);
+	}
 	CloseSISFile();
 	FreeBuffers();
 	free(SISred);
 	free(SISgreen);
 	free(SISblue);
+}
+
+
+void
+finish_all(void)
+{
+	finish_sis();
 }
 
 
@@ -212,13 +171,13 @@ render_sis(void)
 		ReadDBuffer(DLineNumber);            /// Read in one line of depth-map
 
 		if (algorithm < 4) {
-			CalcIdentLine();                     /// My SIS-algorithm
-			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
+			CalcIdentLine();                 /// My SIS-algorithm
+			InitSISBuffer(SISLineNumber);    /// Fill in the right color indices,
 			FillRGBBuffer(SISLineNumber);
-			                                     /// according to the SIS-type
+			                                 /// according to the SIS-type
 		} else {
-			InitSISBuffer(SISLineNumber);        /// Fill in the right color indices,
-			asteer(SISLineNumber);               /// Andrew Steer's SIS-algorithm
+			InitSISBuffer(SISLineNumber);    /// Fill in the right color indices,
+			asteer(SISLineNumber);           /// Andrew Steer's SIS-algorithm
 		}
 		// WriteSISBuffer(SISLineNumber);    /// Write one line of output
 		WriteSISColorBuffer(SISLineNumber);  /// Write one line of output

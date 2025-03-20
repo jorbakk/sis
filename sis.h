@@ -95,7 +95,6 @@ extern ind_t DLineNumber;
 
 void SetDefaults(void);
 void InitFuncs(void);
-void InitVars(void);
 
 /*
    Interface to get_opt.c:
@@ -111,9 +110,9 @@ extern int resolution;
 extern int oversam;
 
 void get_options(int argc, char **argv);
-void init_sis(int argc, char **argv);
+void init_all(int argc, char **argv);
 void render_sis(void);
-void finish_sis(void);
+void finish_all(void);
 void show_statistics(void);
 ind_t metric2pixel(int metric_val, int resolution);
 
