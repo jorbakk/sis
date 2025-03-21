@@ -1088,6 +1088,10 @@ event_cb(const sapp_event* ev)
 			mctx.my = ev->touches[0].pos_y / dpi_scale;
 		    uiSetCursor((int)mctx.mx,(int)mctx.my);
 			break;
+		case SAPP_EVENTTYPE_FILES_DROPPED:
+			dropped_file_len = strlen(sapp_get_dropped_file_path(0));
+			strncpy(dropped_file, sapp_get_dropped_file_path(0), PATH_MAX);
+			break;
 		default:
 			break;
 	}
@@ -1107,6 +1111,9 @@ sokol_main(int argc, char *argv[])
 		.width = 640,
 		.height = 480,
 		.window_title = window_title,
+		.enable_dragndrop = true,
+		.max_dropped_files = 1,
+		.max_dropped_file_path_length = PATH_MAX,
 	};
 }
 
