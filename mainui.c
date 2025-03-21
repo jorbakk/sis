@@ -60,6 +60,8 @@ GLFWwindow *window;
 
 
 const char *window_title = "SIS Stereogram Generator";
+const char *image_read_extensions = "png,jpg,bmp,gif,hdr,tga,pic";
+const char *image_write_extensions = "png";
 static char dropped_file[PATH_MAX];
 static int  dropped_file_len = 0;
 
@@ -186,6 +188,54 @@ algo_minus_button_handler(int item, UIevent event)
 {
 	if (algorithm > SIS_MIN_ALGO) {
 		algorithm--;
+		update_sis_view = true;
+	}
+}
+
+
+void
+sis_button_handler(int item, UIevent event)
+{
+    nfdchar_t *outPath = NULL;
+    nfdresult_t result = NFD_SaveDialog(image_write_extensions, NULL, &outPath);
+    if (result == NFD_OKAY) {
+		printf("saving sis image to '%s'\n", outPath);
+		strncpy(SISFileName, outPath, PATH_MAX);
+		WriteSISFile();
+        free(outPath);
+    }
+}
+
+void update_depth_map_and_sis();
+void update_texture();
+void update_sis();
+
+void
+depth_button_handler(int item, UIevent event)
+{
+    nfdchar_t *outPath = NULL;
+    nfdresult_t result = NFD_OpenDialog(image_read_extensions, NULL, &outPath);
+    if (result == NFD_OKAY) {
+		printf("loading depth image '%s'\n", outPath);
+		strncpy(DFileName, outPath, PATH_MAX);
+		update_depth_map_and_sis();
+        free(outPath);
+		update_sis_view = true;
+	}
+}
+
+
+void
+texture_button_handler(int item, UIevent event)
+{
+    nfdchar_t *outPath = NULL;
+    nfdresult_t result = NFD_OpenDialog(image_read_extensions, NULL, &outPath);
+    if (result == NFD_OKAY) {
+		printf("loading texture image '%s'\n", outPath);
+		strncpy(TFileName, outPath, PATH_MAX);
+		update_texture();
+		update_sis();
+        free(outPath);
 		update_sis_view = true;
 	}
 }
@@ -448,11 +498,12 @@ check(const char *label, bool *option)
 }
 
 
+#if 0
 void
 image_handler(int item, UIevent event)
 {
     nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_SaveDialog("png,jpg", NULL, &outPath);
+    nfdresult_t result = NFD_SaveDialog(image_write_extensions, NULL, &outPath);
     if (result == NFD_OKAY) {
 		printf("saving sis image to '%s'\n", outPath);
 		strncpy(SISFileName, outPath, PATH_MAX);
@@ -460,6 +511,7 @@ image_handler(int item, UIevent event)
         free(outPath);
     }
 }
+#endif
 
 
 int
@@ -480,21 +532,24 @@ image(NVGcontext *vg, int img, int w, int h)
 		ih *= (float)w / (float)iw;
 		uiSetSize(item, w, ih);
 	}
+#if 0
 	uiSetEvents(item, UI_BUTTON0_HOT_UP);
+	data->head.handler = image_handler;
+#endif
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
-	data->head.handler = image_handler;
 	data->img = img;
 	return item;
 }
 
 
+#if 0
 void
 image_vert_handler(int item, UIevent event)
 {
     const image_head *data = (const image_head *)uiGetHandle(item);
     nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog("png,jpg", NULL, &outPath);
+    nfdresult_t result = NFD_OpenDialog(image_read_extensions, NULL, &outPath);
     if (result == NFD_OKAY) {
         if (data->img == mctx.depth_map_img) {
 			printf("loading depth image '%s'\n", outPath);
@@ -525,6 +580,7 @@ image_vert_handler(int item, UIevent event)
 		// dropped_file_len = 0;
 	// }
 }
+#endif
 
 
 int
@@ -535,10 +591,12 @@ image_vert(NVGcontext *vg, int img, int w)
 	nvgImageSize(vg, img, &iw, &ih);
 	ih *= (float)w / (float)iw;
 	uiSetSize(item, w, ih);
+#if 0
 	uiSetEvents(item, UI_BUTTON0_DOWN);
+	data->head.handler = image_vert_handler;
+#endif
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
-	data->head.handler = image_vert_handler;
 	data->img = img;
 	return item;
 }
@@ -695,11 +753,6 @@ ui_frame(NVGcontext * vg, float w, float h)
 	             panel_margin_v);
 	uiInsert(sis_view_panel, sis_view);
 
-	// int hello_button = button(BND_ICON_GHOST, "Hello SIS", button_handler);
-	// uiSetLayout(hello_button, UI_HFILL | UI_TOP);
-	// uiSetMargins(hello_button, panel_margin_h, panel_margin_v, panel_margin_h, panel_margin_v);
-	// uiInsert(ctl_panel, hello_button);
-
 	int eye_dist_slider = slider_int("eye distance",
 	  &eye_dist, slider_int_handler, 25, 0.5 * Dwidth, false);
 	uiSetMargins(eye_dist_slider, M, 10, M, 3);
@@ -757,11 +810,33 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(algo_value, 2, 2, 2, 2);
 	uiInsert(algo_panel, algo_value);
 
+	// int file_buttons_panel = panel(false);
+	// // uiSetLayout(file_buttons_panel, UI_HFILL);
+	// uiSetSize(file_buttons_panel, 0, BND_WIDGET_HEIGHT);
+	// uiSetMargins(file_buttons_panel, M, 5, M, 5);
+	// uiSetBox(file_buttons_panel, UI_ROW);
+	// uiInsert(ctl_panel, file_buttons_panel);
+
+	int sis_button = button(BND_ICON_GHOST, "save sis image", sis_button_handler);
+	uiSetLayout(sis_button, UI_HFILL | UI_TOP);
+	uiSetMargins(sis_button, M, 5, M, 5);
+	uiInsert(ctl_panel, sis_button);
+
+	int depth_button = button(BND_ICON_GHOST, "load depth map", depth_button_handler);
+	uiSetLayout(depth_button, UI_HFILL | UI_TOP);
+	uiSetMargins(depth_button, M, 5, M, 5);
+	uiInsert(ctl_panel, depth_button);
+
 	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img,
 	                                img_width);
 	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
+
+	int texture_button = button(BND_ICON_GHOST, "load texture image", texture_button_handler);
+	uiSetLayout(texture_button, UI_HFILL | UI_TOP);
+	uiSetMargins(texture_button, M, 5, M, 5);
+	uiInsert(ctl_panel, texture_button);
 
 	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width);
 	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h,
