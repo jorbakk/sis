@@ -448,6 +448,20 @@ check(const char *label, bool *option)
 }
 
 
+void
+image_handler(int item, UIevent event)
+{
+    nfdchar_t *outPath = NULL;
+    nfdresult_t result = NFD_SaveDialog("png,jpg", NULL, &outPath);
+    if (result == NFD_OKAY) {
+		printf("saving sis image to '%s'\n", outPath);
+		strncpy(SISFileName, outPath, PATH_MAX);
+		WriteSISFile();
+        free(outPath);
+    }
+}
+
+
 int
 image(NVGcontext *vg, int img, int w, int h)
 {
@@ -469,7 +483,7 @@ image(NVGcontext *vg, int img, int w, int h)
 	uiSetEvents(item, UI_BUTTON0_HOT_UP);
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
-	data->head.handler = NULL;
+	data->head.handler = image_handler;
 	data->img = img;
 	return item;
 }
@@ -522,10 +536,6 @@ image_vert(NVGcontext *vg, int img, int w)
 	ih *= (float)w / (float)iw;
 	uiSetSize(item, w, ih);
 	uiSetEvents(item, UI_BUTTON0_DOWN);
-	// uiSetEvents(item, UI_BUTTON0_HOT_UP);
-	// uiSetEvents(item, UI_DROP);
-	// uiSetEvents(item, UI_CHAR);
-	// uiSetEvents(item, UI_DROP | UI_BUTTON0_DOWN | UI_KEY_DOWN | UI_CHAR);
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
 	data->head.handler = image_vert_handler;
