@@ -111,6 +111,9 @@ static int numerator, denominator;
 
 col_t *SISBuffer = NULL;
 
+/// IdentBuffer's equivalent in algo #4 are lookL and lookR
+static int *lookL, *lookR;
+
 void
 InitAlgorithm(void)
 {
@@ -145,9 +148,6 @@ InitAlgorithm(void)
 	// printf("t: %f\n", t);
 	// printf("numerator: %d\n", numerator);
 	// printf("denominator: %d\n", denominator);
-	if (algorithm == 4) {
-		eye_dist *= oversam;
-	}
 	if (SIStype != SIS_TEXT_MAP) {
 		Twidth = 1;
 		Theight = 1;
@@ -156,11 +156,7 @@ InitAlgorithm(void)
 	if (eye_dist == 0) {
 		eye_dist = metric2pixel(22, resolution);
 	}
-	if (algorithm < 4) {
-		halfstripwidth = eye_dist * t / (2 * (1 + t));
-	} else {
-		halfstripwidth = (eye_dist / oversam) * t / (2 * (1 + t));
-	}
+	halfstripwidth = eye_dist * t / (2 * (1 + t));
 	halftriangwidth = SISwidth / 75;
 	if (!halftriangwidth)
 		halftriangwidth = 4;
@@ -218,8 +214,13 @@ DaddEntry(col_t index, z_t zval)
 
 	if (zvalue[index] == -1) {
 		zvalue[index] = zval;
-		separation[index] = eye_dist * (numerator - zval) / (denominator - zval);
-		dz[index] = (double)(denominator - zval) / (double)((eye_dist >> 1) * DBufStep);
+		if (algorithm == 4) {
+			separation[index] = eye_dist * oversam * (numerator - zval) / (denominator - zval);
+			dz[index] = (double)(denominator - zval) / (double)(((eye_dist * oversam) >> 1) * DBufStep);
+		} else {
+			separation[index] = eye_dist * (numerator - zval) / (denominator - zval);
+			dz[index] = (double)(denominator - zval) / (double)((eye_dist >> 1) * DBufStep);
+		}
 	}
 }
 
@@ -250,6 +251,8 @@ AllocBuffers(void)
 		free(SISBuffer);
 		exit(1);
 	}
+	lookL = (int *)calloc(SISwidth * oversam, sizeof(int));
+	lookR = (int *)calloc(SISwidth * oversam, sizeof(int));
 }
 
 
@@ -260,6 +263,8 @@ FreeBuffers(void)
 	free(IdentBuffer);
 	free(SISBuffer);
 	free(SIScolorRGB);
+	free(lookL);
+	free(lookR);
 }
 
 
@@ -518,7 +523,7 @@ asteer(ind_t LineNumber)
 	/// Shift texture map 4 pixels in vertical direction
 	int yShift = 4;
 	/// Pattern must be at least this wide
-	int maxsep = (int)(((long)eye_dist * maxdepth) / (maxdepth + obsDist));
+	int maxsep = (int)(((long)eye_dist * oversam * maxdepth) / (maxdepth + obsDist));
 	int vmaxsep = oversam * maxsep;
 	int vwidth = SISwidth * oversam;
 	int start = vwidth / 2 - vmaxsep / 2;
@@ -529,11 +534,6 @@ asteer(ind_t LineNumber)
 	int sep = 0;
 	int x, left, right;
 	bool vis;
-	/// IdentBuffer's equivalent in algo #4 are lookL and lookR
-	int *lookL = (int *)calloc(vwidth, sizeof(int));
-	int *lookR = (int *)calloc(vwidth, sizeof(int));
-	// col_t *color = (col_t *)calloc(vwidth, sizeof(col_t));
-	SIScolorRGB = (col_rgb_t *)calloc(vwidth, sizeof(col_rgb_t));
 
 	if (LineNumber == 0) {
 		// printf("PARAMS --------------------------------------------------------------\n");
@@ -657,6 +657,6 @@ asteer(ind_t LineNumber)
 	}
 	if (mark) AddTriangles(LineNumber);
 
-	free(lookL);
-	free(lookR);
+	// free(lookL);
+	// free(lookR);
 }
