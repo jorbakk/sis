@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <limits.h>
 
-#define GLFW_BACKEND
+// #define GLFW_BACKEND
 
 
 #if defined __EMSCRIPTEN__
@@ -64,6 +64,8 @@ static char dropped_file[PATH_MAX];
 static int  dropped_file_len = 0;
 
 struct main_ctx {
+	int argc;
+	char **argv;
 	NVGcontext *vg;
     UIcontext *ui_ctx;
 	double mx, my;
@@ -783,8 +785,8 @@ frame(void)
 	int fbWidth, fbHeight;
 	float pxRatio;
 
-	glfwGetCursorPos(window, &mctx.mx, &mctx.my);
 #ifdef GLFW_BACKEND
+	glfwGetCursorPos(window, &mctx.mx, &mctx.my);
 	glfwGetWindowSize(window, &winWidth, &winHeight);
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 #else
@@ -895,7 +897,7 @@ update_sis_image(void)
 
 
 void
-init_app(void)
+init_ui(void)
 {
 	mctx = (struct main_ctx) {
 		.mx = 0.0, .my = 0.0, .vg = NULL,
@@ -934,6 +936,15 @@ cleanup(void)
 #else
 	nvgDeleteGL3(mctx.vg);
 #endif
+}
+
+
+void
+init_app(void)
+{
+	init_all(mctx.argc, mctx.argv);
+	render_sis();
+	init_ui();
 }
 
 
@@ -1020,8 +1031,8 @@ main(int argc, char **argv)
 	glfwSetScrollCallback(window, scrollevent);
 	glfwSetDropCallback(window, drop_callback);
 
-	init_all(argc, argv);
-	render_sis();
+	mctx.argc = argc;
+	mctx.argv = argv;
 	init_app();
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -1086,6 +1097,8 @@ event_cb(const sapp_event* ev)
 sapp_desc
 sokol_main(int argc, char *argv[])
 {
+	mctx.argc = argc;
+	mctx.argv = argv;
 	return (sapp_desc) {
 		.init_cb = init_app,
 		.frame_cb = frame,
