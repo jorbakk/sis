@@ -49,7 +49,7 @@
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 
-// #include "stb_image.h"
+#include "nfd.h"
 
 #include "sis.h"
 
@@ -475,28 +475,42 @@ image(NVGcontext *vg, int img, int w, int h)
 }
 
 
-#if 0
 void
 image_vert_handler(int item, UIevent event)
 {
-	printf("image_vert_handler\n");
+    const image_head *data = (const image_head *)uiGetHandle(item);
+    nfdchar_t *outPath = NULL;
+    nfdresult_t result = NFD_OpenDialog("png,jpg", NULL, &outPath);
+    if (result == NFD_OKAY) {
+        if (data->img == mctx.depth_map_img) {
+			printf("loading depth image '%s'\n", outPath);
+			strncpy(DFileName, outPath, PATH_MAX);
+			update_depth_map_and_sis();
+        }
+        else if (data->img == mctx.texture_img) {
+			printf("loading texture image '%s'\n", outPath);
+			strncpy(TFileName, outPath, PATH_MAX);
+			update_texture();
+			update_sis();
+        }
+        free(outPath);
+		update_sis_view = true;
+    }
 
-	switch (event) {
-	default:
-		break;
-	case UI_DROP:{
-			uiFocus(item);
-		}
-		break;
-	}
-
-	UIvec2 c = uiGetCursor();
-	if (dropped_file_len && uiContains(item, c.x, c.y)) {
-		printf("dropped file '%s' on depth map view\n", dropped_file);
-		dropped_file_len = 0;
-	}
+	// switch (event) {
+	// default:
+		// break;
+	// case UI_DROP:{
+			// uiFocus(item);
+		// }
+		// break;
+	// }
+	// UIvec2 c = uiGetCursor();
+	// if (dropped_file_len && uiContains(item, c.x, c.y)) {
+		// printf("dropped file '%s' on depth map view\n", dropped_file);
+		// dropped_file_len = 0;
+	// }
 }
-#endif
 
 
 int
@@ -507,13 +521,14 @@ image_vert(NVGcontext *vg, int img, int w)
 	nvgImageSize(vg, img, &iw, &ih);
 	ih *= (float)w / (float)iw;
 	uiSetSize(item, w, ih);
+	uiSetEvents(item, UI_BUTTON0_DOWN);
 	// uiSetEvents(item, UI_BUTTON0_HOT_UP);
 	// uiSetEvents(item, UI_DROP);
 	// uiSetEvents(item, UI_CHAR);
 	// uiSetEvents(item, UI_DROP | UI_BUTTON0_DOWN | UI_KEY_DOWN | UI_CHAR);
 	image_head *data = (image_head *) uiAllocHandle(item, sizeof(image_head));
 	data->head.subtype = ST_IMAGE;
-	// data->head.handler = image_vert_handler;
+	data->head.handler = image_vert_handler;
 	data->img = img;
 	return item;
 }

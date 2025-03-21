@@ -21,26 +21,26 @@
 
 ###### Site-specific configuration parameters
 ###### edit here:
-BIN_DIR = /usr/local/bin
-MAN_DIR = /usr/local/man/man1
+BIN_DIR   = /usr/local/bin
+MAN_DIR   = /usr/local/man/man1
+SHARE_DIR = /usr/local/share/sis
+###### ----------
 
-######
 S = .
 S3 = $(S)/3rd-party
 B = build
 
-# CC = gcc
-# CFLAGS = -Wall -g -I$(S3) -DNANOVG_USE_GLEW -DNANOVG_GL3
-CFLAGS = -g -I$(S3) -DNANOVG_USE_GLEW -DNANOVG_GL3
-# CFLAGS = -g -I$(S3) -DNANOVG_GL3
-# CFLAGS = -Wall -O2
+CFLAGS  = -g -I$(S3)
 LDFLAGS = -lm
-LDFLAGS_GUI_LINUX = -lglfw -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lm -lGLEW
 
-OBJS = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
-NVOBJS = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o
+CFLAGS_GUI_LINUX  = $(CFLAGS) -DNANOVG_USE_GLEW -DNANOVG_GL3 $(shell pkg-config --cflags gtk+-3.0)
+LDFLAGS_GUI_LINUX = $(shell pkg-config --libs gtk+-3.0) -lglfw -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lGLEW $(LDFLAGS)
+
+OBJS   = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
+OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/nfdcommon.o $(B)/nfd.o
+
 TEST_SRCS = mainui.c nanovg.c nanovg_gl.c nanovg_gl_utils.c
-TEST_OBJS = $(B)/mainui.o $(NVOBJS)
+TEST_OBJS = $(B)/mainui.o $(OBJS_GUI)
 
 .PHONY: all
 
@@ -48,12 +48,8 @@ all: build_dir $(B)/sis $(B)/sisui
 
 $(B)/sis: $(B)/main.o $(OBJS)
 	$(CC) -o $(B)/sis $^ $(LDFLAGS)
-$(B)/sisui: $(B)/mainui.o $(OBJS) $(NVOBJS)
-	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
-$(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
-	$(CC) -c -o $(B)/mainui.o $(CFLAGS) $(S)/mainui.c
 $(B)/sis.o: $(S)/sis.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/sis.o $(CFLAGS) $(S)/sis.c
 $(B)/algorithm.o: $(S)/algorithm.c $(S)/sis.h
@@ -62,17 +58,27 @@ $(B)/get_opt.o: $(S)/get_opt.c $(S)/sis.h
 	$(CC) -c -o $(B)/get_opt.o $(CFLAGS) $(S)/get_opt.c
 $(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/stbimg.o $(CFLAGS) $(S)/stbimg.c
+
+$(B)/sisui: $(B)/mainui.o $(OBJS) $(OBJS_GUI)
+	$(CC) -o $@ $^ $(LDFLAGS_GUI_LINUX)
+$(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
+	$(CC) -c -o $(B)/mainui.o $(CFLAGS_GUI_LINUX) $(S)/mainui.c
 $(B)/nanovg.o: $(S3)/nanovg.c $(S3)/nanovg.h $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h
-	$(CC) -c -o $(B)/nanovg.o $(CFLAGS) $(S3)/nanovg.c
+	$(CC) -c -o $(B)/nanovg.o $(CFLAGS_GUI_LINUX) $(S3)/nanovg.c
 $(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
-	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS) $(S3)/nanovg_gl.c
+	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS_GUI_LINUX) $(S3)/nanovg_gl.c
 $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
-	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS) $(S3)/nanovg_gl_utils.c
+	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS_GUI_LINUX) $(S3)/nanovg_gl_utils.c
+$(B)/nfdcommon.o:
+	$(CC) -c -o $@ $(CFLAGS_GUI_LINUX) $(S3)/nfd_common.c
+$(B)/nfd.o:
+	$(CC) -c -o $@ $(CFLAGS_GUI_LINUX) $(S3)/nfd_gtk.c
 
 clean:
 	rm -rf $(B)
 build_dir:
 	@mkdir -p $(B)
 install:
-	install -s $(B)/sis $(BIN_DIR)
+	install -s -D -t $(BIN_DIR) $(B)/sis $(B)/sisui 
+	install -m 0644 -D -t $(SHARE_DIR) assets/*
 	install -m 0644 doc/sis.1 $(MAN_DIR)
