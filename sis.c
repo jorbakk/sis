@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cfgpath.h"
+
 #include "sis.h"
 #include "stbimg.h"
 
@@ -11,6 +13,7 @@ ind_t Tcolcount;
 char DFileName[PATH_MAX] = {0};
 char TFileName[PATH_MAX] = {0};
 char SISFileName[PATH_MAX] = {0};
+char CFGFileName[PATH_MAX] = {0};
 
 col_t *DBuffer = NULL;
 z_t zvalue[SIS_MAX_COLORS + 1];
@@ -104,6 +107,8 @@ InitFuncs(void)
 void
 init_base(int argc, char **argv)
 {
+	InitFuncs();
+
 	SISred = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 	SISgreen = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 	SISblue = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
@@ -115,7 +120,12 @@ init_base(int argc, char **argv)
 			get_options(argc, argv);
 		}
 	}
-	InitFuncs();
+
+    get_user_config_file(CFGFileName, sizeof(CFGFileName), "sis");
+    if (CFGFileName[0] == 0) {
+        // fprintf(stderr, "failed to load config file.\n");
+    }
+    // printf("loaded config file '%s'\n", CFGFileName);
 }
 
 
