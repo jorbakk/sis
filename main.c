@@ -103,6 +103,7 @@ main(int argc, char **argv)
 		puts("\n");
 		print_summary();
 	}
+	WriteSISFile();
 	finish_all();
 	return EXIT_SUCCESS;
 }

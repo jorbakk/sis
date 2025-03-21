@@ -74,11 +74,12 @@ extern ind_t Dwidth, Dheight, SISwidth, SISheight, Twidth, Theight, Tcolcount;
 extern cmap_t white_value, black_value;
 
 extern void (*OpenDFile)(char *DFileName, ind_t * width, ind_t * height);
-extern void (*OpenSISFile)(char *SISFileName, ind_t width, ind_t height, int SIStype);
+extern void (*CreateSISBuffer)(ind_t width, ind_t height, int SIStype);
 extern void (*OpenTFile)(char *TFileName, ind_t * width, ind_t * height);
 extern void (*CloseDFile)(void);
 extern void (*CloseTFile)(ind_t height);
 extern void (*CloseSISFile)(void);
+extern void (*WriteSISFile)(void);
 extern void (*ReadDBuffer)(ind_t r);
 extern col_t(*ReadTPixel) (ind_t r, ind_t c);
 // void (*WriteSISBuffer)(ind_t r);
@@ -113,6 +114,7 @@ extern int oversam;
 
 void get_options(int argc, char **argv);
 void init_all(int argc, char **argv);
+void init_base(int argc, char **argv);
 void render_sis(void);
 void finish_all(void);
 void show_statistics(void);

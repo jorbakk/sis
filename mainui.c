@@ -265,6 +265,8 @@ bool update_sis_image(void);
 bool update_texture_image(void);
 #endif
 bool load_texture_image(void);
+bool load_depth_image(void);
+bool load_sis_image(void);
 
 
 void
@@ -286,6 +288,62 @@ update_texture()
 	update_texture_image();
 #endif
 	load_texture_image();
+}
+
+
+void
+update_depth_map_and_sis()
+{
+	CloseDFile();
+	CloseSISFile();
+	CloseTFile(Theight);
+	FreeBuffers();
+	/// The next three functions are usually called from FreeBuffers()
+	// free(DBuffer);
+	// free(IdentBuffer);
+	// free(SISBuffer);
+
+	free(SISred);
+	free(SISgreen);
+	free(SISblue);
+	nvgDeleteImage(mctx.vg, mctx.depth_map_img);
+	nvgDeleteImage(mctx.vg, mctx.sis_img);
+
+	// init_base(0, NULL);
+	init_all(0, NULL);
+#if 0
+	/// The next four functions are usually called in init_sis()
+	OpenDFile(DFileName, &Dwidth, &Dheight);
+	if (SIStype == SIS_TEXT_MAP) {
+		OpenTFile(TFileName, &Twidth, &Theight);
+	}
+	InitAlgorithm();
+	AllocBuffers();
+	// /// The next functions are usually called in AllocBuffers()
+	// if ((DBuffer = (col_t *)calloc(Dwidth * oversam, sizeof(col_t))) == NULL) {
+		// fprintf(stderr, "Couldn't alloc memory for depth buffer.\n");
+		// exit(1);
+	// }
+	// if ((IdentBuffer = (ind_t *)calloc(SISwidth * oversam, sizeof(ind_t))) == NULL) {
+	// // if ((IdentBuffer = (col_t *) calloc(SISwidth * oversam, sizeof(col_t))) == NULL) {
+		// fprintf(stderr, "Couldn't alloc memory for ident buffer\n");
+		// free(DBuffer);
+		// exit(1);
+	// }
+	// if ((SISBuffer = (col_t *)calloc(SISwidth * oversam, sizeof(col_t))) == NULL) {
+		// fprintf(stderr, "Couldn't alloc memory for SIS buffer.\n");
+		// free(DBuffer);
+		// free(IdentBuffer);
+		// exit(1);
+	// }
+#endif
+
+	CreateSISBuffer(SISwidth, SISheight, SIStype);
+
+	render_sis();
+	// WriteSISFile();
+	load_sis_image();
+	load_depth_image();
 }
 
 
@@ -620,11 +678,6 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(eye_dist_slider, M, 10, M, 3);
 	uiInsert(ctl_panel, eye_dist_slider);
 
-	int origin_slider = slider_int("algo origin",
-	  &origin, slider_int_handler, 0, Dwidth, false);
-	uiSetMargins(origin_slider, M, 3, M, 3);
-	uiInsert(ctl_panel, origin_slider);
-
 	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
 	uiSetMargins(near_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, near_plane_slider);
@@ -632,6 +685,11 @@ ui_frame(NVGcontext * vg, float w, float h)
 	int far_plane_slider = slider("back distance", &t, slider_handler, 0.25f, 2.0f, true);
 	uiSetMargins(far_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, far_plane_slider);
+
+	int origin_slider = slider_int("algo origin",
+	  &origin, slider_int_handler, 0, Dwidth, false);
+	uiSetMargins(origin_slider, M, 3, M, 3);
+	uiInsert(ctl_panel, origin_slider);
 
 	int opt_show_marker = check("show markers", &mark);
 	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
@@ -694,6 +752,7 @@ ui_frame(NVGcontext * vg, float w, float h)
 	if (dropped_file_len && uiContains(depth_map_view, c.x, c.y) && (uiGetButton(0) == 0)) {
 		printf("dropped file '%s' on depth map view\n", dropped_file);
 		strncpy(DFileName, dropped_file, PATH_MAX);
+		update_depth_map_and_sis();
 		dropped_file_len = 0;
 	}
 	if (dropped_file_len && uiContains(texture_view, c.x, c.y) && (uiGetButton(0) == 0)) {
@@ -777,6 +836,7 @@ load_depth_image(void)
 }
 
 
+#if 0
 bool
 update_depth_image(void)
 {
@@ -786,6 +846,7 @@ update_depth_image(void)
 	free(img);
 	return true;
 }
+#endif
 
 
 bool

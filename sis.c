@@ -32,11 +32,12 @@ int debug;
 double density;
 
 void (*OpenDFile)(char *DFileName, ind_t * width, ind_t * height);
-void (*OpenSISFile)(char *SISFileName, ind_t width, ind_t height, int SIStype);
 void (*OpenTFile)(char *TFileName, ind_t * width, ind_t * height);
+void (*CreateSISBuffer)(ind_t width, ind_t height, int SIStype);
 void (*CloseDFile)(void);
 void (*CloseTFile)(ind_t height);
 void (*CloseSISFile)(void);
+void (*WriteSISFile)(void);
 void (*ReadDBuffer)(ind_t r);
 col_t(*ReadTPixel) (ind_t r, ind_t c);
 // void (*WriteSISBuffer)(ind_t r);
@@ -86,10 +87,11 @@ InitFuncs(void)
 	OpenDFile = Stb_OpenDFile;
 	CloseDFile = Stb_CloseDFile;
 	ReadDBuffer = Stb_ReadDBuffer;
-	OpenSISFile = Stb_OpenSISFile;
+	CreateSISBuffer = Stb_CreateSISBuffer;
 	OpenTFile = Stb_OpenTFile;
 	CloseTFile = Stb_CloseTFile;
 	CloseSISFile = Stb_CloseSISFile;
+	WriteSISFile = Stb_WriteSISFile;
 	ReadTPixel = Stb_ReadTPixel;
 	// WriteSISBuffer = Stb_WriteSISBuffer;
 	WriteSISColorBuffer = Stb_WriteSISColorBuffer;
@@ -126,7 +128,7 @@ init_sis(void)
 	}
 	InitAlgorithm();
 	AllocBuffers();
-	OpenSISFile(SISFileName, SISwidth, SISheight, SIStype);
+	CreateSISBuffer(SISwidth, SISheight, SIStype);
 }
 
 

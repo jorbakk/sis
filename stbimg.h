@@ -23,8 +23,8 @@
 #include "sis.h"
 
 void Stb_OpenDFile(char *DFileName, ind_t * width, ind_t * height);
-void Stb_OpenSISFile(char *SISFileName, ind_t width, ind_t height, int SIStype);
 void Stb_OpenTFile(char *TFileName, ind_t * width, ind_t * height);
+void Stb_CreateSISBuffer(ind_t width, ind_t height, int SIStype);
 
 unsigned char *Stb_GetDFileBuffer(void);
 unsigned char *Stb_GetTFileBuffer(void);
@@ -38,3 +38,4 @@ col_t Stb_ReadTPixel(ind_t r, ind_t c);
 void Stb_CloseDFile(void);
 void Stb_CloseTFile(ind_t height);
 void Stb_CloseSISFile(void);
+void Stb_WriteSISFile(void);

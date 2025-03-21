@@ -65,7 +65,7 @@ Stb_OpenDFile(char *DFileName, ind_t *width, ind_t *height)
 
 
 void
-Stb_OpenSISFile(char *SISFileName, ind_t width, ind_t height, int SIStype)
+Stb_CreateSISBuffer(ind_t width, ind_t height, int SIStype)
 {
 	outpic_width = width;
 	outpic_height = height;
@@ -238,11 +238,17 @@ Stb_CloseTFile(ind_t height)
 void
 Stb_CloseSISFile(void)
 {
+	free(outpic_buf_p);
+}
+
+
+void
+Stb_WriteSISFile(void)
+{
 	// TODO write to other image formats
 	stbi_write_png(SISFileName,
 	               outpic_width,
 	               outpic_height,
 	               SISChannelCount,
 	               outpic_buf_p, outpic_width * SISChannelCount);
-	free(outpic_buf_p);
 }
