@@ -861,7 +861,7 @@ ui_frame(NVGcontext *vg, float w, float h)
 	uiInsert(ctl_panel, texture_button);
 	pch += BND_WIDGET_HEIGHT + 5 + 5;
 
-	int texture_view = image_vert(mctx.vg, mctx.texture_img, 0.5f * img_width, panel_height - pch);
+	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width, panel_height - pch);
 	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, texture_view);
