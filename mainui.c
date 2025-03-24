@@ -572,12 +572,14 @@ image_vert_handler(int item, UIevent event)
 
 
 int
-image_vert(NVGcontext *vg, int img, int w)
+image_vert(NVGcontext *vg, int img, int w, int maxh)
 {
 	int item = uiItem();
 	int iw, ih;
 	nvgImageSize(vg, img, &iw, &ih);
 	ih *= (float)w / (float)iw;
+	if (maxh < 0) ih = 5;
+	if (maxh > 0) ih = ih > maxh ? maxh : ih;
 	uiSetSize(item, w, ih);
 #if 0
 	uiSetEvents(item, UI_BUTTON0_DOWN);
@@ -757,6 +759,7 @@ ui_frame(NVGcontext *vg, float w, float h)
 	int img_width = panel_width - 2 * panel_margin_h;
 	int sis_view_width = w - panel_width - 4 * panel_margin_h;
 	int sis_view_height = h - 4 * panel_margin_v;
+	int pch = 0;
 
 	int root = panel(false);
 	uiSetSize(root, w, h);
@@ -769,6 +772,7 @@ ui_frame(NVGcontext *vg, float w, float h)
 	uiSetMargins(ctl_panel, 10, 10, 5, 10);
 	uiSetBox(ctl_panel, UI_COLUMN);
 	uiInsert(root, ctl_panel);
+	pch += 10;
 
 	int sis_view_panel = panel(false);
 	uiSetSize(sis_view_panel, sis_view_width, sis_view_height);
@@ -789,34 +793,41 @@ ui_frame(NVGcontext *vg, float w, float h)
 
 	int eye_dist_slider = slider_int("eye distance",
 	  &eye_dist, slider_int_handler, 10, 0.5 * Dwidth, false);
-	uiSetMargins(eye_dist_slider, M, 10, M, 3);
+	uiSetMargins(eye_dist_slider, M, 8, M, 3);
 	uiInsert(ctl_panel, eye_dist_slider);
+	pch += BND_WIDGET_HEIGHT + 8 + 3;
 
 	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
 	uiSetMargins(near_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, near_plane_slider);
+	pch += BND_WIDGET_HEIGHT + 3 + 3;
 
 	int far_plane_slider = slider("back distance", &t, slider_handler, 0.25f, 2.0f, true);
 	uiSetMargins(far_plane_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, far_plane_slider);
+	pch += BND_WIDGET_HEIGHT + 3 + 3;
 
 	int origin_slider = slider_int("algo origin",
 	  &origin, slider_int_handler, 0, Dwidth, false);
 	uiSetMargins(origin_slider, M, 3, M, 3);
 	uiInsert(ctl_panel, origin_slider);
-
-	int opt_show_marker = check("show markers", &mark);
-	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
-	uiInsert(ctl_panel, opt_show_marker);
-
-	int opt_invert_depth_map = check("invert depth", &invert);
-	uiSetMargins(opt_invert_depth_map, 2 * M, 5, 2 * M, 5);
-	uiInsert(ctl_panel, opt_invert_depth_map);
+	pch += BND_WIDGET_HEIGHT + 3 + 3;
 
 	int algo_numfield;
 	algo_numfield = number_field("algorithm", &algorithm, 1, 4);
 	uiSetMargins(algo_numfield, M, 5, M, 5);
 	uiInsert(ctl_panel, algo_numfield);
+	pch += BND_WIDGET_HEIGHT + 3 + 3;
+
+	int opt_show_marker = check("show markers", &mark);
+	uiSetMargins(opt_show_marker, 2 * M, 5, 2 * M, 5);
+	uiInsert(ctl_panel, opt_show_marker);
+	pch += BND_WIDGET_HEIGHT + 2 * M + 5;
+
+	int opt_invert_depth_map = check("invert depth", &invert);
+	uiSetMargins(opt_invert_depth_map, 2 * M, 5, 2 * M, 5);
+	uiInsert(ctl_panel, opt_invert_depth_map);
+	pch += BND_WIDGET_HEIGHT + 2 * M + 5;
 
 	// int file_buttons_panel = panel(false);
 	// // uiSetLayout(file_buttons_panel, UI_HFILL);
@@ -829,24 +840,28 @@ ui_frame(NVGcontext *vg, float w, float h)
 	uiSetLayout(sis_button, UI_HFILL | UI_TOP);
 	uiSetMargins(sis_button, M, 5, M, 5);
 	uiInsert(ctl_panel, sis_button);
+	pch += BND_WIDGET_HEIGHT + 5 + 5;
 
 	int depth_button = button(BND_ICON_GHOST, "load depth map ...", depth_button_handler);
 	uiSetLayout(depth_button, UI_HFILL | UI_TOP);
 	uiSetMargins(depth_button, M, 5, M, 5);
 	uiInsert(ctl_panel, depth_button);
+	pch += BND_WIDGET_HEIGHT + 5 + 5;
 
 	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img,
-	                                img_width);
+	                                img_width, 0);
 	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
+	pch += 180;
 
 	int texture_button = button(BND_ICON_GHOST, "load texture image ...", texture_button_handler);
 	uiSetLayout(texture_button, UI_HFILL | UI_TOP);
 	uiSetMargins(texture_button, M, 5, M, 5);
 	uiInsert(ctl_panel, texture_button);
+	pch += BND_WIDGET_HEIGHT + 5 + 5;
 
-	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width);
+	int texture_view = image_vert(mctx.vg, mctx.texture_img, 0.5f * img_width, panel_height - pch);
 	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, texture_view);
@@ -860,13 +875,13 @@ ui_frame(NVGcontext *vg, float w, float h)
 	/// Need to handle dropping zones here, for now
 	UIvec2 c = uiGetCursor();
 	if (dropped_file_len && uiContains(depth_map_view, c.x, c.y) && (uiGetButton(0) == 0)) {
-		printf("dropped file '%s' on depth map view\n", dropped_file);
+		// printf("dropped file '%s' on depth map view\n", dropped_file);
 		strncpy(DFileName, dropped_file, PATH_MAX);
 		update_depth_map_and_sis();
 		dropped_file_len = 0;
 	}
 	if (dropped_file_len && uiContains(texture_view, c.x, c.y) && (uiGetButton(0) == 0)) {
-		printf("dropped file '%s' on texture view\n", dropped_file);
+		// printf("dropped file '%s' on texture view\n", dropped_file);
 		strncpy(TFileName, dropped_file, PATH_MAX);
 		update_texture();
 		update_sis();
