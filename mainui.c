@@ -82,6 +82,7 @@ typedef enum {
     ST_SLIDER_INT,
     ST_CHECK,
     ST_IMAGE,
+    ST_NUMFIELD,
 } widget_sub_type;
 
 typedef struct {
@@ -133,6 +134,13 @@ typedef struct {
     int img;
 } image_head;
 
+typedef struct {
+    widget_head head;
+    const char *label;
+    int *value;
+    int min, max;
+} numfield_head;
+
 
 void
 show_statistics(void)
@@ -171,26 +179,6 @@ panel(bool border)
 
 
 static bool update_sis_view;
-
-
-void
-algo_plus_button_handler(int item, UIevent event)
-{
-	if (algorithm < SIS_MAX_ALGO) {
-		algorithm++;
-		update_sis_view = true;
-	}
-}
-
-
-void
-algo_minus_button_handler(int item, UIevent event)
-{
-	if (algorithm > SIS_MIN_ALGO) {
-		algorithm--;
-		update_sis_view = true;
-	}
-}
 
 
 void
@@ -602,11 +590,46 @@ image_vert(NVGcontext *vg, int img, int w)
 }
 
 
-void render_ui(NVGcontext * vg, int item, int corners);
+void
+numfield_handler(int item, UIevent event)
+{
+	const numfield_head *data = (const numfield_head *)uiGetHandle(item);
+	UIrect r = uiGetRect(item);
+	UIvec2 c = uiGetCursor();
+	int up = (float)(c.x - r.x) > 0.5f * (float)r.w;
+	if (up && *data->value < data->max) {
+		(*data->value)++;
+		update_sis_view = true;
+	} else if (!up && *data->value > data->min) {
+		(*data->value)--;
+		update_sis_view = true;
+	}
+}
+
+
+int
+number_field(const char *label, int *value, int min, int max)
+{
+	int item = uiItem();
+	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
+	uiSetLayout(item, UI_HFILL);
+	uiSetEvents(item, UI_BUTTON0_DOWN);
+	numfield_head *data = (numfield_head *) uiAllocHandle(item, sizeof(numfield_head));
+	data->head.subtype = ST_NUMFIELD;
+	data->head.handler = numfield_handler;
+	data->label = label;
+	data->value = value;
+	data->min = min;
+	data->max = max;
+	return item;
+}
+
+
+void render_ui(NVGcontext *vg, int item, int corners);
 
 
 void
-render_ui_items(NVGcontext * vg, int item, int corners)
+render_ui_items(NVGcontext *vg, int item, int corners)
 {
 	int kid = uiFirstChild(item);
 	while (kid > 0) {
@@ -617,7 +640,7 @@ render_ui_items(NVGcontext * vg, int item, int corners)
 
 
 void
-render_ui(NVGcontext * vg, int item, int corners)
+render_ui(NVGcontext *vg, int item, int corners)
 {
 	const widget_head *head = (const widget_head *)uiGetHandle(item);
 	UIrect rect = uiGetRect(item);
@@ -625,23 +648,27 @@ render_ui(NVGcontext * vg, int item, int corners)
 		switch (head->subtype) {
 		default:{
 				render_ui_items(vg, item, corners);
-			}
-			break;
+			} break;
 		case ST_PANEL: {
 				const panel_head *data = (panel_head *) head;
 				if (data->border) {
+					bndBackground(vg, rect.x, rect.y, rect.w, rect.h);
 					bndBevel(vg, rect.x, rect.y, rect.w, rect.h);
+					float cr = 5.0f;
+					// bndRoundedBox(vg, rect.x, rect.y, rect.w, rect.h, cr, cr, cr, cr);
+					// // nvgFillColor(vg, bnd_theme.backgroundColor);
+					// // nvgFill(vg);
+					// nvgStrokeColor(vg, nvgRGB(1.0, 1.0, 1.0));
+					// nvgStroke(vg);
 				}
 				render_ui_items(vg, item, corners);
-			}
-			break;
+			} break;
 		case ST_BUTTON: {
 				const button_head *data = (button_head *) head;
 				bndToolButton(vg, rect.x, rect.y, rect.w, rect.h,
 				              corners, (BNDwidgetState) uiGetState(item),
 				              data->iconid, data->label);
-			}
-			break;
+			} break;
         case ST_TEXT: {
 				const text_head *data = (text_head*)head;
 				BNDwidgetState state = (BNDwidgetState)uiGetState(item);
@@ -701,20 +728,27 @@ render_ui(NVGcontext * vg, int item, int corners)
 				nvgRect(vg, rect.x, rect.y, rect.w, rect.h);
 				nvgFillPaint(vg, img_paint);
 				nvgFill(vg);
-			}
-			break;
+			} break;
+		case ST_NUMFIELD: {
+				const numfield_head *data = (numfield_head *) head;
+				static char value_str[32];
+				sprintf(value_str, "%d", algorithm);
+				bndNumberField(vg, rect.x, rect.y, rect.w, rect.h,
+				              corners, (BNDwidgetState) uiGetState(item),
+				              data->label, value_str);
+			} break;
 		}
 	}
 }
 
 
 void
-ui_frame(NVGcontext * vg, float w, float h)
+ui_frame(NVGcontext *vg, float w, float h)
 {
 	/// Layout user interface
 	uiBeginLayout();
 
-	int M = 6;
+	int M = 7;
 	int panel_margin_h = M;
 	int panel_margin_v = 5;
 	int panel_width = 200;
@@ -754,7 +788,7 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiInsert(sis_view_panel, sis_view);
 
 	int eye_dist_slider = slider_int("eye distance",
-	  &eye_dist, slider_int_handler, 25, 0.5 * Dwidth, false);
+	  &eye_dist, slider_int_handler, 10, 0.5 * Dwidth, false);
 	uiSetMargins(eye_dist_slider, M, 10, M, 3);
 	uiInsert(ctl_panel, eye_dist_slider);
 
@@ -779,36 +813,10 @@ ui_frame(NVGcontext * vg, float w, float h)
 	uiSetMargins(opt_invert_depth_map, 2 * M, 5, 2 * M, 5);
 	uiInsert(ctl_panel, opt_invert_depth_map);
 
-	int algo_panel = panel(false);
-	uiSetLayout(algo_panel, UI_HFILL);
-	uiSetSize(algo_panel, 0, BND_WIDGET_HEIGHT);
-	uiSetMargins(algo_panel, M, 5, M, 5);
-	uiSetBox(algo_panel, UI_ROW);
-	uiInsert(ctl_panel, algo_panel);
-
-	int algo_plus_button;
-	algo_plus_button = button(-1, "+", algo_plus_button_handler);
-	// uiSetLayout(algo_plus_button, UI_LEFT | UI_VCENTER);
-	uiSetLayout(algo_plus_button, UI_LEFT);
-	uiSetSize(algo_plus_button, 23, BND_WIDGET_HEIGHT);
-	uiSetMargins(algo_plus_button, 2, 2, 2, 2);
-	uiInsert(algo_panel, algo_plus_button);
-
-	int algo_minus_button;
-	algo_minus_button = button(-1, "-", algo_minus_button_handler);
-	// uiSetLayout(algo_minus_button, UI_LEFT | UI_VCENTER);
-	uiSetLayout(algo_minus_button, UI_LEFT);
-	uiSetSize(algo_minus_button, 23, BND_WIDGET_HEIGHT);
-	uiSetMargins(algo_minus_button, 2, 2, 2, 2);
-	uiInsert(algo_panel, algo_minus_button);
-
-	static char algo_value_str[8];
-	sprintf(algo_value_str, "%d", algorithm);
-	int algo_value = textbox(algo_value_str, 8);
-	uiSetLayout(algo_value, UI_LEFT);
-	uiSetSize(algo_value, 25, BND_WIDGET_HEIGHT);
-	uiSetMargins(algo_value, 2, 2, 2, 2);
-	uiInsert(algo_panel, algo_value);
+	int algo_numfield;
+	algo_numfield = number_field("algorithm", &algorithm, 1, 4);
+	uiSetMargins(algo_numfield, M, 5, M, 5);
+	uiInsert(ctl_panel, algo_numfield);
 
 	// int file_buttons_panel = panel(false);
 	// // uiSetLayout(file_buttons_panel, UI_HFILL);
@@ -817,12 +825,12 @@ ui_frame(NVGcontext * vg, float w, float h)
 	// uiSetBox(file_buttons_panel, UI_ROW);
 	// uiInsert(ctl_panel, file_buttons_panel);
 
-	int sis_button = button(BND_ICON_GHOST, "save sis image", sis_button_handler);
+	int sis_button = button(BND_ICON_GHOST, "save sis image ...", sis_button_handler);
 	uiSetLayout(sis_button, UI_HFILL | UI_TOP);
 	uiSetMargins(sis_button, M, 5, M, 5);
 	uiInsert(ctl_panel, sis_button);
 
-	int depth_button = button(BND_ICON_GHOST, "load depth map", depth_button_handler);
+	int depth_button = button(BND_ICON_GHOST, "load depth map ...", depth_button_handler);
 	uiSetLayout(depth_button, UI_HFILL | UI_TOP);
 	uiSetMargins(depth_button, M, 5, M, 5);
 	uiInsert(ctl_panel, depth_button);
@@ -833,7 +841,7 @@ ui_frame(NVGcontext * vg, float w, float h)
 	             panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
 
-	int texture_button = button(BND_ICON_GHOST, "load texture image", texture_button_handler);
+	int texture_button = button(BND_ICON_GHOST, "load texture image ...", texture_button_handler);
 	uiSetLayout(texture_button, UI_HFILL | UI_TOP);
 	uiSetMargins(texture_button, M, 5, M, 5);
 	uiInsert(ctl_panel, texture_button);
