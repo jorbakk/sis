@@ -3,9 +3,6 @@
 #include <stdbool.h>
 #include <limits.h>
 
-// #define GLFW_BACKEND
-
-
 #if defined __EMSCRIPTEN__
 #include <GLES3/gl3.h>
 #define SOKOL_GLES3
@@ -57,7 +54,6 @@
 #ifdef GLFW_BACKEND
 GLFWwindow *window;
 #endif
-
 
 const char *window_title = "SIS Stereogram Generator";
 const char *image_read_extensions = "png,jpg,bmp,gif,hdr,tga,pic";
@@ -1034,8 +1030,8 @@ init_ui(void)
 		printf("Could not init nanovg.\n");
 		return;
 	}
-	bndSetFont(nvgCreateFont(mctx.vg, "system", "assets/DejaVuSans.ttf"));
-	bndSetIconImage(nvgCreateImage(mctx.vg, "assets/blender_icons16.png", 0));
+	bndSetFont(nvgCreateFont(mctx.vg, "system", ASSET_PREFIX "/DejaVuSans.ttf"));
+	bndSetIconImage(nvgCreateImage(mctx.vg, ASSET_PREFIX "/blender_icons16.png", 0));
 #ifndef GLFW_BACKEND
 	stm_setup();
 #endif

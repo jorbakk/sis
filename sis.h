@@ -41,6 +41,18 @@
 #define SIS_MIN_ALGO     1
 #define SIS_MAX_ALGO     4
 
+#ifdef PREFIX
+#define STR_VALUE(arg)     #arg
+#define PREFIX_STR(name)   STR_VALUE(name)
+#define ASSET_PREFIX       PREFIX_STR(PREFIX) "/share/sis/assets"
+#define DEPTHMAP_PREFIX    PREFIX_STR(PREFIX) "/share/sis/depthmaps"
+#define TEXTURE_PREFIX     PREFIX_STR(PREFIX) "/share/sis/textures"
+#else
+#define ASSET_PREFIX       "assets"
+#define DEPTHMAP_PREFIX    "depthmaps"
+#define TEXTURE_PREFIX     "textures"
+#endif
+
 
 typedef uint32_t col_t;
 typedef uint16_t cmap_t;
@@ -54,8 +66,8 @@ typedef struct {
 } col_rgb_t;
 
 /*
-   Interface to bitmap handlers (stbimg.c):
-   */
+ * Interface to bitmap handlers (stbimg.c):
+ */
 
 extern int ImgFileFormat;
 extern char DFileName[PATH_MAX];
@@ -99,8 +111,8 @@ void SetDefaults(void);
 void InitFuncs(void);
 
 /*
-   Interface to get_opt.c:
-   */
+ * Interface to get_opt.c:
+ */
 extern ind_t eye_dist, origin;
 extern int verbose, debug, algorithm;
 extern bool invert;
@@ -121,8 +133,8 @@ void show_statistics(void);
 ind_t metric2pixel(int metric_val, int resolution);
 
 /*
-   Interface to algorithm.c:
-   */
+ * Interface to algorithm.c:
+ */
 extern int algorithm;
 extern z_t min_depth_in_row, max_depth_in_row, min_depth, max_depth;
 extern col_t black, white;

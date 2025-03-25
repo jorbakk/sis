@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "cfgpath.h"
@@ -49,9 +50,9 @@ unsigned char *(*GetDFileBuffer)(void);
 unsigned char *(*GetTFileBuffer)(void);
 unsigned char *(*GetSISFileBuffer)(void);
 
-char *DefaultDFileName = "depthmaps/flowers.png";
+char *DefaultDFileName = DEPTHMAP_PREFIX "/flowers.png";
+char *DefaultTFileName = TEXTURE_PREFIX "/clover.png";
 char *DefaultSISFileName = "/tmp/out.png";
-char *DefaultTFileName = "textures/clover.png";
 pos_t DLinePosition, DLineStep;
 ind_t SISLineNumber;
 ind_t DLineNumber;
@@ -115,8 +116,11 @@ init_base(int argc, char **argv)
 
 	if (argc > 0) {
 		SetDefaults();
-		if (argc > 1 || strcmp(strrchr(argv[0], '/') + 1, "sisui") != 0) {
-			/// TODO this may fail on systems like Win* where dir delimiter is not '/'
+		/// TODO this may fail on systems like Win* where dir delimiter is not '/'
+		char *dirsep = strrchr(argv[0], '/');
+		char *progname = dirsep ? dirsep + 1 : argv[0];
+		/// If command line args are provided (with sis or sisui) or we're not running sisui
+		if (argc > 1 || strcmp(progname, "sisui") != 0) {
 			get_options(argc, argv);
 		}
 	}
@@ -129,11 +133,27 @@ init_base(int argc, char **argv)
 }
 
 
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 void
 init_sis(void)
 {
+	if (access(DFileName, R_OK) == -1) {
+		/// TODO don't use stdio here but return error and string
+		fprintf(stderr, "failed to access depthmap image file '%s': %s\n",
+		  DFileName, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 	OpenDFile(DFileName, &Dwidth, &Dheight);
 	if (SIStype == SIS_TEXT_MAP) {
+		if (access(TFileName, R_OK) == -1) {
+			/// TODO don't use stdio here but return error and string
+			fprintf(stderr, "failed to access texture image file '%s': %s\n",
+			  TFileName, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 		OpenTFile(TFileName, &Twidth, &Theight);
 	}
 	InitAlgorithm();
