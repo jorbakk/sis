@@ -18,7 +18,8 @@ static NSArray *BuildAllowedFileTypes( const char *filterList )
     
     size_t filterListLen = strlen(filterList);
     char *p_typebuf = typebuf;
-    for ( size_t i = 0; i < filterListLen+1; ++i )
+    size_t i;
+    for ( i = 0; i < filterListLen+1; ++i )
     {
         if ( filterList[i] == ',' || filterList[i] == ';' || filterList[i] == '\0' )
         {
@@ -137,6 +138,10 @@ nfdresult_t NFD_OpenDialog( const nfdchar_t *filterList,
 
     nfdresult_t nfdResult = NFD_CANCEL;
     if ( [dialog runModal] == NSModalResponseOK )
+    /// These both also compile on MacOS SnowLeopard (10.6.8)
+    /// but the modal dialog doens't return
+    // if ( [dialog runModal] == NSOKButton )
+    // if ( [dialog runModal] == NSFileHandlingPanelOKButton )
     {
         NSURL *url = [dialog URL];
         const char *utf8Path = [[url path] UTF8String];

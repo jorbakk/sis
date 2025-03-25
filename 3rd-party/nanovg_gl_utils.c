@@ -41,7 +41,12 @@
 #endif
 
 #if defined(NANOVG_GL2) || defined(NANOVG_GL3)
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 
 #include "nanovg_gl_utils.h"

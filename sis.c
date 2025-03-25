@@ -2,7 +2,9 @@
 #include <unistd.h>
 #include <string.h>
 
+#if 0
 #include "cfgpath.h"
+#endif
 
 #include "sis.h"
 #include "stbimg.h"
@@ -125,11 +127,13 @@ init_base(int argc, char **argv)
 		}
 	}
 
-    get_user_config_file(CFGFileName, sizeof(CFGFileName), "sis");
-    if (CFGFileName[0] == 0) {
-        // fprintf(stderr, "failed to load config file.\n");
-    }
-    // printf("loaded config file '%s'\n", CFGFileName);
+#if 0
+	get_user_config_file(CFGFileName, sizeof(CFGFileName), "sis");
+	if (CFGFileName[0] == 0) {
+		// fprintf(stderr, "failed to load config file.\n");
+	}
+	// printf("loaded config file '%s'\n", CFGFileName);
+#endif
 }
 
 

@@ -1025,8 +1025,12 @@ init_ui(void)
 	};
 #if defined __EMSCRIPTEN__
 	mctx.vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-#else
+#elif defined(NANOVG_GL3)
 	mctx.vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+#elif defined(NANOVG_GL2)
+	mctx.vg = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
+#else
+#error "No OpenGL backend available"
 #endif
 	if (mctx.vg == NULL) {
 		printf("Could not init nanovg.\n");
@@ -1054,8 +1058,12 @@ cleanup(void)
 
 #if defined __EMSCRIPTEN__
 	nvgDeleteGLES3(mctx.vg);
-#else
+#elif defined(NANOVG_GL3)
 	nvgDeleteGL3(mctx.vg);
+#elif defined(NANOVG_GL2)
+	nvgDeleteGL2(mctx.vg);
+#else
+#error "No OpenGL backend available"
 #endif
 }
 

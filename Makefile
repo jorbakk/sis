@@ -44,9 +44,17 @@ ifneq ($(PREFIX), "")
 endif
 
 ifeq ($(UI_BACKEND), glfw)
-  CFLAGS    += -DGLFW_BACKEND
-  LDFLAGS   += -lglfw
+  CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2
+  LDFLAGS_GUI   += -lglfw
+else
+  CFLAGS_GUI    += -DNANOVG_GL3
 endif
+
+# ifeq ($(GL), 3)
+  # CFLAGS_GUI    += -DNANOVG_GL3
+# else ifeq ($(GL), 2)
+  # CFLAGS_GUI    += -DNANOVG_GL2
+# endif
 
 BIN_DIR       = $(DESTDIR)$(PREFIX)/bin
 MAN_DIR       = $(DESTDIR)$(PREFIX)/man/man1
@@ -58,7 +66,7 @@ TEXTURES_DIR  = $(SHARE_DIR)/textures
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/nfdcommon.o $(B)/nfd.o
 
-.PHONY: all
+.PHONY: all clean build_dir install uninstall
 
 all: build_dir $(B)/sis $(B)/sisui
 
@@ -88,7 +96,7 @@ $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_g
 $(B)/nfdcommon.o:
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/nfd_common.c
 $(B)/nfd.o:
-	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/nfd_gtk.c
+	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(NFD_BACKEND)
 
 clean:
 	rm -rf $(B)

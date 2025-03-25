@@ -1,4 +1,5 @@
 PREFIX      = /opt/local
-CFLAGS_GUI  = $(CFLAGS) -DNANOVG_GL3 -I/opt/local/include 
+CFLAGS_GUI  = $(CFLAGS) -I/opt/local/include 
 LDFLAGS_GUI = -L/opt/local/lib $(LDFLAGS) -framework Cocoa -framework OpenGL -framework IOKit -framework AppKit
+NFD_BACKEND = nfd_cocoa.m
 
