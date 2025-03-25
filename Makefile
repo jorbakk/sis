@@ -101,3 +101,5 @@ install:
 	install -m 0644 depthmaps/* $(DEPTHMAPS_DIR)
 	install -m 0644 textures/* $(TEXTURES_DIR)
 	install -m 0644 doc/sis.1 $(MAN_DIR)
+uninstall:
+	rm -rf $(BIN_DIR)/sis $(BIN_DIR)/sisui $(MAN_DIR)/sis.1 $(SHARE_DIR)
