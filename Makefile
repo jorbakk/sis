@@ -31,19 +31,21 @@ LDFLAGS  = -lm
 include Make.$(shell uname)
 
 ifeq ($(DEBUG), 1)
-	PREFIX  =
-	CFLAGS += -g
+  $(warning PREFIX removed in debug mode)
+  PREFIX  = ""
+  CFLAGS += -g
 else
-	CFLAGS += -O2 -DNDEBUG
+  CFLAGS += -O2 -DNDEBUG
+  IFLAGS  = -s
 endif
 
 ifneq ($(PREFIX), "")
-	CFLAGS    += -DPREFIX=$(PREFIX)
+  CFLAGS    += -DPREFIX=$(PREFIX)
 endif
 
 ifeq ($(UI_BACKEND), glfw)
-	CFLAGS    += -DGLFW_BACKEND
-	LDFLAGS   += -lglfw
+  CFLAGS    += -DGLFW_BACKEND
+  LDFLAGS   += -lglfw
 endif
 
 BIN_DIR       = $(DESTDIR)$(PREFIX)/bin
@@ -94,7 +96,7 @@ build_dir:
 	@mkdir -p $(B)
 install:
 	mkdir -p $(BIN_DIR) $(MAN_DIR) $(ASSETS_DIR) $(DEPTHMAPS_DIR) $(TEXTURES_DIR)
-	install -s $(B)/sis $(B)/sisui $(BIN_DIR)
+	install $(IFLAGS) $(B)/sis $(B)/sisui $(BIN_DIR)
 	install -m 0644 assets/* $(ASSETS_DIR)
 	install -m 0644 depthmaps/* $(DEPTHMAPS_DIR)
 	install -m 0644 textures/* $(TEXTURES_DIR)
