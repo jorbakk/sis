@@ -198,7 +198,7 @@ void
 depth_button_handler(int item, UIevent event)
 {
     nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog(image_read_extensions, NULL, &outPath);
+    nfdresult_t result = NFD_OpenDialog(image_read_extensions, DEPTHMAP_PREFIX, &outPath);
     if (result == NFD_OKAY) {
 		printf("loading depth image '%s'\n", outPath);
 		strncpy(DFileName, outPath, PATH_MAX);
@@ -213,7 +213,7 @@ void
 texture_button_handler(int item, UIevent event)
 {
     nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog(image_read_extensions, NULL, &outPath);
+    nfdresult_t result = NFD_OpenDialog(image_read_extensions, TEXTURE_PREFIX, &outPath);
     if (result == NFD_OKAY) {
 		printf("loading texture image '%s'\n", outPath);
 		strncpy(TFileName, outPath, PATH_MAX);
