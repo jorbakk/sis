@@ -846,19 +846,21 @@ ui_frame(NVGcontext *vg, float w, float h)
 
 	int depth_map_view = image_vert(mctx.vg, mctx.depth_map_img,
 	                                img_width, 0);
-	uiSetMargins(depth_map_view, panel_margin_h, panel_margin_v, panel_margin_h,
+	uiSetMargins(depth_map_view, panel_margin_h, 0, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, depth_map_view);
-	pch += 180;
+	/// The depth map height is limited by panel_width, as the aspect ration
+	/// of the depth image is kept
+	pch += panel_width;
 
 	int texture_button = button(BND_ICON_GHOST, "load texture image ...", texture_button_handler);
 	uiSetLayout(texture_button, UI_HFILL | UI_TOP);
 	uiSetMargins(texture_button, M, 5, M, 5);
 	uiInsert(ctl_panel, texture_button);
-	pch += BND_WIDGET_HEIGHT + 5 + 5;
+	// pch += BND_WIDGET_HEIGHT + 5 + 5;
 
 	int texture_view = image_vert(mctx.vg, mctx.texture_img, img_width, panel_height - pch);
-	uiSetMargins(texture_view, panel_margin_h, panel_margin_v, panel_margin_h,
+	uiSetMargins(texture_view, panel_margin_h, 0, panel_margin_h,
 	             panel_margin_v);
 	uiInsert(ctl_panel, texture_view);
 
