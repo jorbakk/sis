@@ -64,7 +64,7 @@ DEPTHMAPS_DIR = $(SHARE_DIR)/depthmaps
 TEXTURES_DIR  = $(SHARE_DIR)/textures
 
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
-OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/nfdcommon.o $(B)/nfd.o
+OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/sokol_app.o $(B)/nfdcommon.o $(B)/nfd.o
 
 .PHONY: all clean build_dir install uninstall
 
@@ -93,6 +93,8 @@ $(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
 	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS_GUI) $(S3)/nanovg_gl.c
 $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
 	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS_GUI) $(S3)/nanovg_gl_utils.c
+$(B)/sokol_app.o:
+	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(APP_BACKEND)
 $(B)/nfdcommon.o:
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/nfd_common.c
 $(B)/nfd.o:

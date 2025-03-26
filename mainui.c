@@ -5,14 +5,13 @@
 
 #if defined __EMSCRIPTEN__
 #include <GLES3/gl3.h>
-#define SOKOL_GLES3
-#else
-#if defined NANOVG_USE_GLEW
-#include <GL/glew.h>
-#endif
+// #define SOKOL_GLES3
+// #else
+// #if defined NANOVG_USE_GLEW
+// #include <GL/glew.h>
+// #endif
 
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 /* Defined before OpenGL and GLUT includes to avoid deprecation messages */
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
@@ -20,20 +19,20 @@
 #else
 #include <GL/gl.h>
 // #include <GL/glut.h>
-#endif
+// #endif   /// not __APPLE__
 
 // #include <GL/gl.h>
 // #include <GL/glext.h>
 
-#define SOKOL_GLCORE33
-#endif
+// #define SOKOL_GLCORE33
+#endif   /// __EMSCRIPTEN__
 
 
 #ifdef GLFW_BACKEND
 #include <GLFW/glfw3.h>
 #else
-#define SOKOL_IMPL
 #include "sokol_app.h"
+#define SOKOL_TIME_IMPL
 #include "sokol_time.h"
 #endif
 
@@ -54,6 +53,9 @@
 #ifdef GLFW_BACKEND
 GLFWwindow *window;
 #endif
+
+#define DEFAULT_WIN_WIDTH    (800)
+#define DEFAULT_WIN_HEIGHT   (600)
 
 const char *window_title = "SIS Stereogram Generator";
 const char *image_read_extensions = "png,jpg,bmp,gif,hdr,tga,pic";
@@ -1147,7 +1149,7 @@ main(int argc, char **argv)
 {
 	if (!glfwInit())
 		return -1;
-	window = glfwCreateWindow(640, 480, window_title, NULL, NULL);
+	window = glfwCreateWindow(DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, window_title, NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		return -1;
@@ -1237,8 +1239,8 @@ sokol_main(int argc, char *argv[])
 		.frame_cb = frame,
 		.cleanup_cb = cleanup,
 		.event_cb = event_cb,
-		.width = 640,
-		.height = 480,
+		.width = DEFAULT_WIN_WIDTH,
+		.height = DEFAULT_WIN_HEIGHT,
 		.window_title = window_title,
 		.enable_dragndrop = true,
 		.max_dropped_files = 1,
