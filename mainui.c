@@ -1150,8 +1150,16 @@ drop_callback(GLFWwindow *window, int count, const char **paths)
 int
 main(int argc, char **argv)
 {
-	if (!glfwInit())
+	if (!glfwInit()) {
 		return -1;
+	}
+	/// If requesting an OpenGL version below 3.2, GLFW_OPENGL_ANY_PROFILE must be used
+	/// which is already the default. On Linux, this results in a Compatibility Profile
+	/// Version 4.6.
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	window = glfwCreateWindow(DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, window_title, NULL, NULL);
 	if (!window) {
 		glfwTerminate();
