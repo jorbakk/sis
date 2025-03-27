@@ -1151,7 +1151,8 @@ int
 main(int argc, char **argv)
 {
 	if (!glfwInit()) {
-		return -1;
+		fprintf(stderr, "failed to init glfw\n");
+		return EXIT_FAILURE;
 	}
 	/// If requesting an OpenGL version below 3.2, GLFW_OPENGL_ANY_PROFILE must be used
 	/// which is already the default. On Linux, this results in a Compatibility Profile
@@ -1162,8 +1163,9 @@ main(int argc, char **argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	window = glfwCreateWindow(DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, window_title, NULL, NULL);
 	if (!window) {
+		fprintf(stderr, "failed to create an OpenGL window\n");
 		glfwTerminate();
-		return -1;
+		return EXIT_FAILURE;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key);
