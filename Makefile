@@ -46,10 +46,10 @@ endif
 ifeq ($(UI_BACKEND), glfw)
   CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2
   LDFLAGS_GUI   += -lglfw
-  APP_BACKOBJ    = ""
+  SOK_BACKOBJ    = ""
 else
   CFLAGS_GUI    += -DNANOVG_GL3
-  APP_BACKOBJ    = sokol_app.o
+  SOK_BACKOBJ    = sokol_app.o
 endif
 
 # ifeq ($(GL), 3)
@@ -67,8 +67,8 @@ TEXTURES_DIR  = $(SHARE_DIR)/textures
 
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/nfdcommon.o $(B)/nfd.o
-ifneq ($(APP_BACKOBJ), "")
-  OBJS_GUI += $(B)/$(APP_BACKOBJ)
+ifneq ($(SOK_BACKOBJ), "")
+  OBJS_GUI += $(B)/$(SOK_BACKOBJ)
 endif
 
 .PHONY: all clean build_dir install uninstall
@@ -102,8 +102,8 @@ $(B)/nfdcommon.o:
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/nfd_common.c
 $(B)/nfd.o:
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(NFD_BACKEND)
-$(B)/$(APP_BACKOBJ):
-	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(APP_BACKEND)
+$(B)/$(SOK_BACKOBJ):
+	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(SOK_BACKEND)
 
 clean:
 	rm -rf $(B)

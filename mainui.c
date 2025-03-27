@@ -15,9 +15,11 @@
 /* Defined before OpenGL and GLUT includes to avoid deprecation messages */
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
 // #include <GLUT/glut.h>
 #else
 #include <GL/gl.h>
+#include <GL/glext.h>
 // #include <GL/glut.h>
 // #endif   /// not __APPLE__
 
@@ -1025,6 +1027,7 @@ init_ui(void)
 	mctx = (struct main_ctx) {
 		.mx = 0.0, .my = 0.0, .vg = NULL,
 	};
+	printf("OpenGL version: %s\n", glGetString(GL_VERSION));
 #if defined __EMSCRIPTEN__
 	mctx.vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 #elif defined(NANOVG_GL3)
