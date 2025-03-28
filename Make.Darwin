@@ -1,5 +1,5 @@
-PREFIX      = /opt/local
-GLFW_PREFIX = /opt/local
+PREFIX      = /usr/local
+GLFW_PREFIX = ""
 CFLAGS_GUI  = $(CFLAGS)
 LDFLAGS_GUI = $(LDFLAGS) -framework Cocoa -framework OpenGL -framework IOKit -framework AppKit -framework QuartzCore
 NFD_BACKEND = nfd_cocoa.m
