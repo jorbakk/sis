@@ -21,9 +21,6 @@
 ## You may uncomment this for more convenient development ...
 # DEBUG    = 1
 
-GLFW_INCDIR = /opt/local/include
-GLFW_LIBDIR = /opt/local/lib
-
 S        = .
 S3       = $(S)/3rd-party
 B        = build
@@ -32,6 +29,23 @@ CFLAGS   = -I$(S3)
 LDFLAGS  = -lm
 
 include Make.$(shell uname)
+
+## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
+## with GLFW_PREFIX on each platform or if this is set to "", it is search by
+## pkg-config and also the RPATH is set to this location
+ifneq ($(GLFW_PREFIX), "")
+  GLFW_CFLAGS = -I$(GLFW_PREFIX)/include
+  GLFW_LIBS   = -L$(GLFW_PREFIX)/lib -lglfw
+  GLFW_LIBDIR = $(GLFW_PREFIX)/lib
+else
+  GLFW_CFLAGS = $(shell pkg-config --cflags glfw3)
+  GLFW_LIBS   = $(shell pkg-config --libs glfw3)
+  ## Grab only the directory part for setting RPATH in the executable
+  GLFW_LIBDIR = $(shell pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
+endif
+ifneq ($(GLFW_LIBDIR), "")
+  GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)
+endif
 
 ifeq ($(DEBUG), 1)
   $(warning PREFIX removed in debug mode)
@@ -47,8 +61,8 @@ ifneq ($(PREFIX), "")
 endif
 
 ifeq ($(UI_BACKEND), glfw)
-  CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2 -I$(GLFW_INCDIR)
-  LDFLAGS_GUI   += -Wl,-rpath,$(GLFW_LIBDIR) -L$(GLFW_LIBDIR) -lglfw
+  CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2 $(GLFW_CFLAGS)
+  LDFLAGS_GUI   += $(GLFW_RPATH) $(GLFW_LIBS)
   SOK_BACKOBJ    = ""
 else
   CFLAGS_GUI    += -DNANOVG_GL3
