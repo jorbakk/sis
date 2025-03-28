@@ -28,8 +28,18 @@ B        = build
 CFLAGS   = -I$(S3)
 LDFLAGS  = -lm
 
-include Make.$(shell uname)
+## CROSS can be overriden for cross compiling by a command line option
+CROSS    = ""
+ifeq ($(CROSS), "")
+  BUILD_TARGET     = $(shell uname)
+else
+  $(error Cross compiling not supported, yet)
+endif
 
+## Load OS specific config
+include Make.$(BUILD_TARGET)
+
+## Configure external dependencies
 ## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
 ## with GLFW_PREFIX on each platform or if this is set to "", it is search by
 ## pkg-config and also the RPATH is set to this location
@@ -47,6 +57,7 @@ ifneq ($(GLFW_LIBDIR), "")
   GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)
 endif
 
+## Configure build options
 ifeq ($(DEBUG), 1)
   $(warning PREFIX removed in debug mode)
   PREFIX  = ""
@@ -75,6 +86,7 @@ endif
   # CFLAGS_GUI    += -DNANOVG_GL2
 # endif
 
+## Build
 BIN_DIR       = $(DESTDIR)$(PREFIX)/bin
 MAN_DIR       = $(DESTDIR)$(PREFIX)/man/man1
 SHARE_DIR     = $(DESTDIR)$(PREFIX)/share/sis
@@ -122,6 +134,7 @@ $(B)/nfd.o:
 $(B)/$(SOK_BACKOBJ):
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(SOK_BACKEND)
 
+## Administrative tasks
 clean:
 	rm -rf $(B)
 build_dir:
@@ -135,3 +148,9 @@ install:
 	install -m 0644 doc/sis.1 $(MAN_DIR)
 uninstall:
 	rm -rf $(BIN_DIR)/sis $(BIN_DIR)/sisui $(MAN_DIR)/sis.1 $(SHARE_DIR)
+help:
+	@echo Available config options
+	@echo 'PREFIX=<prefix>:  set prefix for installation (set on build and install targets)'
+	@echo 'DEBUG=1:          debug build, sisui can be run from local directory without install'
+	@echo 'UI_BACKEND=glfw:  use GLFW for creating graphics context instead of sokol'
+	@echo 'CROSS=<platform>: set target platform for cross compiling'
