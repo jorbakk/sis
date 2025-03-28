@@ -21,6 +21,9 @@
 ## You may uncomment this for more convenient development ...
 # DEBUG    = 1
 
+GLFW_INCDIR = /opt/local/include
+GLFW_LIBDIR = /opt/local/lib
+
 S        = .
 S3       = $(S)/3rd-party
 B        = build
@@ -44,8 +47,8 @@ ifneq ($(PREFIX), "")
 endif
 
 ifeq ($(UI_BACKEND), glfw)
-  CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2
-  LDFLAGS_GUI   += -lglfw
+  CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2 -I$(GLFW_INCDIR)
+  LDFLAGS_GUI   += -Wl,-rpath,$(GLFW_LIBDIR) -L$(GLFW_LIBDIR) -lglfw
   SOK_BACKOBJ    = ""
 else
   CFLAGS_GUI    += -DNANOVG_GL3
