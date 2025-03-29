@@ -100,7 +100,7 @@ ifneq ($(SOK_BACKOBJ), "")
   OBJS_GUI += $(B)/$(SOK_BACKOBJ)
 endif
 
-.PHONY: all clean build_dir install uninstall
+.PHONY: all clean build_dir install uninstall help
 
 all: build_dir $(B)/sis $(B)/sisui
 
