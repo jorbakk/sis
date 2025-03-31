@@ -47,16 +47,9 @@ Stb_OpenDFile(char *DFileName, ind_t *width, ind_t *height)
 	stbi_set_unpremultiply_on_load(1);
 	stbi_convert_iphone_png_to_rgb(1);
 	int channel_count = 0, desired_channel_count = 1;
-	// int channel_count = 0, desired_channel_count = 4;
 	if (! (inpic_p = (unsigned char *)stbi_load(DFileName, (int *)width, (int *)height,
 	                                &channel_count, desired_channel_count))) {
 	    fprintf(stderr, "Failed to load %s: %s\n", DFileName, stbi_failure_reason());
-		exit(1);
-	}
-	if (channel_count != desired_channel_count) {
-		fprintf(stderr,
-		        "Input depth map image has more than one color channel, it should be a grayscale image\n");
-		// TODO: check if we can continue with the desired channel count
 		exit(1);
 	}
 	black_value = 0;
