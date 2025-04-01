@@ -1186,9 +1186,11 @@ static double bnd_fmax ( double a, double b )
 #define BND_NUMBER_ARROW_SIZE 4
 
 // default text color
-#define BND_COLOR_TEXT {{{ 0,0,0,1 }}}
+// #define BND_COLOR_TEXT {{{ 0,0,0,1 }}}
+#define BND_COLOR_TEXT {{{ 0.05,0.05,0.05,1 }}}
 // default highlighted text color
-#define BND_COLOR_TEXT_SELECTED {{{ 1,1,1,1 }}}
+// #define BND_COLOR_TEXT_SELECTED {{{ 1,1,1,1 }}}
+#define BND_COLOR_TEXT_SELECTED {{{ 0.9,0.9,0.9,1 }}}
 
 // radius of tool button
 #define BND_TOOL_RADIUS 4
