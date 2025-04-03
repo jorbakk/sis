@@ -1,4 +1,4 @@
-PREFIX      = /usr/local
+PREFIX      ?= /usr/local
 GLFW_PREFIX = ""
 CFLAGS_GUI  = $(CFLAGS) -DNANOVG_USE_GLEW $(shell pkg-config --cflags gtk+-3.0)
 LDFLAGS_GUI = $(shell pkg-config --libs gtk+-3.0) $(LDFLAGS) -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lGLEW

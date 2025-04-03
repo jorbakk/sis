@@ -38,6 +38,7 @@ endif
 
 ## Load OS specific config
 include Make.$(BUILD_TARGET)
+$(info PREFIX is set to: $(PREFIX))
 
 ## Configure external dependencies
 ## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
