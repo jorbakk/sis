@@ -33,9 +33,10 @@ LDFLAGS     = -lm
 ## CROSS can be overriden for cross compiling by a command line option
 CROSS    = ""
 ifeq ($(CROSS),"")
-  BUILD_TARGET != uname
+#  BUILD_TARGET != uname
+  BUILD_TARGET = $(shell uname)
 else
-  # $(error Cross compiling not supported, yet)
+# $(error Cross compiling not supported, yet)
 endif
 
 ## Load OS specific config
@@ -51,10 +52,13 @@ ifneq ($(GLFW_PREFIX),"")
   GLFW_LIBS   = -L$(GLFW_PREFIX)/lib -lglfw
   GLFW_LIBDIR = $(GLFW_PREFIX)/lib
 else
-  GLFW_CFLAGS != pkg-config --cflags glfw3
-  GLFW_LIBS   != pkg-config --libs glfw3
-  ## Grab only the directory part for setting RPATH in the executable
-  GLFW_LIBDIR != pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-
+  GLFW_CFLAGS = $(shell pkg-config --cflags glfw3)
+  GLFW_LIBS   = $(shell pkg-config --libs glfw3)
+#  GLFW_CFLAGS != pkg-config --cflags glfw3
+#  GLFW_LIBS   != pkg-config --libs glfw3
+## Grab only the directory part for setting RPATH in the executable
+  GLFW_LIBDIR = $(shell pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
+# GLFW_LIBDIR != pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-
 endif
 ifneq ($(GLFW_LIBDIR),"")
   GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)

@@ -1,8 +1,10 @@
 PREFIX      ?= /usr/local
 GLFW_PREFIX = ""
-CFLAGS_GUI  != pkg-config --cflags gtk+-3.0
+CFLAGS_GUI  = $(shell pkg-config --cflags gtk+-3.0)
+# CFLAGS_GUI  != pkg-config --cflags gtk+-3.0
 CFLAGS_GUI  += $(CFLAGS_LOC) $(CFLAGS) -DNANOVG_USE_GLEW
-LDFLAGS_GUI != pkg-config --libs gtk+-3.0
+LDFLAGS_GUI = $(shell pkg-config --libs gtk+-3.0)
+# LDFLAGS_GUI != pkg-config --libs gtk+-3.0
 LDFLAGS_GUI += $(LDFLAGS) -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lGLEW
 NFD_BACKEND = nfd_gtk.c
 SOK_BACKEND = sokol_app.c

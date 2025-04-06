@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#define _XOPEN_SOURCE 700
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
@@ -40,6 +41,10 @@
 
 #define SIS_MIN_ALGO     1
 #define SIS_MAX_ALGO     4
+
+#ifndef PATH_MAX
+#define PATH_MAX         4096
+#endif
 
 #ifdef PREFIX
 #define STR_VALUE(arg)     #arg
