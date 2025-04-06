@@ -30,37 +30,37 @@ LDFLAGS  = -lm
 
 ## CROSS can be overriden for cross compiling by a command line option
 CROSS    = ""
-ifeq ($(CROSS), "")
-  BUILD_TARGET     = $(shell uname)
+ifeq ($(CROSS),"")
+  BUILD_TARGET != uname
 else
-  $(error Cross compiling not supported, yet)
+  # $(error Cross compiling not supported, yet)
 endif
 
 ## Load OS specific config
 include Make.$(BUILD_TARGET)
-$(info PREFIX is set to: $(PREFIX))
+# $(info PREFIX is set to: $(PREFIX))
 
 ## Configure external dependencies
 ## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
 ## with GLFW_PREFIX on each platform or if this is set to "", it is search by
 ## pkg-config and also the RPATH is set to this location
-ifneq ($(GLFW_PREFIX), "")
+ifneq ($(GLFW_PREFIX),"")
   GLFW_CFLAGS = -I$(GLFW_PREFIX)/include
   GLFW_LIBS   = -L$(GLFW_PREFIX)/lib -lglfw
   GLFW_LIBDIR = $(GLFW_PREFIX)/lib
 else
-  GLFW_CFLAGS = $(shell pkg-config --cflags glfw3)
-  GLFW_LIBS   = $(shell pkg-config --libs glfw3)
+  GLFW_CFLAGS != pkg-config --cflags glfw3
+  GLFW_LIBS   != pkg-config --libs glfw3
   ## Grab only the directory part for setting RPATH in the executable
-  GLFW_LIBDIR = $(shell pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
+  GLFW_LIBDIR != pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-
 endif
-ifneq ($(GLFW_LIBDIR), "")
+ifneq ($(GLFW_LIBDIR),"")
   GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)
 endif
 
 ## Configure build options
-ifeq ($(DEBUG), 1)
-  $(warning PREFIX removed in debug mode)
+ifeq ($(DEBUG),1)
+  # $(warning PREFIX removed in debug mode)
   PREFIX  = ""
   CFLAGS += -g
 else
@@ -68,11 +68,11 @@ else
   IFLAGS  = -s
 endif
 
-ifneq ($(PREFIX), "")
+ifneq ($(PREFIX),"")
   CFLAGS    += -DPREFIX=$(PREFIX)
 endif
 
-ifeq ($(UI_BACKEND), glfw)
+ifeq ($(UI_BACKEND),glfw)
   CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2 $(GLFW_CFLAGS)
   LDFLAGS_GUI   += $(GLFW_RPATH) $(GLFW_LIBS)
   SOK_BACKOBJ    = ""
@@ -81,9 +81,9 @@ else
   SOK_BACKOBJ    = sokol_app.o
 endif
 
-# ifeq ($(GL), 3)
+# ifeq ($(GL),3)
   # CFLAGS_GUI    += -DNANOVG_GL3
-# else ifeq ($(GL), 2)
+# else ifeq ($(GL),2)
   # CFLAGS_GUI    += -DNANOVG_GL2
 # endif
 
@@ -97,7 +97,7 @@ TEXTURES_DIR  = $(SHARE_DIR)/textures
 
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/nfdcommon.o $(B)/nfd.o
-ifneq ($(SOK_BACKOBJ), "")
+ifneq ($(SOK_BACKOBJ),"")
   OBJS_GUI += $(B)/$(SOK_BACKOBJ)
 endif
 
