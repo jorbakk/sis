@@ -20,13 +20,15 @@
 
 ## You may uncomment this for more convenient development ...
 # DEBUG    = 1
+## Build with tcc (preferably set on as a command line parameter of make):
+# CC=tcc CFLAGS=-DSTBI_NO_SIMD
 
 S        = .
 S3       = $(S)/3rd-party
 B        = build
 
-CFLAGS   = -I$(S3)
-LDFLAGS  = -lm
+CFLAGS_LOC  = -I$(S3)
+LDFLAGS     = -lm
 
 ## CROSS can be overriden for cross compiling by a command line option
 CROSS    = ""
@@ -61,15 +63,15 @@ endif
 ## Configure build options
 ifeq ($(DEBUG),1)
   # $(warning PREFIX removed in debug mode)
-  PREFIX  = ""
-  CFLAGS += -g
+  PREFIX      = ""
+  CFLAGS_LOC += -g
 else
-  CFLAGS += -O2 -DNDEBUG
-  IFLAGS  = -s
+  CFLAGS_LOC += -O2 -DNDEBUG
+  IFLAGS      = -s
 endif
 
 ifneq ($(PREFIX),"")
-  CFLAGS    += -DPREFIX=$(PREFIX)
+  CFLAGS_LOC    += -DPREFIX=$(PREFIX)
 endif
 
 ifeq ($(UI_BACKEND),glfw)
@@ -108,15 +110,15 @@ all: build_dir $(B)/sis $(B)/sisui
 $(B)/sis: $(B)/main.o $(OBJS)
 	$(CC) -o $(B)/sis $^ $(LDFLAGS)
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
-	$(CC) -c -o $(B)/main.o $(CFLAGS) $(S)/main.c
+	$(CC) -c -o $(B)/main.o $(CFLAGS_LOC) $(CFLAGS) $(S)/main.c
 $(B)/sis.o: $(S)/sis.c $(S)/stbimg.h $(S)/sis.h
-	$(CC) -c -o $(B)/sis.o $(CFLAGS) $(S)/sis.c
+	$(CC) -c -o $(B)/sis.o $(CFLAGS_LOC) $(CFLAGS) $(S)/sis.c
 $(B)/algorithm.o: $(S)/algorithm.c $(S)/sis.h
-	$(CC) -c -o $(B)/algorithm.o $(CFLAGS) $(S)/algorithm.c
+	$(CC) -c -o $(B)/algorithm.o $(CFLAGS_LOC) $(CFLAGS) $(S)/algorithm.c
 $(B)/get_opt.o: $(S)/get_opt.c $(S)/sis.h
-	$(CC) -c -o $(B)/get_opt.o $(CFLAGS) $(S)/get_opt.c
+	$(CC) -c -o $(B)/get_opt.o $(CFLAGS_LOC) $(CFLAGS) $(S)/get_opt.c
 $(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
-	$(CC) -c -o $(B)/stbimg.o $(CFLAGS) $(S)/stbimg.c
+	$(CC) -c -o $(B)/stbimg.o $(CFLAGS_LOC) $(CFLAGS) $(S)/stbimg.c
 
 $(B)/sisui: $(B)/mainui.o $(OBJS) $(OBJS_GUI)
 	$(CC) -o $@ $^ $(LDFLAGS_GUI)
