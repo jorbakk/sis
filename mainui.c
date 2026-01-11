@@ -3,32 +3,14 @@
 #include <stdbool.h>
 #include <limits.h>
 
-#if defined __EMSCRIPTEN__
+#ifdef __APPLE__
+  #define GL_SILENCE_DEPRECATION
+#endif
+#if defined __EMSCRIPTEN__ || defined __ANDROID__
 #include <GLES3/gl3.h>
-// #define SOKOL_GLES3
-// #else
-// #if defined NANOVG_USE_GLEW
-// #include <GL/glew.h>
-// #endif
-
-#elif defined(__APPLE__)
-/* Defined before OpenGL and GLUT includes to avoid deprecation messages */
-#define GL_SILENCE_DEPRECATION
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-// #include <GLUT/glut.h>
 #else
-#include <GL/gl.h>
-#include <GL/glext.h>
-// #include <GL/glut.h>
-// #endif   /// not __APPLE__
-
-// #include <GL/gl.h>
-// #include <GL/glext.h>
-
-// #define SOKOL_GLCORE33
-#endif   /// __EMSCRIPTEN__
-
+#include <GL/glew.h>
+#endif
 
 #ifdef GLFW_BACKEND
 #include <GLFW/glfw3.h>
@@ -38,12 +20,18 @@
 #include "sokol_time.h"
 #endif
 
-
-#include "nanovg.h"
-#include "nanovg_gl.h"
+#define FONTSTASH_IMPLEMENTATION
+#include "fontstash_xc.h"
+#include "nanovg_xc.h"
+#if defined __EMSCRIPTEN__ || defined __ANDROID__
+  #define NANOVG_GLES3_IMPLEMENTATION
+#else
+  #define NANOVG_GL3_IMPLEMENTATION
+#endif
+#include "nanovg_xc_vtex.h"
 
 #define BLENDISH_IMPLEMENTATION
-#include "blendish.h"
+#include "blendish_xc.h"
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 
@@ -1021,26 +1009,110 @@ update_sis_image(void)
 }
 
 
-void
+static float maxf(float a, float b) { return a < b ? b : a; }
+static float minf(float a, float b) { return a < b ? a : b; }
+
+typedef struct {
+	NVGcontext *vg;
+	float *fbuff;
+	int fbuffw, fbuffh;
+	float sdfScale, sdfOffset;
+} SDFcontext;
+
+static const float INITIAL_SDF_DIST = 1E6f;
+float fontsize = 24.0f;
+float fontblur = 0;
+
+
+static void
+sdfRender(void *uptr, void *fontimpl, unsigned char *output,
+          int outWidth, int outHeight, int outStride, float scale, int padding,
+          int glyph)
+{
+	SDFcontext *ctx = (SDFcontext *) uptr;
+
+	nvgBeginFrame(ctx->vg, 0, 0, 1);
+	nvgDrawSTBTTGlyph(ctx->vg, (stbtt_fontinfo *) fontimpl, scale, padding,
+	                  glyph);
+	nvgEndFrame(ctx->vg);
+
+	for (int iy = 0; iy < outHeight; ++iy) {
+		for (int ix = 0; ix < outWidth; ++ix) {
+			float sd =
+			    ctx->fbuff[ix + iy * ctx->fbuffw] * ctx->sdfScale +
+			    ctx->sdfOffset;
+			output[ix + iy*outStride] = (unsigned char)(0.5f + minf(maxf(sd, 0.f), 255.f));
+			ctx->fbuff[ix + iy * ctx->fbuffw] = INITIAL_SDF_DIST;   // will get clamped to 255
+		}
+	}
+}
+
+
+static void
+sdfDelete(void *uptr)
+{
+	SDFcontext *ctx = (SDFcontext *) uptr;
+	free(ctx->fbuff);
+	free(ctx);
+}
+
+
+FONScontext *
+createFontstash(NVGcontext *vg, int nvgFlags, int maxAtlasFontPx)
+{
+	FONSparams params;
+	memset(&params, 0, sizeof(FONSparams));
+	params.flags = FONS_ZERO_TOPLEFT | FONS_DELAY_LOAD;
+	params.flags |= (nvgFlags & NVG_SDF_TEXT) ? FONS_SDF : FONS_SUMMED;
+	params.sdfPadding = 4;
+	params.sdfPixelDist = 32.0f;
+
+	SDFcontext *ctx = malloc(sizeof(SDFcontext));
+	ctx->fbuffh = ctx->fbuffw = maxAtlasFontPx + 2 * params.sdfPadding + 16;
+	// we use dist < 0.0f inside glyph; but for scale > 0, stbtt uses >on_edge_value for inside
+	ctx->sdfScale = -params.sdfPixelDist;
+	ctx->sdfOffset = 127;       // stbtt on_edge_value
+
+	ctx->fbuff = malloc(ctx->fbuffw * ctx->fbuffh * sizeof(float));
+	for (size_t ii = 0; ii < ctx->fbuffw * ctx->fbuffh; ++ii)
+		ctx->fbuff[ii] = INITIAL_SDF_DIST;
+	// ctx->vg = nvgswCreate(NVG_AUTOW_DEFAULT | NVG_NO_FONTSTASH | NVGSW_PATHS_XC | NVGSW_SDFGEN);
+	ctx->vg = vg;
+	// nvgswSetFramebuffer(ctx->vg, ctx->fbuff, ctx->fbuffw, ctx->fbuffh, params.sdfPadding, 0,0,0);
+
+	params.userPtr = ctx;
+	params.userSDFRender = sdfRender;
+	params.userDelete = sdfDelete;
+	return fonsCreateInternal(&params);
+}
+
+
+bool
 init_ui(void)
 {
 	mctx = (struct main_ctx) {
 		.mx = 0.0, .my = 0.0, .vg = NULL,
 	};
 	printf("OpenGL version: %s\n", glGetString(GL_VERSION));
-#if defined __EMSCRIPTEN__
-	mctx.vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-#elif defined(NANOVG_GL3)
-	mctx.vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-#elif defined(NANOVG_GL2)
-	mctx.vg = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-#else
-#error "No OpenGL backend available"
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+	GLenum glew_ret = glewInit();
+	if (glew_ret != GLEW_OK) {
+		// SDL_Log("Could not init glew: %s\n", glewGetErrorString(glew_ret));
+		return false;
+	} else {
+		// GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
+		glGetError();
+	}
+	// SDL_GL_SetSwapInterval(0);
+	// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
 #endif
+	mctx.vg = nvglCreate(NVG_NO_FONTSTASH);
 	if (mctx.vg == NULL) {
 		printf("Could not init nanovg.\n");
-		return;
+		return false;
 	}
+	nvgSetFontStash(mctx.vg, createFontstash(mctx.vg, NVG_NO_FONTSTASH, 2 * 48));
+	nvgAtlasTextThreshold(mctx.vg, 48.0f);
 	bndSetFont(nvgCreateFont(mctx.vg, "system", ASSET_PREFIX "/DejaVuSans.ttf"));
 	bndSetIconImage(nvgCreateImage(mctx.vg, ASSET_PREFIX "/blender_icons16.png", 0));
 #ifndef GLFW_BACKEND
@@ -1053,6 +1125,7 @@ init_ui(void)
 	load_depth_image();
 	load_texture_image();
 	load_sis_image();
+	return true;
 }
 
 
@@ -1060,16 +1133,7 @@ void
 cleanup(void)
 {
     uiDestroyContext(mctx.ui_ctx);
-
-#if defined __EMSCRIPTEN__
-	nvgDeleteGLES3(mctx.vg);
-#elif defined(NANOVG_GL3)
-	nvgDeleteGL3(mctx.vg);
-#elif defined(NANOVG_GL2)
-	nvgDeleteGL2(mctx.vg);
-#else
-#error "No OpenGL backend available"
-#endif
+	nvglDelete(mctx.vg);
 }
 
 

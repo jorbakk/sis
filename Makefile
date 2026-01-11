@@ -102,7 +102,7 @@ DEPTHMAPS_DIR = $(SHARE_DIR)/depthmaps
 TEXTURES_DIR  = $(SHARE_DIR)/textures
 
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
-OBJS_GUI = $(B)/nanovg.o $(B)/nanovg_gl.o $(B)/nanovg_gl_utils.o $(B)/nfdcommon.o $(B)/nfd.o
+OBJS_GUI = $(B)/nanovg_xc.o $(B)/nfdcommon.o $(B)/nfd.o
 ifneq ($(SOK_BACKOBJ),"")
   OBJS_GUI += $(B)/$(SOK_BACKOBJ)
 endif
@@ -128,12 +128,12 @@ $(B)/sisui: $(B)/mainui.o $(OBJS) $(OBJS_GUI)
 	$(CC) -o $@ $^ $(LDFLAGS_GUI)
 $(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/mainui.o $(CFLAGS_GUI) $(S)/mainui.c
-$(B)/nanovg.o: $(S3)/nanovg.c $(S3)/nanovg.h $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h
-	$(CC) -c -o $(B)/nanovg.o $(CFLAGS_GUI) $(S3)/nanovg.c
-$(B)/nanovg_gl.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl.c $(S3)/nanovg_gl_utils.h
-	$(CC) -c -o $(B)/nanovg_gl.o $(CFLAGS_GUI) $(S3)/nanovg_gl.c
-$(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
-	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS_GUI) $(S3)/nanovg_gl_utils.c
+$(B)/nanovg_xc.o: $(S3)/nanovg_xc.c $(S3)/nanovg_xc.h
+	$(CC) -c -o $(B)/nanovg_xc.o $(CFLAGS_GUI) $(S3)/nanovg_xc.c
+# $(B)/nanovg_vtex.o: $(S3)/nanovg_vtex.h $(S3)/nanovg_vtex.c
+	# $(CC) -c -o $(B)/nanovg_vtex.o $(CFLAGS_GUI) $(S3)/nanovg_vtex.c
+# $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
+	# $(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS_GUI) $(S3)/nanovg_gl_utils.c
 $(B)/nfdcommon.o:
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/nfd_common.c
 $(B)/nfd.o:
