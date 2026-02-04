@@ -8,12 +8,16 @@
 #endif
 #if defined __EMSCRIPTEN__ || defined __ANDROID__
 #include <GLES3/gl3.h>
+#define NANOVG_GLES3_IMPLEMENTATION
 #else
 #include <GL/glew.h>
+#define NANOVG_GL3_IMPLEMENTATION
 #endif
 
 #ifdef GLFW_BACKEND
 #include <GLFW/glfw3.h>
+#elif defined(SDL2_BACKEND)
+#include <SDL.h>
 #else
 #include "sokol_app.h"
 #define SOKOL_TIME_IMPL
@@ -23,25 +27,33 @@
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash_xc.h"
 #include "nanovg_xc.h"
-#if defined __EMSCRIPTEN__ || defined __ANDROID__
-  #define NANOVG_GLES3_IMPLEMENTATION
-#else
-  #define NANOVG_GL3_IMPLEMENTATION
-#endif
+#ifndef SW_ONLY
 #include "nanovg_xc_vtex.h"
-
+#endif
+#define NANOVG_SW_IMPLEMENTATION
+#include "nanovg_xc_sw.h"
 #define BLENDISH_IMPLEMENTATION
 #include "blendish_xc.h"
 #define OUI_IMPLEMENTATION
 #include "oui.h"
-
 #include "nfd.h"
-
 #include "sis.h"
 
 
 #ifdef GLFW_BACKEND
 GLFWwindow *window;
+#elif defined(SDL2_BACKEND)
+SDL_Window *sdl_window = NULL;
+int sdl_window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+SDL_Renderer *sdl_renderer = NULL;
+SDL_Surface  *sdl_surface  = NULL;
+SDL_Texture  *sdl_texture  = NULL;
+SDL_Rect      display_bounds;
+unsigned char *sw_img_buf = NULL;
+bool running = true;
+#ifndef SW_ONLY
+SDL_GLContext sdlGLContext = NULL;
+#endif
 #endif
 
 #define DEFAULT_WIN_WIDTH    (800)
@@ -52,6 +64,9 @@ const char *image_read_extensions = "png,jpg,bmp,gif,hdr,tga,pic";
 const char *image_write_extensions = "png";
 static char dropped_file[PATH_MAX];
 static int  dropped_file_len = 0;
+static bool use_gl = true;
+static int num_threads = 0;
+static int nvg_flags = NVG_NO_FONTSTASH;
 
 struct main_ctx {
 	int argc;
@@ -883,6 +898,8 @@ ui_frame(NVGcontext *vg, float w, float h)
 	/// Process user events
 #ifdef GLFW_BACKEND
 	uiProcess((int)(glfwGetTime() * 1e-3));
+#elif SDL2_BACKEND
+	uiProcess((int)(SDL_GetTicks()));
 #else
 	uiProcess((int)(stm_sec(stm_now()) * 1000.0));
 #endif
@@ -902,6 +919,10 @@ frame(void)
 	glfwGetCursorPos(window, &mctx.mx, &mctx.my);
 	glfwGetWindowSize(window, &winWidth, &winHeight);
 	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+#elif SDL2_BACKEND
+    SDL_GetWindowSize(sdl_window, &winWidth, &winHeight);
+    SDL_GL_GetDrawableSize(sdl_window, &fbWidth, &fbHeight);
+    // SDL_GetRendererOutputSize(sdl_renderer, &fbWidth, &fbHeight);
 #else
 	winWidth = sapp_width();
 	winHeight = sapp_height();
@@ -1106,7 +1127,7 @@ init_ui(void)
 	// SDL_GL_SetSwapInterval(0);
 	// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
 #endif
-	mctx.vg = nvglCreate(NVG_NO_FONTSTASH);
+	mctx.vg = nvglCreate(nvg_flags);
 	if (mctx.vg == NULL) {
 		printf("Could not init nanovg.\n");
 		return false;
@@ -1115,7 +1136,7 @@ init_ui(void)
 	nvgAtlasTextThreshold(mctx.vg, 48.0f);
 	bndSetFont(nvgCreateFont(mctx.vg, "system", ASSET_PREFIX "/DejaVuSans.ttf"));
 	bndSetIconImage(nvgCreateImage(mctx.vg, ASSET_PREFIX "/blender_icons16.png", 0));
-#ifndef GLFW_BACKEND
+#if !defined(GLFW_BACKEND) && !defined(SDL2_BACKEND)
 	stm_setup();
 #endif
 	mctx.ui_ctx = uiCreateContext(4096, 1<<20);
@@ -1133,7 +1154,7 @@ void
 cleanup(void)
 {
     uiDestroyContext(mctx.ui_ctx);
-	nvglDelete(mctx.vg);
+	// nvglDelete(mctx.vg);
 }
 
 
@@ -1251,6 +1272,205 @@ main(int argc, char **argv)
 	cleanup();
 	finish_all();
 	glfwTerminate();
+	return 0;
+}
+
+#elif defined(SDL2_BACKEND)
+
+/*
+void
+init_frame_buffer(void)
+{
+	if (!sw_img_buf || winPrevWidth != winWidth || winPrevHeight != winHeight) {
+#ifndef __plan9__
+		float ddpi, hdpi, vdpi;
+		SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdlWindow), &ddpi, &hdpi, &vdpi);
+		printf("init_frame_buffer() win: [%d,%d] -> [%d,%d], fb: [%d,%d], dpi: [%.1f,%.1f,%.1f]\n", winPrevWidth, winPrevHeight, winWidth, winHeight, fbWidth, fbHeight, ddpi, hdpi, vdpi);
+#endif
+		winPrevWidth = winWidth;
+		winPrevHeight = winHeight;
+		sw_img_buf = realloc(sw_img_buf, winWidth * winHeight * 4);
+		if (sdlTexture != NULL) SDL_DestroyTexture(sdlTexture);
+		sdlTexture = SDL_CreateTexture(
+			sdlRenderer,
+			SDL_PIXELFORMAT_ABGR8888,
+			// SDL_TEXTUREACCESS_STREAMING,
+			SDL_TEXTUREACCESS_TARGET,  // fast update w/o locking, can be used as a render target
+			// set video size as the dimensions of the texture
+			winWidth, winHeight
+			);
+	}
+	nvgswSetFramebuffer(vg, sw_img_buf, winWidth, winHeight, 0, 8, 16, 24);
+}
+*/
+
+
+bool
+init_sdl_window(void)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	if (use_gl) {
+#ifndef SW_ONLY
+		sdl_window = SDL_CreateWindow("Nanovg SDL Renderer Demo",
+		  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		  DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT,
+		  sdl_window_flags | SDL_WINDOW_OPENGL);
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+		// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+		SDL_Log("Using GL backend");
+		SDL_GL_SetSwapInterval(0);
+		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+#else
+		// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+		// SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+#endif
+	    sdlGLContext = SDL_GL_CreateContext(sdl_window);
+	    if (!sdlGLContext) {
+			SDL_Log("Could not set up GL context: %s\n", SDL_GetError());
+			return false;
+	    }
+		SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+#endif    /// SW_ONLY
+	} else {
+		sdl_window = SDL_CreateWindow("Nanovg SDL Renderer Demo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		  DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, sdl_window_flags);
+		if (sdl_window == NULL) {
+			SDL_Log("Error SDL_CreateWindow: %s\n", SDL_GetError());
+			return false;
+		}
+		SDL_Log("%s\n", "Using SDL renderer with SW backend");
+		sdl_renderer = SDL_CreateRenderer(
+			sdl_window,
+			-1,
+			// SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
+			// SDL_RENDERER_TARGETTEXTURE);
+			0);
+		if (sdl_renderer == NULL) {
+			SDL_Log("SDL: could not create renderer: %s\n", SDL_GetError());
+			return false;
+		}
+#ifndef __plan9__
+		SDL_RendererInfo ri;
+		if (SDL_GetRendererInfo(sdl_renderer, &ri) < 0) {
+			SDL_Log("Failed to get renderer info: %s\n", SDL_GetError());
+		} else {
+			SDL_Log("Renderer name: %s, max texture width: %d, height: %d\n", ri.name, ri.max_texture_width, ri.max_texture_height);
+		}
+		/// At least on OS X the renderer will set up a GL 2.1 context
+		SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+#endif
+		mctx.vg = nvgswCreate(nvg_flags);
+		if (mctx.vg == NULL) {
+			SDL_Log("%s\n", "Could not init nanovg");
+			return false;
+		}
+#ifndef NO_THREADING
+        int disp = SDL_GetWindowDisplayIndex(sdl_window);
+        SDL_GetDisplayBounds(disp < 0 ? 0 : disp, &display_bounds);
+	    if (num_threads == 0) num_threads = SDL_GetCPUCount();  // * (PLATFORM_MOBILE ? 1 : 2)
+	    if (num_threads > 1) {
+	      int xthreads = display_bounds.h > display_bounds.w ? 2 : num_threads/2;  // prefer square-like tiles
+	      nvgswSetThreading(mctx.vg, xthreads, num_threads/xthreads);
+	    }
+#endif
+	    // init_frame_buffer();
+	}
+	return true;
+}
+
+
+void
+clear(void)
+{
+	if (use_gl) {
+#ifndef SW_ONLY
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+#endif
+	} else {
+		// memset(sw_img_buf, 0.3f * 0xff, winWidth * winHeight * 4);
+	}
+}
+
+
+void
+cleanup_window(void)
+{
+	if (use_gl) {
+#ifndef SW_ONLY
+		nvglDelete(mctx.vg);
+#endif
+	} else {
+		nvgswDelete(mctx.vg);
+		// free(sw_img_buf);
+	}
+}
+
+
+void
+mainloop(void)
+{
+	SDL_Event evt;
+	while (SDL_PollEvent(&evt)) {
+		if (evt.type == SDL_QUIT) {
+			running = false;
+			return;
+		}
+		else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+			uiSetButton(0, 0, 1);
+		}
+		else if (evt.type == SDL_MOUSEBUTTONUP) {
+			uiSetButton(0, 0, 0);
+		}
+		else if (evt.type == SDL_MOUSEMOTION) {
+			int mx, my;
+		    SDL_GetMouseState(&mx, &my);
+		    mctx.mx = mx; mctx.my = my;
+		}
+	}
+    // SDL_GetMouseState(&mx, &my);
+    // mx = mx * pxRatioX;
+    // my = my * pxRatioY;
+    // printf("mouse [%d,%d]\n", mx, my);
+	uiSetCursor((int)mctx.mx, (int)mctx.my);
+	clear();
+	frame();
+	if (use_gl) {
+#ifndef SW_ONLY
+		SDL_GL_SwapWindow(sdl_window);
+#endif
+	} else {
+		SDL_RenderPresent(sdl_renderer);
+	}
+}
+
+
+int
+main(int argc, char **argv)
+{
+	if (!init_sdl_window()) exit(1);
+	mctx.argc = argc;
+	mctx.argv = argv;
+	init_app();
+#ifdef __EMSCRIPTEN__
+    #include <emscripten.h>
+	emscripten_set_main_loop(mainloop, 0, true);
+#else
+	while (running) mainloop();
+#endif
+	cleanup();
+	finish_all();
+ 	cleanup_window();
+	SDL_DestroyWindow(sdl_window);
+	SDL_Quit();
 	return 0;
 }
 

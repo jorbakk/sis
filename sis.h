@@ -22,7 +22,12 @@
  * SOFTWARE.
  */
 
+#if _XOPEN_SOURCE == 500 || _XOPEN_SOURCE == 600
+#undef _XOPEN_SOURCE
+#endif
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 700
+#endif
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>

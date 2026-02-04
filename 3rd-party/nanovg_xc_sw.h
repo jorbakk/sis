@@ -14,7 +14,8 @@
 #endif
 
 #ifndef NO_THREADING
-#include "thpool.h"
+#define THREADPOOL_IMPLEMENTATION
+#include "threadpool.h"
 #endif
 
 #ifdef __cplusplus

@@ -64,6 +64,11 @@ ifneq ($(GLFW_LIBDIR),"")
   GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)
 endif
 
+SDL2_CFLAGS = $(shell pkg-config --cflags sdl2)
+SDL2_LIBS   = $(shell pkg-config --libs sdl2)
+SDL2_LIBDIR = $(shell pkg-config --libs sdl2 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
+SDL2_RPATH  = -Wl,-rpath,$(GLFW_LIBDIR)
+
 ## Configure build options
 ifeq ($(DEBUG),1)
   # $(warning PREFIX removed in debug mode)
@@ -81,6 +86,10 @@ endif
 ifeq ($(UI_BACKEND),glfw)
   CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2 $(GLFW_CFLAGS)
   LDFLAGS_GUI   += $(GLFW_RPATH) $(GLFW_LIBS)
+  SOK_BACKOBJ    = ""
+else ifeq ($(UI_BACKEND),sdl2)
+  CFLAGS_GUI    += -DSDL2_BACKEND $(SDL2_CFLAGS)
+  LDFLAGS_GUI   += $(SDL2_RPATH) $(SDL2_LIBS)
   SOK_BACKOBJ    = ""
 else
   CFLAGS_GUI    += -DNANOVG_GL3
@@ -141,6 +150,9 @@ $(B)/nfd.o:
 $(B)/$(SOK_BACKOBJ):
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(SOK_BACKEND)
 
+$(B)/nfd_test:
+	$(CC) -o build/nfd_test -I 3rd-party/ nfd_test.c build/nfdcommon.o build/nfd.o $(LDFLAGS_GUI)
+
 ## Administrative tasks
 clean:
 	rm -rf $(B)
@@ -159,5 +171,5 @@ help:
 	@echo Available config options
 	@echo 'PREFIX=<prefix>:  set prefix for installation (set on build and install targets)'
 	@echo 'DEBUG=1:          debug build, sisui can be run from local directory without install'
-	@echo 'UI_BACKEND=glfw:  use GLFW for creating graphics context instead of sokol'
+	@echo 'UI_BACKEND=glfw|sdl2:  use GLFW for creating graphics context instead of sokol'
 	@echo 'CROSS=<platform>: set target platform for cross compiling'
