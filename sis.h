@@ -110,9 +110,9 @@ extern unsigned char *(*GetDFileBuffer)(void);
 extern unsigned char *(*GetTFileBuffer)(void);
 extern unsigned char *(*GetSISFileBuffer)(void);
 
-extern char *DefaultDFileName;
-extern char *DefaultSISFileName;
-extern char *DefaultTFileName;
+extern const char *DefaultDFileName;
+extern const char *DefaultSISFileName;
+extern const char *DefaultTFileName;
 extern pos_t DLinePosition, DLineStep;
 extern ind_t SISLineNumber;
 extern ind_t DLineNumber;

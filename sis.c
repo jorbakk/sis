@@ -52,9 +52,9 @@ unsigned char *(*GetDFileBuffer)(void);
 unsigned char *(*GetTFileBuffer)(void);
 unsigned char *(*GetSISFileBuffer)(void);
 
-char *DefaultDFileName = DEPTHMAP_PREFIX "/flowers.png";
-char *DefaultTFileName = TEXTURE_PREFIX "/clover.png";
-char *DefaultSISFileName = "/tmp/out.png";
+const char *DefaultDFileName = DEPTHMAP_PREFIX "/flowers.png";
+const char *DefaultTFileName = TEXTURE_PREFIX "/clover.png";
+const char *DefaultSISFileName = "/tmp/out.png";
 pos_t DLinePosition, DLineStep;
 ind_t SISLineNumber;
 ind_t DLineNumber;

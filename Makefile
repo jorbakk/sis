@@ -1,4 +1,4 @@
-#  Copyright 1995, 2021, 2025 Jörg Bakker
+#  Copyright 1995, 2021, 2025, 2026 Jörg Bakker
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy of
 #  this software and associated documentation files (the "Software"), to deal in
@@ -42,6 +42,7 @@ endif
 ## Load OS specific config
 include Make.$(BUILD_TARGET)
 # $(info PREFIX is set to: $(PREFIX))
+include Make.Mingw
 
 ## Configure external dependencies
 ## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
@@ -63,11 +64,6 @@ endif
 ifneq ($(GLFW_LIBDIR),"")
   GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)
 endif
-
-SDL2_CFLAGS = $(shell pkg-config --cflags sdl2)
-SDL2_LIBS   = $(shell pkg-config --libs sdl2)
-SDL2_LIBDIR = $(shell pkg-config --libs sdl2 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
-SDL2_RPATH  = -Wl,-rpath,$(GLFW_LIBDIR)
 
 ## Configure build options
 ifeq ($(DEBUG),1)
@@ -150,6 +146,14 @@ $(B)/nfd.o:
 	$(CXX) -c -o $@ $(CFLAGS_GUI) $(S3)/$(NFD_BACKEND)
 $(B)/$(SOK_BACKOBJ):
 	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(SOK_BACKEND)
+
+$(B)/sis.exe:
+	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) main.c sis.c stbimg.c algorithm.c get_opt.c $(MINGW_LDLIBS)
+	cp sys.x86_64-w64-mingw32/lib/*.dll build
+$(B)/sisui.exe:
+	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) $(CFLAGS_GUI) mainui.c sis.c stbimg.c algorithm.c get_opt.c 3rd-party/nanovg_xc.c 3rd-party/nfd_win.cpp $(MINGW_LDLIBS) $(LDFLAGS_GUI)
+	cp sys.x86_64-w64-mingw32/lib/*.dll build
+	cp sys.x86_64-w64-mingw32/bin/*.dll build
 
 ## Administrative tasks
 clean:

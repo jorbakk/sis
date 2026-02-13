@@ -912,7 +912,7 @@ frame(void)
 unsigned char *
 rgb_to_rgba(unsigned char *img, int pixels)
 {
-	unsigned char *ret = malloc(4 * pixels);
+	unsigned char *ret = (unsigned char *)malloc(4 * pixels);
 	for (int i = 0; i < pixels; ++i) {
 		ret[4 * i + 0] = img[3 * i + 0];
 		ret[4 * i + 1] = img[3 * i + 1];
@@ -1048,13 +1048,13 @@ createFontstash(NVGcontext *vg, int nvgFlags, int maxAtlasFontPx)
 	params.sdfPadding = 4;
 	params.sdfPixelDist = 32.0f;
 
-	SDFcontext *ctx = malloc(sizeof(SDFcontext));
+	SDFcontext *ctx = (SDFcontext *)malloc(sizeof(SDFcontext));
 	ctx->fbuffh = ctx->fbuffw = maxAtlasFontPx + 2 * params.sdfPadding + 16;
 	// we use dist < 0.0f inside glyph; but for scale > 0, stbtt uses >on_edge_value for inside
 	ctx->sdfScale = -params.sdfPixelDist;
 	ctx->sdfOffset = 127;       // stbtt on_edge_value
 
-	ctx->fbuff = malloc(ctx->fbuffw * ctx->fbuffh * sizeof(float));
+	ctx->fbuff = (float *)malloc(ctx->fbuffw * ctx->fbuffh * sizeof(float));
 	for (size_t ii = 0; ii < ctx->fbuffw * ctx->fbuffh; ++ii)
 		ctx->fbuff[ii] = INITIAL_SDF_DIST;
 	// ctx->vg = nvgswCreate(NVG_AUTOW_DEFAULT | NVG_NO_FONTSTASH | NVGSW_PATHS_XC | NVGSW_SDFGEN);

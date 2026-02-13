@@ -8,3 +8,8 @@ LDFLAGS_GUI = $(shell pkg-config --libs gtk+-3.0)
 LDFLAGS_GUI += $(LDFLAGS) -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lGLEW
 NFD_BACKEND = nfd_gtk.cpp
 SOK_BACKEND = sokol_app.c
+SDL2_CFLAGS = $(shell pkg-config --cflags sdl2)
+SDL2_LIBS   = $(shell pkg-config --libs sdl2)
+SDL2_LIBDIR = $(shell pkg-config --libs sdl2 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
+SDL2_RPATH  = -Wl,-rpath,$(GLFW_LIBDIR)
+
