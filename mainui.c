@@ -37,6 +37,9 @@
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 #include "nfd.h"
+#ifdef SDL2_BACKEND
+#include "nfd_sdl2.h"
+#endif
 #include "sis.h"
 
 
@@ -188,7 +191,16 @@ void
 sis_button_handler(int item, UIevent event)
 {
     nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_SaveDialog(image_write_extensions, NULL, &outPath);
+    nfdu8filteritem_t filters[1] = {{"SIS files", image_write_extensions}};
+    nfdsavedialogu8args_t args = {0};
+    args.filterList = filters;
+    args.filterCount = 1;
+#ifdef SDL2_BACKEND
+    if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
+        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+    }
+#endif
+    nfdresult_t result = NFD_SaveDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
 		printf("saving sis image to '%s'\n", outPath);
 		strncpy(SISFileName, outPath, PATH_MAX);
@@ -204,8 +216,18 @@ void update_sis();
 void
 depth_button_handler(int item, UIevent event)
 {
-    nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog(image_read_extensions, DEPTHMAP_PREFIX, &outPath);
+    nfdu8char_t *outPath = NULL;
+    nfdu8filteritem_t filters[1] = {{"Depth files", image_read_extensions}};
+    nfdopendialogu8args_t args = {0};
+    args.filterList = filters;
+    args.filterCount = 1;
+    args.defaultPath = DEPTHMAP_PREFIX;
+#ifdef SDL2_BACKEND
+    if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
+        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+    }
+#endif
+    nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
 		printf("loading depth image '%s'\n", outPath);
 		strncpy(DFileName, outPath, PATH_MAX);
@@ -220,7 +242,17 @@ void
 texture_button_handler(int item, UIevent event)
 {
     nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog(image_read_extensions, TEXTURE_PREFIX, &outPath);
+    nfdu8filteritem_t filters[1] = {{"Texture files", image_read_extensions}};
+    nfdopendialogu8args_t args = {0};
+    args.filterList = filters;
+    args.filterCount = 1;
+    args.defaultPath = TEXTURE_PREFIX;
+#ifdef SDL2_BACKEND
+    if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
+        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+    }
+#endif
+    nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
 		printf("loading texture image '%s'\n", outPath);
 		strncpy(TFileName, outPath, PATH_MAX);
@@ -243,62 +275,6 @@ button(int iconid, const char *label, UIhandler handler)
 	data->head.handler = handler;
 	data->iconid = iconid;
 	data->label = label;
-	return item;
-}
-
-
-void
-textboxhandler(int item, UIevent event)
-{
-	printf("textboxhandler\n");
-	text_head *data = (text_head *) uiGetHandle(item);
-	switch (event) {
-	default:
-		break;
-	case UI_BUTTON0_DOWN:{
-			uiFocus(item);
-		}
-		break;
-	case UI_KEY_DOWN:{
-			unsigned int key = uiGetKey();
-			switch (key) {
-			default:
-				break;
-				// case GLFW_KEY_BACKSPACE: {
-				// int size = strlen(data->text);
-				// if (!size) return;
-				// data->text[size-1] = 0;
-				// } break;
-				// case GLFW_KEY_ENTER: {
-				// uiFocus(-1);
-				// } break;
-			}
-		}
-		break;
-	case UI_CHAR:{
-			unsigned int key = uiGetKey();
-			if ((key > 255) || (key < 32))
-				return;
-			int size = strlen(data->text);
-			if (size >= (data->maxsize - 1))
-				return;
-			data->text[size] = (char)key;
-		} break;
-	}
-}
-
-
-int
-textbox(char *text, int maxsize)
-{
-	int item = uiItem();
-	uiSetSize(item, 0, BND_WIDGET_HEIGHT);
-	// uiSetEvents(item, UI_BUTTON0_DOWN | UI_KEY_DOWN | UI_CHAR);
-	text_head *data = (text_head *) uiAllocHandle(item, sizeof(text_head));
-	data->head.subtype = ST_TEXT;
-	data->head.handler = textboxhandler;
-	data->text = text;
-	data->maxsize = maxsize;
 	return item;
 }
 
@@ -487,22 +463,6 @@ check(const char *label, bool *option)
     data->option = option;
     return item;
 }
-
-
-#if 0
-void
-image_handler(int item, UIevent event)
-{
-    nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_SaveDialog(image_write_extensions, NULL, &outPath);
-    if (result == NFD_OKAY) {
-		printf("saving sis image to '%s'\n", outPath);
-		strncpy(SISFileName, outPath, PATH_MAX);
-		WriteSISFile();
-        free(outPath);
-    }
-}
-#endif
 
 
 int
@@ -1111,26 +1071,28 @@ createFontstash(NVGcontext *vg, int nvgFlags, int maxAtlasFontPx)
 bool
 init_ui(void)
 {
-	mctx = (struct main_ctx) {
-		.mx = 0.0, .my = 0.0, .vg = NULL,
-	};
-	printf("OpenGL version: %s\n", glGetString(GL_VERSION));
+	// mctx = (struct main_ctx) {
+		// .mx = 0.0, .my = 0.0, .vg = NULL,
+	// };
+	if (use_gl) {
+		printf("OpenGL version: %s\n", glGetString(GL_VERSION));
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
-	GLenum glew_ret = glewInit();
-	if (glew_ret != GLEW_OK) {
-		// SDL_Log("Could not init glew: %s\n", glewGetErrorString(glew_ret));
-		return false;
-	} else {
-		// GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
-		glGetError();
-	}
-	// SDL_GL_SetSwapInterval(0);
-	// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+		GLenum glew_ret = glewInit();
+		if (glew_ret != GLEW_OK) {
+			// SDL_Log("Could not init glew: %s\n", glewGetErrorString(glew_ret));
+			return false;
+		} else {
+			// GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
+			glGetError();
+		}
+		// SDL_GL_SetSwapInterval(0);
+		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
 #endif
-	mctx.vg = nvglCreate(nvg_flags);
-	if (mctx.vg == NULL) {
-		printf("Could not init nanovg.\n");
-		return false;
+		mctx.vg = nvglCreate(nvg_flags);
+		if (mctx.vg == NULL) {
+			printf("Could not init nanovg.\n");
+			return false;
+		}
 	}
 	nvgSetFontStash(mctx.vg, createFontstash(mctx.vg, NVG_NO_FONTSTASH, 2 * 48));
 	nvgAtlasTextThreshold(mctx.vg, 48.0f);
@@ -1161,6 +1123,9 @@ cleanup(void)
 void
 init_app(void)
 {
+	if (NFD_Init() != NFD_OKAY) {
+		fprintf(stderr, "Failed to init native file dialog: %s\n", NFD_GetError());
+	};
 	init_all(mctx.argc, mctx.argv);
 	render_sis();
 	init_ui();
@@ -1308,10 +1273,13 @@ init_frame_buffer(void)
 bool
 init_sdl_window(void)
 {
-	SDL_Init(SDL_INIT_VIDEO);
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		fprintf(stderr, "Failed to init SDL: %s\n", SDL_GetError());
+		return false;
+	}
 	if (use_gl) {
 #ifndef SW_ONLY
-		sdl_window = SDL_CreateWindow("Nanovg SDL Renderer Demo",
+		sdl_window = SDL_CreateWindow(window_title,
 		  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		  DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT,
 		  sdl_window_flags | SDL_WINDOW_OPENGL);
@@ -1340,7 +1308,8 @@ init_sdl_window(void)
 		SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
 #endif    /// SW_ONLY
 	} else {
-		sdl_window = SDL_CreateWindow("Nanovg SDL Renderer Demo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		sdl_window = SDL_CreateWindow(window_title,
+		  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		  DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, sdl_window_flags);
 		if (sdl_window == NULL) {
 			SDL_Log("Error SDL_CreateWindow: %s\n", SDL_GetError());
@@ -1468,7 +1437,8 @@ main(int argc, char **argv)
 #endif
 	cleanup();
 	finish_all();
- 	cleanup_window();
+	cleanup_window();
+	NFD_Quit();
 	SDL_DestroyWindow(sdl_window);
 	SDL_Quit();
 	return 0;

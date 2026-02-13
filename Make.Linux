@@ -6,5 +6,5 @@ CFLAGS_GUI  += $(CFLAGS_LOC) $(CFLAGS) -DNANOVG_USE_GLEW
 LDFLAGS_GUI = $(shell pkg-config --libs gtk+-3.0)
 # LDFLAGS_GUI != pkg-config --libs gtk+-3.0
 LDFLAGS_GUI += $(LDFLAGS) -lX11 -lXi -lXcursor -lEGL -lGL -lGLU -lGLEW
-NFD_BACKEND = nfd_gtk.c
+NFD_BACKEND = nfd_gtk.cpp
 SOK_BACKEND = sokol_app.c
