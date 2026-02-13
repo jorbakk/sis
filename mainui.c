@@ -1404,6 +1404,12 @@ mainloop(void)
 		    SDL_GetMouseState(&mx, &my);
 		    mctx.mx = mx; mctx.my = my;
 		}
+		else if (evt.type == SDL_DROPFILE) {
+			SDL_DropEvent *drop_event = (SDL_DropEvent *) &evt;
+			dropped_file_len = strlen(drop_event->file);
+			strncpy(dropped_file, drop_event->file, PATH_MAX);
+			SDL_free(drop_event->file);
+		}
 	}
     // SDL_GetMouseState(&mx, &my);
     // mx = mx * pxRatioX;
