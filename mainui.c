@@ -1,3 +1,25 @@
+/*
+ * Copyright 2025, 2026 Jörg Bakker
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,24 +28,9 @@
 #ifdef __APPLE__
   #define GL_SILENCE_DEPRECATION
 #endif
-#if defined __EMSCRIPTEN__ || defined __ANDROID__
-#include <GLES3/gl3.h>
-#define NANOVG_GLES3_IMPLEMENTATION
-#else
 #include <GL/glew.h>
 #define NANOVG_GL3_IMPLEMENTATION
-#endif
-
-#ifdef GLFW_BACKEND
-#include <GLFW/glfw3.h>
-#elif defined(SDL2_BACKEND)
 #include <SDL.h>
-#else
-#include "sokol_app.h"
-#define SOKOL_TIME_IMPL
-#include "sokol_time.h"
-#endif
-
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash_xc.h"
 #include "nanovg_xc.h"
@@ -37,15 +44,10 @@
 #define OUI_IMPLEMENTATION
 #include "oui.h"
 #include "nfd.h"
-#ifdef SDL2_BACKEND
 #include "nfd_sdl2.h"
-#endif
 #include "sis.h"
 
 
-#ifdef GLFW_BACKEND
-GLFWwindow *window;
-#elif defined(SDL2_BACKEND)
 SDL_Window *sdl_window = NULL;
 int sdl_window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
 SDL_Renderer *sdl_renderer = NULL;
@@ -56,7 +58,6 @@ unsigned char *sw_img_buf = NULL;
 bool running = true;
 #ifndef SW_ONLY
 SDL_GLContext sdlGLContext = NULL;
-#endif
 #endif
 
 #define DEFAULT_WIN_WIDTH    (800)
@@ -187,7 +188,6 @@ panel(bool border)
 
 static bool update_sis_view;
 
-
 void
 sis_button_handler(int item, UIevent event)
 {
@@ -196,11 +196,9 @@ sis_button_handler(int item, UIevent event)
     nfdsavedialogu8args_t args = {0};
     args.filterList = filters;
     args.filterCount = 1;
-#ifdef SDL2_BACKEND
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
         SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
-#endif
     nfdresult_t result = NFD_SaveDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
 		SDL_Log("saving sis image to '%s'\n", outPath);
@@ -223,11 +221,9 @@ depth_button_handler(int item, UIevent event)
     args.filterList = filters;
     args.filterCount = 1;
     args.defaultPath = DEPTHMAP_PREFIX;
-#ifdef SDL2_BACKEND
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
         SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
-#endif
     nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
 		printf("loading depth image '%s'\n", outPath);
@@ -248,11 +244,9 @@ texture_button_handler(int item, UIevent event)
     args.filterList = filters;
     args.filterCount = 1;
     args.defaultPath = TEXTURE_PREFIX;
-#ifdef SDL2_BACKEND
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
         SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
-#endif
     nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
 		printf("loading texture image '%s'\n", outPath);
@@ -493,46 +487,6 @@ image(NVGcontext *vg, int img, int w, int h)
 	data->img = img;
 	return item;
 }
-
-
-#if 0
-void
-image_vert_handler(int item, UIevent event)
-{
-    const image_head *data = (const image_head *)uiGetHandle(item);
-    nfdchar_t *outPath = NULL;
-    nfdresult_t result = NFD_OpenDialog(image_read_extensions, NULL, &outPath);
-    if (result == NFD_OKAY) {
-        if (data->img == mctx.depth_map_img) {
-			printf("loading depth image '%s'\n", outPath);
-			strncpy(DFileName, outPath, PATH_MAX);
-			update_depth_map_and_sis();
-        }
-        else if (data->img == mctx.texture_img) {
-			printf("loading texture image '%s'\n", outPath);
-			strncpy(TFileName, outPath, PATH_MAX);
-			update_texture();
-			update_sis();
-        }
-        free(outPath);
-		update_sis_view = true;
-    }
-
-	// switch (event) {
-	// default:
-		// break;
-	// case UI_DROP:{
-			// uiFocus(item);
-		// }
-		// break;
-	// }
-	// UIvec2 c = uiGetCursor();
-	// if (dropped_file_len && uiContains(item, c.x, c.y)) {
-		// printf("dropped file '%s' on depth map view\n", dropped_file);
-		// dropped_file_len = 0;
-	// }
-}
-#endif
 
 
 int
@@ -857,13 +811,7 @@ ui_frame(NVGcontext *vg, float w, float h)
 	/// Render user interface
 	render_ui(vg, 0, BND_CORNER_NONE);
 	/// Process user events
-#ifdef GLFW_BACKEND
-	uiProcess((int)(glfwGetTime() * 1e-3));
-#elif SDL2_BACKEND
 	uiProcess((int)(SDL_GetTicks()));
-#else
-	uiProcess((int)(stm_sec(stm_now()) * 1000.0));
-#endif
 }
 
 
@@ -876,20 +824,9 @@ frame(void)
 	int fbWidth, fbHeight;
 	float pxRatio;
 
-#ifdef GLFW_BACKEND
-	glfwGetCursorPos(window, &mctx.mx, &mctx.my);
-	glfwGetWindowSize(window, &winWidth, &winHeight);
-	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-#elif SDL2_BACKEND
     SDL_GetWindowSize(sdl_window, &winWidth, &winHeight);
     SDL_GL_GetDrawableSize(sdl_window, &fbWidth, &fbHeight);
     // SDL_GetRendererOutputSize(sdl_renderer, &fbWidth, &fbHeight);
-#else
-	winWidth = sapp_width();
-	winHeight = sapp_height();
-	fbWidth = sapp_width();
-	fbHeight = sapp_height();
-#endif
 	/// Calculate pixel ration for hi-dpi devices.
 	pxRatio = (float)fbWidth / (float)winWidth;
 
@@ -1097,9 +1034,6 @@ init_ui(void)
 	nvgAtlasTextThreshold(mctx.vg, 48.0f);
 	bndSetFont(nvgCreateFont(mctx.vg, "system", ASSET_PREFIX "/DejaVuSans.ttf"));
 	bndSetIconImage(nvgCreateImage(mctx.vg, ASSET_PREFIX "/blender_icons16.png", 0));
-#if !defined(GLFW_BACKEND) && !defined(SDL2_BACKEND)
-	stm_setup();
-#endif
 	mctx.ui_ctx = uiCreateContext(4096, 1<<20);
 	uiMakeCurrent(mctx.ui_ctx);
 	uiSetHandler(event_handler);
@@ -1131,115 +1065,6 @@ init_app(void)
 }
 
 
-#ifdef GLFW_BACKEND
-
-static void
-mousebutton(GLFWwindow *window, int button, int action, int mods)
-{
-	NVG_NOTUSED(window);
-	switch (button) {
-	case 1:
-		button = 2;
-		break;
-	case 2:
-		button = 1;
-		break;
-	}
-	uiSetButton(button, mods, (action == GLFW_PRESS) ? 1 : 0);
-}
-
-static void
-cursorpos(GLFWwindow *window, double x, double y)
-{
-	NVG_NOTUSED(window);
-	uiSetCursor((int)x, (int)y);
-}
-
-static void
-scrollevent(GLFWwindow *window, double x, double y)
-{
-	NVG_NOTUSED(window);
-	uiSetScroll((int)x, (int)y);
-}
-
-static void
-charevent(GLFWwindow *window, unsigned int value)
-{
-	NVG_NOTUSED(window);
-	uiSetChar(value);
-}
-
-static void
-key(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-	NVG_NOTUSED(scancode);
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	}
-	uiSetKey(key, mods, action);
-}
-
-static void
-drop_callback(GLFWwindow *window, int count, const char **paths)
-{
-	if (count > 0) {
-		dropped_file_len = strlen(paths[0]);
-		strncpy(dropped_file, paths[0], PATH_MAX);
-#if 0
-	    UIinputEvent event = { 0, 0, UI_DROP };
-	    uiAddInputEvent(event);
-	    uiSetChar('D');
-#endif
-	}
-	// for (int i = 0; i < count; i++) {
-		// printf("dropped: %s\n", paths[i]);
-	// }
-}
-
-int
-main(int argc, char **argv)
-{
-	if (!glfwInit()) {
-		fprintf(stderr, "failed to init glfw\n");
-		return EXIT_FAILURE;
-	}
-	/// If requesting an OpenGL version below 3.2, GLFW_OPENGL_ANY_PROFILE must be used
-	/// which is already the default. On Linux, this results in a Compatibility Profile
-	/// Version 4.6.
-	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-	window = glfwCreateWindow(DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, window_title, NULL, NULL);
-	if (!window) {
-		fprintf(stderr, "failed to create an OpenGL window\n");
-		glfwTerminate();
-		return EXIT_FAILURE;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSetKeyCallback(window, key);
-	glfwSetCharCallback(window, charevent);
-	glfwSetCursorPosCallback(window, cursorpos);
-	glfwSetMouseButtonCallback(window, mousebutton);
-	glfwSetScrollCallback(window, scrollevent);
-	glfwSetDropCallback(window, drop_callback);
-
-	mctx.argc = argc;
-	mctx.argv = argv;
-	init_app();
-	while (!glfwWindowShouldClose(window)) {
-		glClear(GL_COLOR_BUFFER_BIT);
-		frame();
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-	cleanup();
-	finish_all();
-	glfwTerminate();
-	return 0;
-}
-
-#elif defined(SDL2_BACKEND)
 
 /*
 void
@@ -1440,75 +1265,3 @@ main(int argc, char **argv)
 	return 0;
 }
 
-#else
-
-void
-event_cb(const sapp_event* ev)
-{
-	// const float dpi_scale = sapp_dpi_scale();
-	const float dpi_scale = 1.0f;
-	switch (ev->type) {
-		case SAPP_EVENTTYPE_MOUSE_DOWN:
-		    uiSetButton((ev->mouse_button == SAPP_MOUSEBUTTON_LEFT ? 0 : 1), 0, 1);
-			mctx.mx = ev->mouse_x / dpi_scale;
-			mctx.my = ev->mouse_y / dpi_scale;
-		    uiSetCursor((int)mctx.mx,(int)mctx.my);
-		    break;
-		case SAPP_EVENTTYPE_MOUSE_UP:
-		    uiSetButton((ev->mouse_button == SAPP_MOUSEBUTTON_LEFT ? 0 : 1), 0, 0);
-			mctx.mx = ev->mouse_x / dpi_scale;
-			mctx.my = ev->mouse_y / dpi_scale;
-		    uiSetCursor((int)mctx.mx,(int)mctx.my);
-		    break;
-		case SAPP_EVENTTYPE_MOUSE_MOVE:
-			mctx.mx = ev->mouse_x / dpi_scale;
-			mctx.my = ev->mouse_y / dpi_scale;
-		    uiSetCursor((int)mctx.mx,(int)mctx.my);
-			break;
-		case SAPP_EVENTTYPE_TOUCHES_BEGAN:
-		    uiSetButton(0, 0, 1);
-			mctx.mx = ev->touches[0].pos_x / dpi_scale;
-			mctx.my = ev->touches[0].pos_y / dpi_scale;
-		    uiSetCursor((int)mctx.mx,(int)mctx.my);
-			break;
-		case SAPP_EVENTTYPE_TOUCHES_ENDED:
-		    uiSetButton(0, 0, 0);
-			mctx.mx = ev->touches[0].pos_x / dpi_scale;
-			mctx.my = ev->touches[0].pos_y / dpi_scale;
-		    uiSetCursor((int)mctx.mx,(int)mctx.my);
-			break;
-		case SAPP_EVENTTYPE_TOUCHES_MOVED:
-			mctx.mx = ev->touches[0].pos_x / dpi_scale;
-			mctx.my = ev->touches[0].pos_y / dpi_scale;
-		    uiSetCursor((int)mctx.mx,(int)mctx.my);
-			break;
-		case SAPP_EVENTTYPE_FILES_DROPPED:
-			dropped_file_len = strlen(sapp_get_dropped_file_path(0));
-			strncpy(dropped_file, sapp_get_dropped_file_path(0), PATH_MAX);
-			break;
-		default:
-			break;
-	}
-}
-
-
-sapp_desc
-sokol_main(int argc, char *argv[])
-{
-	mctx.argc = argc;
-	mctx.argv = argv;
-	return (sapp_desc) {
-		.init_cb = init_app,
-		.frame_cb = frame,
-		.cleanup_cb = cleanup,
-		.event_cb = event_cb,
-		.width = DEFAULT_WIN_WIDTH,
-		.height = DEFAULT_WIN_HEIGHT,
-		.window_title = window_title,
-		.enable_dragndrop = true,
-		.max_dropped_files = 1,
-		.max_dropped_file_path_length = PATH_MAX,
-	};
-}
-
-#endif    /// GLFW_BACKEND

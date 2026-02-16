@@ -33,36 +33,30 @@ LDFLAGS     = -lm
 ## CROSS can be overriden for cross compiling by a command line option
 CROSS    = ""
 ifeq ($(CROSS),"")
-#  BUILD_TARGET != uname
   BUILD_TARGET = $(shell uname)
   ## Load OS specific config
   include Make.$(BUILD_TARGET)
   # $(info PREFIX is set to: $(PREFIX))
 else
-# $(error Cross compiling not supported, yet)
   include Make.Mingw
 endif
 
-
 ## Configure external dependencies
 ## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
-## with GLFW_PREFIX on each platform or if this is set to "", it is search by
+## with SDL2_PREFIX on each platform or if this is set to "", it is searched by
 ## pkg-config and also the RPATH is set to this location
-ifneq ($(GLFW_PREFIX),"")
-  GLFW_CFLAGS = -I$(GLFW_PREFIX)/include
-  GLFW_LIBS   = -L$(GLFW_PREFIX)/lib -lglfw
-  GLFW_LIBDIR = $(GLFW_PREFIX)/lib
-else
-  GLFW_CFLAGS = $(shell pkg-config --cflags glfw3)
-  GLFW_LIBS   = $(shell pkg-config --libs glfw3)
-#  GLFW_CFLAGS != pkg-config --cflags glfw3
-#  GLFW_LIBS   != pkg-config --libs glfw3
+ifneq ($(SDL2_PREFIX),"")
+  SDL2_CFLAGS = -I$(SDL2_PREFIX)/include/SDL2
+  SDL2_LIBS   = -L$(SDL2_PREFIX)/lib -lSDL2
+  SDL2_LIBDIR = $(SDL2_PREFIX)/lib
+else ifeq ($(CROSS),"")
+  SDL2_CFLAGS = $(shell pkg-config --cflags sdl2)
+  SDL2_LIBS   = $(shell pkg-config --libs sdl2)
 ## Grab only the directory part for setting RPATH in the executable
-  GLFW_LIBDIR = $(shell pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
-# GLFW_LIBDIR != pkg-config --libs glfw3 | grep -o '\-L[/[:alnum:]]*' | cut -b3-
+  SDL2_LIBDIR = $(shell pkg-config --libs sdl2 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
 endif
-ifneq ($(GLFW_LIBDIR),"")
-  GLFW_RPATH = -Wl,-rpath,$(GLFW_LIBDIR)
+ifneq ($(SDL2_LIBDIR),"")
+  SDL2_RPATH = -Wl,-rpath,$(SDL2_LIBDIR)
 endif
 
 ## Configure build options
@@ -79,18 +73,8 @@ ifneq ($(PREFIX),"")
   CFLAGS_LOC    += -DPREFIX=$(PREFIX)
 endif
 
-ifeq ($(UI_BACKEND),glfw)
-  CFLAGS_GUI    += -DGLFW_BACKEND -DNANOVG_GL2 $(GLFW_CFLAGS)
-  LDFLAGS_GUI   += $(GLFW_RPATH) $(GLFW_LIBS)
-  SOK_BACKOBJ    = ""
-else ifeq ($(UI_BACKEND),sdl2)
-  CFLAGS_GUI    += -DSDL2_BACKEND $(SDL2_CFLAGS)
-  LDFLAGS_GUI   += $(SDL2_RPATH) $(SDL2_LIBS)
-  SOK_BACKOBJ    = ""
-else
-  CFLAGS_GUI    += -DNANOVG_GL3
-  SOK_BACKOBJ    = sokol_app.o
-endif
+CFLAGS_GUI    += -DSDL2_BACKEND $(SDL2_CFLAGS)
+LDFLAGS_GUI   += $(SDL2_RPATH) $(SDL2_LIBS)
 
 # ifeq ($(GL),3)
   # CFLAGS_GUI    += -DNANOVG_GL3
@@ -108,9 +92,6 @@ TEXTURES_DIR  = $(SHARE_DIR)/textures
 
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
 OBJS_GUI = $(B)/nanovg_xc.o $(B)/nfd.o
-ifneq ($(SOK_BACKOBJ),"")
-  OBJS_GUI += $(B)/$(SOK_BACKOBJ)
-endif
 
 .PHONY: all clean build_dir install uninstall help
 
@@ -173,5 +154,4 @@ help:
 	@echo Available config options
 	@echo 'PREFIX=<prefix>:  set prefix for installation (set on build and install targets)'
 	@echo 'DEBUG=1:          debug build, sisui can be run from local directory without install'
-	@echo 'UI_BACKEND=glfw|sdl2:  use GLFW for creating graphics context instead of sokol'
 	@echo 'CROSS=<platform>: set target platform for cross compiling'
