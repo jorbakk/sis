@@ -54,6 +54,10 @@ SDL_Renderer *sdl_renderer = NULL;
 SDL_Surface  *sdl_surface  = NULL;
 SDL_Texture  *sdl_texture  = NULL;
 SDL_Rect      display_bounds;
+int winPrevWidth = 0, winPrevHeight = 0;
+int winWidth, winHeight;
+int fbWidth, fbHeight;
+float pxRatio;
 unsigned char *sw_img_buf = NULL;
 bool running = true;
 #ifndef SW_ONLY
@@ -68,7 +72,7 @@ const char *image_read_extensions = "png,jpg,bmp,gif,hdr,tga,pic";
 const char *image_write_extensions = "png";
 static char dropped_file[PATH_MAX];
 static int  dropped_file_len = 0;
-static bool use_gl = true;
+static bool use_gl = false;
 static int num_threads = 0;
 static int nvg_flags = NVG_NO_FONTSTASH;
 bool gui = true;
@@ -815,35 +819,54 @@ ui_frame(NVGcontext *vg, float w, float h)
 }
 
 
+void init_frame_buffer(void);
 
 void
 frame(void)
 {
-	double t, dt;
-	int winWidth, winHeight;
-	int fbWidth, fbHeight;
-	float pxRatio;
-
+	// double t;
     SDL_GetWindowSize(sdl_window, &winWidth, &winHeight);
     SDL_GL_GetDrawableSize(sdl_window, &fbWidth, &fbHeight);
     // SDL_GetRendererOutputSize(sdl_renderer, &fbWidth, &fbHeight);
 	/// Calculate pixel ration for hi-dpi devices.
 	pxRatio = (float)fbWidth / (float)winWidth;
+	if (use_gl) {
+#ifndef SW_ONLY
+		glViewport(0, 0, winWidth, winHeight);
+#endif
+	} else {
+		init_frame_buffer();
+	}
 
 	/// Update and render
-	glViewport(0.0f, 0.0f, fbWidth, fbHeight);
-	glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
+	if (use_gl) {
+		glViewport(0.0f, 0.0f, fbWidth, fbHeight);
+		glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+	}
 
 	nvgBeginFrame(mctx.vg, winWidth, winHeight, pxRatio);
 	ui_frame(mctx.vg, winWidth, winHeight);
 	nvgEndFrame(mctx.vg);
 
-	glEnable(GL_DEPTH_TEST);
+	if (use_gl) {
+		glEnable(GL_DEPTH_TEST);
+	} else {
+		SDL_Rect win_rect = {0, 0, winWidth, winHeight};
+		SDL_UpdateTexture(
+			sdl_texture,
+			&win_rect,
+			sw_img_buf,
+			winWidth * 4
+		);
+		// copy and place a portion of the texture to the current rendering target
+		// set video size when copying sdl texture to sdl renderer. Texture will be stretched to blit_copy_rect!
+		SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, &win_rect);
+	}
 }
 
 
@@ -1066,22 +1089,21 @@ init_app(void)
 
 
 
-/*
 void
 init_frame_buffer(void)
 {
 	if (!sw_img_buf || winPrevWidth != winWidth || winPrevHeight != winHeight) {
 #ifndef __plan9__
 		float ddpi, hdpi, vdpi;
-		SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdlWindow), &ddpi, &hdpi, &vdpi);
-		printf("init_frame_buffer() win: [%d,%d] -> [%d,%d], fb: [%d,%d], dpi: [%.1f,%.1f,%.1f]\n", winPrevWidth, winPrevHeight, winWidth, winHeight, fbWidth, fbHeight, ddpi, hdpi, vdpi);
+		SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdl_window), &ddpi, &hdpi, &vdpi);
+		SDL_Log("init_frame_buffer() win: [%d,%d] -> [%d,%d], fb: [%d,%d], dpi: [%.1f,%.1f,%.1f]\n", winPrevWidth, winPrevHeight, winWidth, winHeight, fbWidth, fbHeight, ddpi, hdpi, vdpi);
 #endif
 		winPrevWidth = winWidth;
 		winPrevHeight = winHeight;
 		sw_img_buf = realloc(sw_img_buf, winWidth * winHeight * 4);
-		if (sdlTexture != NULL) SDL_DestroyTexture(sdlTexture);
-		sdlTexture = SDL_CreateTexture(
-			sdlRenderer,
+		if (sdl_texture != NULL) SDL_DestroyTexture(sdl_texture);
+		sdl_texture = SDL_CreateTexture(
+			sdl_renderer,
 			SDL_PIXELFORMAT_ABGR8888,
 			// SDL_TEXTUREACCESS_STREAMING,
 			SDL_TEXTUREACCESS_TARGET,  // fast update w/o locking, can be used as a render target
@@ -1089,9 +1111,8 @@ init_frame_buffer(void)
 			winWidth, winHeight
 			);
 	}
-	nvgswSetFramebuffer(vg, sw_img_buf, winWidth, winHeight, 0, 8, 16, 24);
+	nvgswSetFramebuffer(mctx.vg, sw_img_buf, winWidth, winHeight, 0, 8, 16, 24);
 }
-*/
 
 
 bool
@@ -1165,7 +1186,7 @@ init_sdl_window(void)
 	      nvgswSetThreading(mctx.vg, xthreads, num_threads/xthreads);
 	    }
 #endif
-	    // init_frame_buffer();
+	    init_frame_buffer();
 	}
 	return true;
 }
@@ -1180,7 +1201,7 @@ clear(void)
 		glClear(GL_COLOR_BUFFER_BIT);
 #endif
 	} else {
-		// memset(sw_img_buf, 0.3f * 0xff, winWidth * winHeight * 4);
+		memset(sw_img_buf, 0.3f * 0xff, winWidth * winHeight * 4);
 	}
 }
 
