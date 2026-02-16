@@ -118,11 +118,8 @@ init_base(int argc, char **argv)
 
 	if (argc > 0) {
 		SetDefaults();
-		/// TODO this may fail on systems like Win* where dir delimiter is not '/'
-		char *dirsep = strrchr(argv[0], '/');
-		char *progname = dirsep ? dirsep + 1 : argv[0];
-		/// If command line args are provided (with sis or sisui) or we're not running sisui
-		if (argc > 1 || strcmp(progname, "sisui") != 0) {
+		/// If command line args are provided (with sis or sisui) or we're running non-gui sis with no args
+		if (argc > 1 || !gui) {
 			get_options(argc, argv);
 		}
 	}

@@ -70,6 +70,7 @@ static int  dropped_file_len = 0;
 static bool use_gl = true;
 static int num_threads = 0;
 static int nvg_flags = NVG_NO_FONTSTASH;
+bool gui = true;
 
 struct main_ctx {
 	int argc;
@@ -197,12 +198,12 @@ sis_button_handler(int item, UIevent event)
     args.filterCount = 1;
 #ifdef SDL2_BACKEND
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
-        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+        SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
 #endif
     nfdresult_t result = NFD_SaveDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
-		printf("saving sis image to '%s'\n", outPath);
+		SDL_Log("saving sis image to '%s'\n", outPath);
 		strncpy(SISFileName, outPath, PATH_MAX);
 		WriteSISFile();
         free(outPath);
@@ -224,7 +225,7 @@ depth_button_handler(int item, UIevent event)
     args.defaultPath = DEPTHMAP_PREFIX;
 #ifdef SDL2_BACKEND
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
-        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+        SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
 #endif
     nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
@@ -249,7 +250,7 @@ texture_button_handler(int item, UIevent event)
     args.defaultPath = TEXTURE_PREFIX;
 #ifdef SDL2_BACKEND
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
-        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+        SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
 #endif
     nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
@@ -1075,8 +1076,7 @@ init_ui(void)
 		// .mx = 0.0, .my = 0.0, .vg = NULL,
 	// };
 	if (use_gl) {
-		printf("OpenGL version: %s\n", glGetString(GL_VERSION));
-#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
 		GLenum glew_ret = glewInit();
 		if (glew_ret != GLEW_OK) {
 			// SDL_Log("Could not init glew: %s\n", glewGetErrorString(glew_ret));
@@ -1087,10 +1087,9 @@ init_ui(void)
 		}
 		// SDL_GL_SetSwapInterval(0);
 		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
-#endif
 		mctx.vg = nvglCreate(nvg_flags);
 		if (mctx.vg == NULL) {
-			printf("Could not init nanovg.\n");
+			SDL_Log("Could not init nanovg.\n");
 			return false;
 		}
 	}
@@ -1124,7 +1123,7 @@ void
 init_app(void)
 {
 	if (NFD_Init() != NFD_OKAY) {
-		fprintf(stderr, "Failed to init native file dialog: %s\n", NFD_GetError());
+		SDL_Log( "Failed to init native file dialog: %s\n", NFD_GetError());
 	};
 	init_all(mctx.argc, mctx.argv);
 	render_sis();
@@ -1274,7 +1273,7 @@ bool
 init_sdl_window(void)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		fprintf(stderr, "Failed to init SDL: %s\n", SDL_GetError());
+		SDL_Log("Failed to init SDL: %s\n", SDL_GetError());
 		return false;
 	}
 	if (use_gl) {
@@ -1283,7 +1282,6 @@ init_sdl_window(void)
 		  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		  DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT,
 		  sdl_window_flags | SDL_WINDOW_OPENGL);
-#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 		// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -1292,14 +1290,6 @@ init_sdl_window(void)
 		SDL_Log("Using GL backend");
 		SDL_GL_SetSwapInterval(0);
 		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
-#else
-		// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-		// SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
-#endif
 	    sdlGLContext = SDL_GL_CreateContext(sdl_window);
 	    if (!sdlGLContext) {
 			SDL_Log("Could not set up GL context: %s\n", SDL_GetError());

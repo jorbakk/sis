@@ -25,6 +25,8 @@
 
 #include "sis.h"
 
+bool gui = false;
+
 
 static void
 print_warnings(void)

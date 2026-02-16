@@ -35,14 +35,14 @@ CROSS    = ""
 ifeq ($(CROSS),"")
 #  BUILD_TARGET != uname
   BUILD_TARGET = $(shell uname)
+  ## Load OS specific config
+  include Make.$(BUILD_TARGET)
+  # $(info PREFIX is set to: $(PREFIX))
 else
 # $(error Cross compiling not supported, yet)
+  include Make.Mingw
 endif
 
-## Load OS specific config
-include Make.$(BUILD_TARGET)
-# $(info PREFIX is set to: $(PREFIX))
-include Make.Mingw
 
 ## Configure external dependencies
 ## If not cross compiling, non-intern dependencies (glfw) can be set explicitely

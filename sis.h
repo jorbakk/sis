@@ -133,6 +133,7 @@ extern double density;
 extern char metric;
 extern int resolution;
 extern int oversam;
+extern bool gui;
 
 void get_options(int argc, char **argv);
 void init_all(int argc, char **argv);
