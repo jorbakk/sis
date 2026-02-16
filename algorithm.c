@@ -179,9 +179,9 @@ InitAlgorithm(void)
 		break;
 	case SIS_RANDOM_COLOR:
 		for (int i = 0; i < rand_col_num; i++) {
-			SISred[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
-			SISgreen[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
-			SISblue[i] = rand() / (RAND_MAX / SIS_MAX_CMAP);
+			SISred[i] = rand() / ((float)RAND_MAX / (float)SIS_MAX_CMAP);
+			SISgreen[i] = rand() / ((float)RAND_MAX / (float)SIS_MAX_CMAP);
+			SISblue[i] = rand() / ((float)RAND_MAX / (float)SIS_MAX_CMAP);
 		}
 		break;
 	}

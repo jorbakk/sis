@@ -37,26 +37,12 @@ ifeq ($(CROSS),"")
   ## Load OS specific config
   include Make.$(BUILD_TARGET)
   # $(info PREFIX is set to: $(PREFIX))
-else
-  include Make.Mingw
-endif
-
-## Configure external dependencies
-## If not cross compiling, non-intern dependencies (glfw) can be set explicitely
-## with SDL2_PREFIX on each platform or if this is set to "", it is searched by
-## pkg-config and also the RPATH is set to this location
-ifneq ($(SDL2_PREFIX),"")
-  SDL2_CFLAGS = -I$(SDL2_PREFIX)/include/SDL2
-  SDL2_LIBS   = -L$(SDL2_PREFIX)/lib -lSDL2
-  SDL2_LIBDIR = $(SDL2_PREFIX)/lib
-else ifeq ($(CROSS),"")
   SDL2_CFLAGS = $(shell pkg-config --cflags sdl2)
   SDL2_LIBS   = $(shell pkg-config --libs sdl2)
 ## Grab only the directory part for setting RPATH in the executable
   SDL2_LIBDIR = $(shell pkg-config --libs sdl2 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
-endif
-ifneq ($(SDL2_LIBDIR),"")
-  SDL2_RPATH = -Wl,-rpath,$(SDL2_LIBDIR)
+else
+  include Make.Mingw
 endif
 
 ## Configure build options
@@ -73,14 +59,8 @@ ifneq ($(PREFIX),"")
   CFLAGS_LOC    += -DPREFIX=$(PREFIX)
 endif
 
-CFLAGS_GUI    += -DSDL2_BACKEND $(SDL2_CFLAGS)
+CFLAGS_GUI    += $(SDL2_CFLAGS)
 LDFLAGS_GUI   += $(SDL2_RPATH) $(SDL2_LIBS)
-
-# ifeq ($(GL),3)
-  # CFLAGS_GUI    += -DNANOVG_GL3
-# else ifeq ($(GL),2)
-  # CFLAGS_GUI    += -DNANOVG_GL2
-# endif
 
 ## Build
 BIN_DIR       = $(DESTDIR)$(PREFIX)/bin
@@ -118,11 +98,6 @@ $(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
 $(B)/nanovg_xc.o: $(S3)/nanovg_xc.c $(S3)/nanovg_xc.h
 	$(CC) -c -o $(B)/nanovg_xc.o $(CFLAGS_GUI) $(S3)/nanovg_xc.c
 
-# $(B)/nanovg_vtex.o: $(S3)/nanovg_vtex.h $(S3)/nanovg_vtex.c
-#	$(CC) -c -o $(B)/nanovg_vtex.o $(CFLAGS_GUI) $(S3)/nanovg_vtex.c
-# $(B)/nanovg_gl_utils.o: $(S3)/nanovg_gl.h $(S3)/nanovg_gl_utils.h $(S3)/nanovg_gl_utils.c
-#	$(CC) -c -o $(B)/nanovg_gl_utils.o $(CFLAGS_GUI) $(S3)/nanovg_gl_utils.c
-
 $(B)/nfd.o:
 	$(CXX) -c -o $@ $(CFLAGS_GUI) $(S3)/$(NFD_BACKEND)
 $(B)/$(SOK_BACKOBJ):
@@ -154,4 +129,4 @@ help:
 	@echo Available config options
 	@echo 'PREFIX=<prefix>:  set prefix for installation (set on build and install targets)'
 	@echo 'DEBUG=1:          debug build, sisui can be run from local directory without install'
-	@echo 'CROSS=<platform>: set target platform for cross compiling'
+	@echo 'CROSS=<platform>: set target platform for cross compiling, currently mingw32 only'

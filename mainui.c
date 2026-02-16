@@ -28,8 +28,10 @@
 #ifdef __APPLE__
   #define GL_SILENCE_DEPRECATION
 #endif
+#ifndef SW_ONLY
 #include <GL/glew.h>
 #define NANOVG_GL3_IMPLEMENTATION
+#endif
 #include <SDL.h>
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash_xc.h"
@@ -43,8 +45,10 @@
 #include "blendish_xc.h"
 #define OUI_IMPLEMENTATION
 #include "oui.h"
+#ifndef __plan9__
 #include "nfd.h"
 #include "nfd_sdl2.h"
+#endif
 #include "sis.h"
 
 
@@ -195,21 +199,23 @@ static bool update_sis_view;
 void
 sis_button_handler(int item, UIevent event)
 {
+#ifndef __plan9__
     nfdchar_t *outPath = NULL;
     nfdu8filteritem_t filters[1] = {{"SIS files", image_write_extensions}};
     nfdsavedialogu8args_t args = {0};
     args.filterList = filters;
     args.filterCount = 1;
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
-        SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
     nfdresult_t result = NFD_SaveDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
-		SDL_Log("saving sis image to '%s'\n", outPath);
+		fprintf(stderr, "saving sis image to '%s'\n", outPath);
 		strncpy(SISFileName, outPath, PATH_MAX);
 		WriteSISFile();
         free(outPath);
     }
+#endif
 }
 
 void update_depth_map_and_sis();
@@ -219,6 +225,7 @@ void update_sis();
 void
 depth_button_handler(int item, UIevent event)
 {
+#ifndef __plan9__
     nfdu8char_t *outPath = NULL;
     nfdu8filteritem_t filters[1] = {{"Depth files", image_read_extensions}};
     nfdopendialogu8args_t args = {0};
@@ -226,22 +233,24 @@ depth_button_handler(int item, UIevent event)
     args.filterCount = 1;
     args.defaultPath = DEPTHMAP_PREFIX;
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
-        SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
     nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
-		printf("loading depth image '%s'\n", outPath);
+		fprintf(stderr, "loading depth image '%s'\n", outPath);
 		strncpy(DFileName, outPath, PATH_MAX);
 		update_depth_map_and_sis();
         free(outPath);
 		update_sis_view = true;
 	}
+#endif
 }
 
 
 void
 texture_button_handler(int item, UIevent event)
 {
+#ifndef __plan9__
     nfdchar_t *outPath = NULL;
     nfdu8filteritem_t filters[1] = {{"Texture files", image_read_extensions}};
     nfdopendialogu8args_t args = {0};
@@ -249,17 +258,18 @@ texture_button_handler(int item, UIevent event)
     args.filterCount = 1;
     args.defaultPath = TEXTURE_PREFIX;
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
-        SDL_Log("NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
+        fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
     nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
     if (result == NFD_OKAY) {
-		printf("loading texture image '%s'\n", outPath);
+		fprintf(stderr, "loading texture image '%s'\n", outPath);
 		strncpy(TFileName, outPath, PATH_MAX);
 		update_texture();
 		update_sis();
         free(outPath);
 		update_sis_view = true;
 	}
+#endif
 }
 
 
@@ -288,7 +298,7 @@ bool load_sis_image(void);
 
 
 void
-update_sis()
+update_sis(void)
 {
 	InitAlgorithm();
 	render_sis();
@@ -297,7 +307,7 @@ update_sis()
 
 
 void
-update_texture()
+update_texture(void)
 {
 	CloseTFile(Theight);
 	SIStype = SIS_TEXT_MAP;
@@ -310,7 +320,7 @@ update_texture()
 
 
 void
-update_depth_map_and_sis()
+update_depth_map_and_sis(void)
 {
 	CloseDFile();
 	CloseSISFile();
@@ -324,8 +334,10 @@ update_depth_map_and_sis()
 	free(SISred);
 	free(SISgreen);
 	free(SISblue);
-	nvgDeleteImage(mctx.vg, mctx.depth_map_img);
-	nvgDeleteImage(mctx.vg, mctx.sis_img);
+
+	/// FIXME deleting images causes segfault with the software backend but not with GL backend
+	// nvgDeleteImage(mctx.vg, mctx.depth_map_img);
+	// nvgDeleteImage(mctx.vg, mctx.sis_img);
 
 	// init_base(0, NULL);
 	init_all(0, NULL);
@@ -840,6 +852,7 @@ frame(void)
 
 	/// Update and render
 	if (use_gl) {
+#ifndef SW_ONLY
 		glViewport(0.0f, 0.0f, fbWidth, fbHeight);
 		glClearColor(0.20f, 0.20f, 0.20f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -847,6 +860,7 @@ frame(void)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
+#endif
 	}
 
 	nvgBeginFrame(mctx.vg, winWidth, winHeight, pxRatio);
@@ -854,7 +868,9 @@ frame(void)
 	nvgEndFrame(mctx.vg);
 
 	if (use_gl) {
+#ifndef SW_ONLY
 		glEnable(GL_DEPTH_TEST);
+#endif
 	} else {
 		SDL_Rect win_rect = {0, 0, winWidth, winHeight};
 		SDL_UpdateTexture(
@@ -1036,22 +1052,24 @@ init_ui(void)
 		// .mx = 0.0, .my = 0.0, .vg = NULL,
 	// };
 	if (use_gl) {
-		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+#ifndef SW_ONLY
+		// fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
 		GLenum glew_ret = glewInit();
 		if (glew_ret != GLEW_OK) {
-			// SDL_Log("Could not init glew: %s\n", glewGetErrorString(glew_ret));
+			// fprintf(stderr, "Could not init glew: %s\n", glewGetErrorString(glew_ret));
 			return false;
 		} else {
 			// GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
 			glGetError();
 		}
 		// SDL_GL_SetSwapInterval(0);
-		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+		// fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
 		mctx.vg = nvglCreate(nvg_flags);
 		if (mctx.vg == NULL) {
-			SDL_Log("Could not init nanovg.\n");
+			fprintf(stderr, "Could not init nanovg.\n");
 			return false;
 		}
+#endif
 	}
 	nvgSetFontStash(mctx.vg, createFontstash(mctx.vg, NVG_NO_FONTSTASH, 2 * 48));
 	nvgAtlasTextThreshold(mctx.vg, 48.0f);
@@ -1079,9 +1097,11 @@ cleanup(void)
 void
 init_app(void)
 {
+#ifndef __plan9__
 	if (NFD_Init() != NFD_OKAY) {
-		SDL_Log( "Failed to init native file dialog: %s\n", NFD_GetError());
+		fprintf(stderr,  "Failed to init native file dialog: %s\n", NFD_GetError());
 	};
+#endif
 	init_all(mctx.argc, mctx.argv);
 	render_sis();
 	init_ui();
@@ -1096,11 +1116,11 @@ init_frame_buffer(void)
 #ifndef __plan9__
 		float ddpi, hdpi, vdpi;
 		SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(sdl_window), &ddpi, &hdpi, &vdpi);
-		SDL_Log("init_frame_buffer() win: [%d,%d] -> [%d,%d], fb: [%d,%d], dpi: [%.1f,%.1f,%.1f]\n", winPrevWidth, winPrevHeight, winWidth, winHeight, fbWidth, fbHeight, ddpi, hdpi, vdpi);
+		fprintf(stderr, "init_frame_buffer() win: [%d,%d] -> [%d,%d], fb: [%d,%d], dpi: [%.1f,%.1f,%.1f]\n", winPrevWidth, winPrevHeight, winWidth, winHeight, fbWidth, fbHeight, ddpi, hdpi, vdpi);
 #endif
 		winPrevWidth = winWidth;
 		winPrevHeight = winHeight;
-		sw_img_buf = realloc(sw_img_buf, winWidth * winHeight * 4);
+		sw_img_buf = (unsigned char*)realloc(sw_img_buf, winWidth * winHeight * 4);
 		if (sdl_texture != NULL) SDL_DestroyTexture(sdl_texture);
 		sdl_texture = SDL_CreateTexture(
 			sdl_renderer,
@@ -1119,7 +1139,7 @@ bool
 init_sdl_window(void)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		SDL_Log("Failed to init SDL: %s\n", SDL_GetError());
+		fprintf(stderr, "Failed to init SDL: %s\n", SDL_GetError());
 		return false;
 	}
 	if (use_gl) {
@@ -1133,25 +1153,25 @@ init_sdl_window(void)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-		SDL_Log("Using GL backend");
+		fprintf(stderr, "Using GL backend");
 		SDL_GL_SetSwapInterval(0);
-		// SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+		// fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
 	    sdlGLContext = SDL_GL_CreateContext(sdl_window);
 	    if (!sdlGLContext) {
-			SDL_Log("Could not set up GL context: %s\n", SDL_GetError());
+			fprintf(stderr, "Could not set up GL context: %s\n", SDL_GetError());
 			return false;
 	    }
-		SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+		fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
 #endif    /// SW_ONLY
 	} else {
 		sdl_window = SDL_CreateWindow(window_title,
 		  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		  DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, sdl_window_flags);
 		if (sdl_window == NULL) {
-			SDL_Log("Error SDL_CreateWindow: %s\n", SDL_GetError());
+			fprintf(stderr, "Error SDL_CreateWindow: %s\n", SDL_GetError());
 			return false;
 		}
-		SDL_Log("%s\n", "Using SDL renderer with SW backend");
+		fprintf(stderr, "%s\n", "Using SDL renderer with SW backend");
 		sdl_renderer = SDL_CreateRenderer(
 			sdl_window,
 			-1,
@@ -1159,22 +1179,22 @@ init_sdl_window(void)
 			// SDL_RENDERER_TARGETTEXTURE);
 			0);
 		if (sdl_renderer == NULL) {
-			SDL_Log("SDL: could not create renderer: %s\n", SDL_GetError());
+			fprintf(stderr, "SDL: could not create renderer: %s\n", SDL_GetError());
 			return false;
 		}
 #ifndef __plan9__
 		SDL_RendererInfo ri;
 		if (SDL_GetRendererInfo(sdl_renderer, &ri) < 0) {
-			SDL_Log("Failed to get renderer info: %s\n", SDL_GetError());
+			fprintf(stderr, "Failed to get renderer info: %s\n", SDL_GetError());
 		} else {
-			SDL_Log("Renderer name: %s, max texture width: %d, height: %d\n", ri.name, ri.max_texture_width, ri.max_texture_height);
+			fprintf(stderr, "Renderer name: %s, max texture width: %d, height: %d\n", ri.name, ri.max_texture_width, ri.max_texture_height);
 		}
 		/// At least on OS X the renderer will set up a GL 2.1 context
-		SDL_Log("OpenGL version: %s\n", glGetString(GL_VERSION));
+		fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
 #endif
 		mctx.vg = nvgswCreate(nvg_flags);
 		if (mctx.vg == NULL) {
-			SDL_Log("%s\n", "Could not init nanovg");
+			fprintf(stderr, "%s\n", "Could not init nanovg");
 			return false;
 		}
 #ifndef NO_THREADING
@@ -1215,7 +1235,7 @@ cleanup_window(void)
 #endif
 	} else {
 		nvgswDelete(mctx.vg);
-		// free(sw_img_buf);
+		free(sw_img_buf);
 	}
 }
 
@@ -1240,12 +1260,14 @@ mainloop(void)
 		    SDL_GetMouseState(&mx, &my);
 		    mctx.mx = mx; mctx.my = my;
 		}
+#ifndef __plan9__
 		else if (evt.type == SDL_DROPFILE) {
 			SDL_DropEvent *drop_event = (SDL_DropEvent *) &evt;
 			dropped_file_len = strlen(drop_event->file);
 			strncpy(dropped_file, drop_event->file, PATH_MAX);
 			SDL_free(drop_event->file);
 		}
+#endif
 	}
     // SDL_GetMouseState(&mx, &my);
     // mx = mx * pxRatioX;
@@ -1280,7 +1302,9 @@ main(int argc, char **argv)
 	cleanup();
 	finish_all();
 	cleanup_window();
+#ifndef __plan9__
 	NFD_Quit();
+#endif
 	SDL_DestroyWindow(sdl_window);
 	SDL_Quit();
 	return 0;

@@ -1105,7 +1105,7 @@ BND_EXPORT NVGcolor bndNodeWireColor(const BNDnodeTheme *theme, BNDwidgetState s
 
 #ifdef BLENDISH_IMPLEMENTATION
 
-#include <memory.h>
+// #include <memory.h>
 #include <math.h>
 
 #ifdef _MSC_VER
@@ -1139,6 +1139,29 @@ static double bnd_fmin ( double a, double b )
 static double bnd_fmax ( double a, double b )
 {
     return _isnan(a) ? b : ( _isnan(b) ? a : ((a > b) ? a : b));
+}
+
+#elif defined(__plan9__)
+#define BND_INLINE extern inline
+/// FIXME add these functions to NPE
+static float bnd_fminf ( float a, float b )
+{
+    return isnan(a) ? b : ( isnan(b) ? a : ((a < b) ? a : b));
+}
+
+static float bnd_fmaxf ( float a, float b )
+{
+    return isnan(a) ? b : ( isnan(b) ? a : ((a > b) ? a : b));
+}
+
+static double bnd_fmin ( double a, double b )
+{
+    return isnan(a) ? b : ( isnan(b) ? a : ((a < b) ? a : b));
+}
+
+static double bnd_fmax ( double a, double b )
+{
+    return isnan(a) ? b : ( isnan(b) ? a : ((a > b) ? a : b));
 }
 
 #else

@@ -466,7 +466,7 @@ OUI_EXPORT void uiMakeCurrent(UIcontext *ctx);
 OUI_EXPORT void uiDestroyContext(UIcontext *ctx);
 
 // returns the currently selected context or NULL
-OUI_EXPORT UIcontext *uiGetContext();
+OUI_EXPORT UIcontext *uiGetContext(void);
 
 // Input Control
 // -------------
@@ -477,17 +477,17 @@ OUI_EXPORT void uiSetCursor(int x, int y);
 
 // returns the current cursor position in screen coordinates as set by 
 // uiSetCursor()
-OUI_EXPORT UIvec2 uiGetCursor();
+OUI_EXPORT UIvec2 uiGetCursor(void);
 
 // returns the offset of the cursor relative to the last call to uiProcess()
-OUI_EXPORT UIvec2 uiGetCursorDelta();
+OUI_EXPORT UIvec2 uiGetCursorDelta(void);
 
 // returns the beginning point of a drag operation.
-OUI_EXPORT UIvec2 uiGetCursorStart();
+OUI_EXPORT UIvec2 uiGetCursorStart(void);
 
 // returns the offset of the cursor relative to the beginning point of a drag
 // operation.
-OUI_EXPORT UIvec2 uiGetCursorStartDelta();
+OUI_EXPORT UIvec2 uiGetCursorStartDelta(void);
 
 // sets a mouse or gamepad button as pressed/released
 // button is in the range 0..63 and maps to an application defined input
@@ -503,7 +503,7 @@ OUI_EXPORT int uiGetButton(unsigned int button);
 
 // returns the number of chained clicks; 1 is a single click,
 // 2 is a double click, etc.
-OUI_EXPORT int uiGetClicks();
+OUI_EXPORT int uiGetClicks(void);
 
 // sets a key as down/up; the key can be any application defined keycode
 // mod is an application defined set of flags for modifier keys
@@ -521,7 +521,7 @@ OUI_EXPORT void uiSetChar(unsigned int value);
 OUI_EXPORT void uiSetScroll(int x, int y);
 
 // returns the currently accumulated scroll wheel offsets for this frame
-OUI_EXPORT UIvec2 uiGetScroll();
+OUI_EXPORT UIvec2 uiGetScroll(void);
 
 
 
@@ -536,18 +536,18 @@ OUI_EXPORT UIvec2 uiGetScroll();
 // After the call, all previously declared item IDs are invalid, and all
 // application dependent context data has been freed.
 // uiBeginLayout() must be followed by uiEndLayout().
-OUI_EXPORT void uiBeginLayout();
+OUI_EXPORT void uiBeginLayout(void);
 
 // layout all added items starting from the root item 0.
 // after calling uiEndLayout(), no further modifications to the item tree should
 // be done until the next call to uiBeginLayout().
 // It is safe to immediately draw the items after a call to uiEndLayout().
 // this is an O(N) operation for N = number of declared items.
-OUI_EXPORT void uiEndLayout();
+OUI_EXPORT void uiEndLayout(void);
 
 // update the current hot item; this only needs to be called if items are kept
 // for more than one frame and uiEndLayout() is not called
-OUI_EXPORT void uiUpdateHotItem();
+OUI_EXPORT void uiUpdateHotItem(void);
 
 // update the internal state according to the current cursor position and 
 // button states, and call all registered handlers.
@@ -562,13 +562,13 @@ OUI_EXPORT void uiProcess(int timestamp);
 // reset the currently stored hot/active etc. handles; this should be called when
 // a re-declaration of the UI changes the item indices, to avoid state
 // related glitches because item identities have changed.
-OUI_EXPORT void uiClearState();
+OUI_EXPORT void uiClearState(void);
 
 // UI Declaration
 // --------------
 
 // create a new UI item and return the new items ID.
-OUI_EXPORT int uiItem();
+OUI_EXPORT int uiItem(void);
 
 // set an items state to frozen; the UI will not recurse into frozen items
 // when searching for hot or active items; subsequently, frozen items and
@@ -661,10 +661,10 @@ OUI_EXPORT int uiNextSibling(int item);
 // --------
 
 // return the total number of allocated items
-OUI_EXPORT int uiGetItemCount();
+OUI_EXPORT int uiGetItemCount(void);
 
 // return the total bytes that have been allocated by uiAllocHandle()
-OUI_EXPORT unsigned int uiGetAllocSize();
+OUI_EXPORT unsigned int uiGetAllocSize(void);
 
 // return the current state of the item. This state is only valid after
 // a call to uiProcess().
@@ -676,10 +676,10 @@ OUI_EXPORT UIitemState uiGetState(int item);
 OUI_EXPORT void *uiGetHandle(int item);
 
 // return the item that is currently under the cursor or -1 for none
-OUI_EXPORT int uiGetHotItem();
+OUI_EXPORT int uiGetHotItem(void);
 
 // return the item that is currently focused or -1 for none
-OUI_EXPORT int uiGetFocusedItem();
+OUI_EXPORT int uiGetFocusedItem(void);
 
 // returns the topmost item containing absolute location (x,y), starting with
 // item as parent, using a set of flags and masks as filter:
@@ -692,16 +692,16 @@ OUI_EXPORT int uiFindItem(int item, int x, int y,
         unsigned int flags, unsigned int mask);
 
 // return the handler callback as passed to uiSetHandler()
-OUI_EXPORT UIhandler uiGetHandler();
+OUI_EXPORT UIhandler uiGetHandler(void);
 // return the event flags for an item as passed to uiSetEvents()
 OUI_EXPORT unsigned int uiGetEvents(int item);
 // return the user-defined flags for an item as passed to uiSetFlags()
 OUI_EXPORT unsigned int uiGetFlags(int item);
 
 // when handling a KEY_DOWN/KEY_UP event: the key that triggered this event
-OUI_EXPORT unsigned int uiGetKey();
+OUI_EXPORT unsigned int uiGetKey(void);
 // when handling a keyboard or mouse event: the active modifier keys
-OUI_EXPORT unsigned int uiGetModifier();
+OUI_EXPORT unsigned int uiGetModifier(void);
 
 // returns the items layout rectangle in absolute coordinates. If 
 // uiGetRect() is called before uiEndLayout(), the values of the returned
@@ -747,7 +747,7 @@ OUI_EXPORT int uiRecoverItem(int olditem);
 OUI_EXPORT void uiRemapItem(int olditem, int newitem);
 
 // returns the number if items that have been allocated in the last frame
-OUI_EXPORT int uiGetLastItemCount();
+OUI_EXPORT int uiGetLastItemCount(void);
 
 #ifdef __cplusplus
 };
@@ -932,7 +932,7 @@ UI_INLINE float ui_minf(float a, float b) {
 
 static UIcontext *ui_context = NULL;
 
-void uiClear() {
+void uiClear(void) {
     ui_context->last_count = ui_context->count;
     ui_context->count = 0;
     ui_context->datasize = 0;
@@ -1004,7 +1004,7 @@ static void uiAddInputEvent(UIinputEvent event) {
     ui_context->events[ui_context->eventcount++] = event;
 }
 
-static void uiClearInputEvents() {
+static void uiClearInputEvents(void) {
     assert(ui_context);
     ui_context->eventcount = 0;
     ui_context->scroll.x = 0;
@@ -1029,7 +1029,7 @@ void uiSetScroll(int x, int y) {
     ui_context->scroll.y += y;
 }
 
-UIvec2 uiGetScroll() {
+UIvec2 uiGetScroll(void) {
     assert(ui_context);
     return ui_context->scroll;
 }
@@ -1060,17 +1060,17 @@ void uiSetCursor(int x, int y) {
     ui_context->cursor.y = y;
 }
 
-UIvec2 uiGetCursor() {
+UIvec2 uiGetCursor(void) {
     assert(ui_context);
     return ui_context->cursor;
 }
 
-UIvec2 uiGetCursorStart() {
+UIvec2 uiGetCursorStart(void) {
     assert(ui_context);
     return ui_context->start_cursor;
 }
 
-UIvec2 uiGetCursorDelta() {
+UIvec2 uiGetCursorDelta(void) {
     assert(ui_context);
     UIvec2 result = {{{
             ui_context->cursor.x - ui_context->last_cursor.x,
@@ -1079,7 +1079,7 @@ UIvec2 uiGetCursorDelta() {
     return result;
 }
 
-UIvec2 uiGetCursorStartDelta() {
+UIvec2 uiGetCursorStartDelta(void) {
     assert(ui_context);
     UIvec2 result = {{{
             ui_context->cursor.x - ui_context->start_cursor.x,
@@ -1088,27 +1088,27 @@ UIvec2 uiGetCursorStartDelta() {
     return result;
 }
 
-unsigned int uiGetKey() {
+unsigned int uiGetKey(void) {
     assert(ui_context);
     return ui_context->active_key;
 }
 
-unsigned int uiGetModifier() {
+unsigned int uiGetModifier(void) {
     assert(ui_context);
     return ui_context->active_modifier;
 }
 
-int uiGetItemCount() {
+int uiGetItemCount(void) {
     assert(ui_context);
     return ui_context->count;
 }
 
-int uiGetLastItemCount() {
+int uiGetLastItemCount(void) {
     assert(ui_context);
     return ui_context->last_count;
 }
 
-unsigned int uiGetAllocSize() {
+unsigned int uiGetAllocSize(void) {
     assert(ui_context);
     return ui_context->datasize;
 }
@@ -1123,7 +1123,7 @@ UIitem *uiLastItemPtr(int item) {
     return ui_context->last_items + item;
 }
 
-int uiGetHotItem() {
+int uiGetHotItem(void) {
     assert(ui_context);
     return ui_context->hot_item;
 }
@@ -1134,7 +1134,7 @@ void uiFocus(int item) {
     ui_context->focus_item = item;
 }
 
-static void uiValidateStateItems() {
+static void uiValidateStateItems(void) {
     assert(ui_context);
     ui_context->last_hot_item = uiRecoverItem(ui_context->last_hot_item);
     ui_context->active_item = uiRecoverItem(ui_context->active_item);
@@ -1142,20 +1142,20 @@ static void uiValidateStateItems() {
     ui_context->last_click_item = uiRecoverItem(ui_context->last_click_item);
 }
 
-int uiGetFocusedItem() {
+int uiGetFocusedItem(void) {
     assert(ui_context);
     return ui_context->focus_item;
 }
 
 
-void uiBeginLayout() {
+void uiBeginLayout(void) {
     assert(ui_context);
     assert(ui_context->stage == UI_STAGE_PROCESS); // must run uiEndLayout(), uiProcess() first
     uiClear();
     ui_context->stage = UI_STAGE_LAYOUT;
 }
 
-void uiClearState() {
+void uiClearState(void) {
     assert(ui_context);
     ui_context->last_hot_item = -1;
     ui_context->active_item = -1;
@@ -1163,7 +1163,7 @@ void uiClearState() {
     ui_context->last_click_item = -1;
 }
 
-int uiItem() {
+int uiItem(void) {
     assert(ui_context);
     assert(ui_context->stage == UI_STAGE_LAYOUT); // must run between uiBeginLayout() and uiEndLayout()
     assert(ui_context->count < (int)ui_context->item_capacity);
@@ -1747,7 +1747,7 @@ void uiRemapItem(int olditem, int newitem) {
     ui_context->item_map[olditem] = newitem;
 }
 
-void uiEndLayout() {
+void uiEndLayout(void) {
     assert(ui_context);
     assert(ui_context->stage == UI_STAGE_LAYOUT); // must run uiBeginLayout() first
 
@@ -1815,7 +1815,7 @@ void uiSetHandler(UIhandler handler) {
     ui_context->handler = handler;
 }
 
-UIhandler uiGetHandler() {
+UIhandler uiGetHandler(void) {
     assert(ui_context);
     return ui_context->handler;
 }
@@ -1876,7 +1876,7 @@ int uiFindItem(int item, int x, int y, unsigned int flags, unsigned int mask) {
     return -1;
 }
 
-void uiUpdateHotItem() {
+void uiUpdateHotItem(void) {
     assert(ui_context);
     if (!ui_context->count) return;
     ui_context->hot_item = uiFindItem(0,
@@ -1884,7 +1884,7 @@ void uiUpdateHotItem() {
             UI_ANY_MOUSE_INPUT, UI_ANY);
 }
 
-int uiGetClicks() {
+int uiGetClicks(void) {
     return ui_context->clicks;
 }
 
