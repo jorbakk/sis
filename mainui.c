@@ -1289,6 +1289,10 @@ mainloop(void)
 int
 main(int argc, char **argv)
 {
+	char *exe_path = SDL_GetBasePath();
+	printf("exe path from SDL: %s\n", exe_path);
+	SDL_free(exe_path);
+
 	if (!init_sdl_window()) exit(1);
 	mctx.argc = argc;
 	mctx.argv = argv;

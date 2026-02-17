@@ -92,9 +92,17 @@ show_statistics(void)
 }
 
 
+#include "liblocate.h"
+
 int
 main(int argc, char **argv)
 {
+	char *exe_path = NULL;
+	unsigned int exe_path_len = 0;
+	getExecutablePath(&exe_path, &exe_path_len);
+	printf("exe path from liblocate: %s\n", exe_path);
+	free(exe_path);
+
 	init_all(argc, argv);
 	print_warnings();
 	if (verbose) {

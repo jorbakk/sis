@@ -70,15 +70,13 @@ ASSETS_DIR    = $(SHARE_DIR)/assets
 DEPTHMAPS_DIR = $(SHARE_DIR)/depthmaps
 TEXTURES_DIR  = $(SHARE_DIR)/textures
 
-OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o
+OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o $(B)/liblocate.o
 OBJS_GUI = $(B)/nanovg_xc.o $(B)/nfd.o
 
 .PHONY: all clean build_dir install uninstall help
 
 all: build_dir $(B)/sis $(B)/sisui
 
-$(B)/sis: $(B)/main.o $(OBJS)
-	$(CC) -o $(B)/sis $^ $(LDFLAGS)
 $(B)/main.o: $(S)/main.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/main.o $(CFLAGS_LOC) $(CFLAGS) $(S)/main.c
 $(B)/sis.o: $(S)/sis.c $(S)/stbimg.h $(S)/sis.h
@@ -89,19 +87,18 @@ $(B)/get_opt.o: $(S)/get_opt.c $(S)/sis.h
 	$(CC) -c -o $(B)/get_opt.o $(CFLAGS_LOC) $(CFLAGS) $(S)/get_opt.c
 $(B)/stbimg.o: $(S)/stbimg.c $(S)/stbimg.h $(S)/sis.h
 	$(CC) -c -o $(B)/stbimg.o $(CFLAGS_LOC) $(CFLAGS) $(S)/stbimg.c
-
-$(B)/sisui: $(B)/mainui.o $(OBJS) $(OBJS_GUI)
-	$(CXX) -o $@ $^ $(LDFLAGS_GUI)
-$(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
-	$(CC) -c -o $(B)/mainui.o $(CFLAGS_GUI) $(S)/mainui.c
-
-$(B)/nanovg_xc.o: $(S3)/nanovg_xc.c $(S3)/nanovg_xc.h
-	$(CC) -c -o $(B)/nanovg_xc.o $(CFLAGS_GUI) $(S3)/nanovg_xc.c
-
+$(B)/sis: $(B)/main.o $(OBJS)
+	$(CC) -o $(B)/sis $^ $(LDFLAGS)
+$(B)/liblocate.o:
+	$(CC) -c -o $@ $(CFLAGS_LOC) $(S3)/liblocate.c
 $(B)/nfd.o:
 	$(CXX) -c -o $@ $(CFLAGS_GUI) $(S3)/$(NFD_BACKEND)
-$(B)/$(SOK_BACKOBJ):
-	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/$(SOK_BACKEND)
+$(B)/nanovg_xc.o:
+	$(CC) -c -o $@ $(CFLAGS_GUI) $(S3)/nanovg_xc.c
+$(B)/mainui.o: $(S)/mainui.c $(S)/stbimg.h $(S)/sis.h
+	$(CC) -c -o $(B)/mainui.o $(CFLAGS_GUI) $(S)/mainui.c
+$(B)/sisui: $(B)/mainui.o $(OBJS) $(OBJS_GUI)
+	$(CXX) -o $@ $^ $(LDFLAGS_GUI)
 
 $(B)/sis.exe:
 	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) main.c sis.c stbimg.c algorithm.c get_opt.c $(MINGW_LDLIBS)
@@ -116,7 +113,7 @@ clean:
 	rm -rf $(B)
 build_dir:
 	@mkdir -p $(B)
-install:
+install: all
 	mkdir -p $(BIN_DIR) $(MAN_DIR) $(ASSETS_DIR) $(DEPTHMAPS_DIR) $(TEXTURES_DIR)
 	install $(IFLAGS) $(B)/sis $(B)/sisui $(BIN_DIR)
 	install -m 0644 assets/* $(ASSETS_DIR)

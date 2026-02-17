@@ -3,8 +3,4 @@ SDL2_PREFIX = ""
 CFLAGS_GUI  = $(CFLAGS_LOC) $(CFLAGS)
 LDFLAGS_GUI = $(LDFLAGS) -framework Cocoa -framework OpenGL -framework IOKit -framework AppKit -framework QuartzCore -lGLEW
 NFD_BACKEND = nfd_cocoa.m
-# SDL2_CFLAGS = $(shell pkg-config --cflags sdl2)
-# SDL2_LIBS   = $(shell pkg-config --libs sdl2)
-# SDL2_LIBDIR = $(shell pkg-config --libs sdl2 | grep -o '\-L[/[:alnum:]]*' | cut -b3-)
-# SDL2_RPATH  = -Wl,-rpath,$(SDL2_LIBDIR)
 
