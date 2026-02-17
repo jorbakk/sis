@@ -48,14 +48,14 @@ endif
 ## Configure build options
 ifeq ($(DEBUG),1)
   # $(warning PREFIX removed in debug mode)
-  PREFIX      = ""
+  PREFIX      =
   CFLAGS_LOC += -g
 else
   CFLAGS_LOC += -O2 -DNDEBUG
   IFLAGS      = -s
 endif
 
-ifneq ($(PREFIX),"")
+ifdef PREFIX
   CFLAGS_LOC    += -DPREFIX=$(PREFIX)
 endif
 
@@ -70,6 +70,7 @@ ASSETS_DIR    = $(SHARE_DIR)/assets
 DEPTHMAPS_DIR = $(SHARE_DIR)/depthmaps
 TEXTURES_DIR  = $(SHARE_DIR)/textures
 
+SRCS     = sis.c stbimg.c algorithm.c get_opt.c $(S3)/liblocate.c $(S3)/cwalk.c
 OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o $(B)/liblocate.o $(B)/cwalk.o
 OBJS_GUI = $(B)/nanovg_xc.o $(B)/nfd.o
 
@@ -103,12 +104,18 @@ $(B)/sisui: $(B)/mainui.o $(OBJS) $(OBJS_GUI)
 	$(CXX) -o $@ $^ $(LDFLAGS_GUI)
 
 $(B)/sis.exe:
-	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) main.c sis.c stbimg.c algorithm.c get_opt.c $(MINGW_LDLIBS)
+	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) main.c $(SRCS) $(MINGW_LDLIBS)
 	cp sys.x86_64-w64-mingw32/lib/*.dll build
 $(B)/sisui.exe:
-	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) $(CFLAGS_GUI) mainui.c sis.c stbimg.c algorithm.c get_opt.c 3rd-party/nanovg_xc.c 3rd-party/nfd_win.cpp $(MINGW_LDLIBS) $(LDFLAGS_GUI)
+	$(MINGW_CXX) -o $@ $(MINGW_CFLAGS) $(CFLAGS_LOC) $(CFLAGS_GUI) mainui.c $(SRCS) 3rd-party/nanovg_xc.c 3rd-party/nfd_win.cpp $(MINGW_LDLIBS) $(LDFLAGS_GUI)
 	cp sys.x86_64-w64-mingw32/lib/*.dll build
 	cp sys.x86_64-w64-mingw32/bin/*.dll build
+
+## Packages for deployment
+$(B)/sis.zip: all
+	zip -r $@ build/sis build/sisui assets/ depthmaps/ textures/
+$(B)/sis-setup.exe: install.nsi
+	wine "$(HOME)/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" install.nsi
 
 ## Administrative tasks
 clean:
@@ -128,4 +135,4 @@ help:
 	@echo Available config options
 	@echo 'PREFIX=<prefix>:  set prefix for installation (set on build and install targets)'
 	@echo 'DEBUG=1:          debug build, sisui can be run from local directory without install'
-	@echo 'CROSS=<platform>: set target platform for cross compiling, currently mingw32 only'
+	@echo 'CROSS=1:          enable cross compiling, currently mingw only'

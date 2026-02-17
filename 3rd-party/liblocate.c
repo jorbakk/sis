@@ -24,7 +24,7 @@
     #define __USE_GNU
     #include <dlfcn.h>
 #elif defined(SYSTEM_WINDOWS)
-    #include <Windows.h>
+    #include <windows.h>
 #elif defined(SYSTEM_SOLARIS)
     #include <limits.h>
     #include <dlfcn.h>
@@ -47,7 +47,7 @@
 
 #ifdef SYSTEM_WINDOWS
     #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
+    #include <windows.h>
 #else
     #include <sys/stat.h>
 #endif

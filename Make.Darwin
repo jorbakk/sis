@@ -1,5 +1,3 @@
-PREFIX      ?= /usr/local
-SDL2_PREFIX = ""
 CFLAGS_GUI  = $(CFLAGS_LOC) $(CFLAGS)
 LDFLAGS_GUI = $(LDFLAGS) -framework Cocoa -framework OpenGL -framework IOKit -framework AppKit -framework QuartzCore -lGLEW
 NFD_BACKEND = nfd_cocoa.m
