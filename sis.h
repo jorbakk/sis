@@ -80,6 +80,8 @@ typedef struct {
  */
 
 extern int ImgFileFormat;
+extern char depth_map_path[PATH_MAX];
+extern char texture_path[PATH_MAX];
 extern char DFileName[PATH_MAX];
 extern char TFileName[PATH_MAX];
 extern char SISFileName[PATH_MAX];
@@ -133,7 +135,7 @@ extern double density;
 extern char metric;
 extern int resolution;
 extern int oversam;
-extern bool gui;
+extern const bool gui;
 
 void get_options(int argc, char **argv);
 void init_all(int argc, char **argv);

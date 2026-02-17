@@ -2,9 +2,8 @@
 #include <unistd.h>
 #include <string.h>
 
-#if 0
-#include "cfgpath.h"
-#endif
+// #include "cfgpath.h"
+#include "cwalk.h"
 
 #include "sis.h"
 #include "stbimg.h"
@@ -13,6 +12,8 @@
 int ImgFileFormat = SIS_IMGFMT_DFLT;
 ind_t Tcolcount;
 
+char depth_map_path[PATH_MAX] = {0};
+char texture_path[PATH_MAX] = {0};
 char DFileName[PATH_MAX] = {0};
 char TFileName[PATH_MAX] = {0};
 char SISFileName[PATH_MAX] = {0};
@@ -52,9 +53,9 @@ unsigned char *(*GetDFileBuffer)(void);
 unsigned char *(*GetTFileBuffer)(void);
 unsigned char *(*GetSISFileBuffer)(void);
 
-const char *DefaultDFileName = DEPTHMAP_PREFIX "/flowers.png";
-const char *DefaultTFileName = TEXTURE_PREFIX "/clover.png";
-const char *DefaultSISFileName = "/tmp/out.png";
+const char *DefaultDFileName = "flowers.png";
+const char *DefaultTFileName = "clover.png";
+const char *DefaultSISFileName = "out.png";
 pos_t DLinePosition, DLineStep;
 ind_t SISLineNumber;
 ind_t DLineNumber;
@@ -63,8 +64,8 @@ ind_t DLineNumber;
 void
 SetDefaults(void)
 {
-	strncpy(DFileName, DefaultDFileName, PATH_MAX);
-	strncpy(TFileName, DefaultTFileName, PATH_MAX);
+	cwk_path_join(depth_map_path, DefaultDFileName, DFileName, PATH_MAX);
+	cwk_path_join(texture_path, DefaultTFileName, TFileName, PATH_MAX);
 	strncpy(SISFileName, DefaultSISFileName, PATH_MAX);
 	// SIStype = SIS_RANDOM_GREY;
 	SIStype = SIS_TEXT_MAP;

@@ -70,7 +70,7 @@ ASSETS_DIR    = $(SHARE_DIR)/assets
 DEPTHMAPS_DIR = $(SHARE_DIR)/depthmaps
 TEXTURES_DIR  = $(SHARE_DIR)/textures
 
-OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o $(B)/liblocate.o
+OBJS     = $(B)/sis.o $(B)/stbimg.o $(B)/algorithm.o $(B)/get_opt.o $(B)/liblocate.o $(B)/cwalk.o
 OBJS_GUI = $(B)/nanovg_xc.o $(B)/nfd.o
 
 .PHONY: all clean build_dir install uninstall help
@@ -91,6 +91,8 @@ $(B)/sis: $(B)/main.o $(OBJS)
 	$(CC) -o $(B)/sis $^ $(LDFLAGS)
 $(B)/liblocate.o:
 	$(CC) -c -o $@ $(CFLAGS_LOC) $(S3)/liblocate.c
+$(B)/cwalk.o:
+	$(CC) -c -o $@ $(CFLAGS_LOC) $(S3)/cwalk.c
 $(B)/nfd.o:
 	$(CXX) -c -o $@ $(CFLAGS_GUI) $(S3)/$(NFD_BACKEND)
 $(B)/nanovg_xc.o:

@@ -49,6 +49,7 @@
 #include "nfd.h"
 #include "nfd_sdl2.h"
 #endif
+#include "cwalk.h"
 #include "sis.h"
 
 
@@ -63,6 +64,9 @@ int winWidth, winHeight;
 int fbWidth, fbHeight;
 float pxRatio;
 unsigned char *sw_img_buf = NULL;
+char *exe_path = NULL;
+char *pref_path = NULL;
+char asset_path[PATH_MAX] = {0};
 bool running = true;
 #ifndef SW_ONLY
 SDL_GLContext sdlGLContext = NULL;
@@ -79,7 +83,7 @@ static int  dropped_file_len = 0;
 static bool use_gl = false;
 static int num_threads = 0;
 static int nvg_flags = NVG_NO_FONTSTASH;
-bool gui = true;
+const bool gui = true;
 
 struct main_ctx {
 	int argc;
@@ -231,7 +235,7 @@ depth_button_handler(int item, UIevent event)
     nfdopendialogu8args_t args = {0};
     args.filterList = filters;
     args.filterCount = 1;
-    args.defaultPath = DEPTHMAP_PREFIX;
+    args.defaultPath = depth_map_path;
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
         fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
@@ -256,7 +260,7 @@ texture_button_handler(int item, UIevent event)
     nfdopendialogu8args_t args = {0};
     args.filterList = filters;
     args.filterCount = 1;
-    args.defaultPath = TEXTURE_PREFIX;
+    args.defaultPath = texture_path;
     if (!NFD_GetNativeWindowFromSDLWindow(sdl_window, &args.parentWindow)) {
         fprintf(stderr, "NFD_GetNativeWindowFromSDLWindow failed: %s\n", NFD_GetError());
     }
@@ -1073,8 +1077,11 @@ init_ui(void)
 	}
 	nvgSetFontStash(mctx.vg, createFontstash(mctx.vg, NVG_NO_FONTSTASH, 2 * 48));
 	nvgAtlasTextThreshold(mctx.vg, 48.0f);
-	bndSetFont(nvgCreateFont(mctx.vg, "system", ASSET_PREFIX "/DejaVuSans.ttf"));
-	bndSetIconImage(nvgCreateImage(mctx.vg, ASSET_PREFIX "/blender_icons16.png", 0));
+	char asset_full_path[PATH_MAX] = {0};
+	cwk_path_join(asset_path, "/DejaVuSans.ttf", asset_full_path, PATH_MAX);
+	bndSetFont(nvgCreateFont(mctx.vg, "system", asset_full_path));
+	cwk_path_join(asset_path, "/blender_icons16.png", asset_full_path, PATH_MAX);
+	bndSetIconImage(nvgCreateImage(mctx.vg, asset_full_path, 0));
 	mctx.ui_ctx = uiCreateContext(4096, 1<<20);
 	uiMakeCurrent(mctx.ui_ctx);
 	uiSetHandler(event_handler);
@@ -1091,6 +1098,14 @@ cleanup(void)
 {
     uiDestroyContext(mctx.ui_ctx);
 	// nvglDelete(mctx.vg);
+	if (exe_path) {
+		SDL_free(exe_path);
+		exe_path = NULL;
+	}
+	if (pref_path) {
+		SDL_free(pref_path);
+		pref_path = NULL;
+	}
 }
 
 
@@ -1138,6 +1153,23 @@ init_frame_buffer(void)
 bool
 init_sdl_window(void)
 {
+	exe_path = SDL_GetBasePath();
+	pref_path = SDL_GetPrefPath("org.openmultimedia", "sis");
+	fprintf(stderr, "exe path: %s\n", exe_path);
+	fprintf(stderr, "pref path: %s\n", pref_path);
+#ifdef PREFIX
+	strncpy(depth_map_path, DEPTHMAP_PREFIX, PATH_MAX);
+	strncpy(texture_path, TEXTURE_PREFIX, PATH_MAX);
+	strncpy(asset_path, ASSET_PREFIX, PATH_MAX);
+#else
+	cwk_path_join(exe_path, "../" DEPTHMAP_PREFIX, depth_map_path, PATH_MAX);
+	cwk_path_join(exe_path, "../" TEXTURE_PREFIX, texture_path, PATH_MAX);
+	cwk_path_join(exe_path, "../" ASSET_PREFIX, asset_path, PATH_MAX);
+#endif
+	fprintf(stderr, "depth map path: %s\n", depth_map_path);
+	fprintf(stderr, "texture path: %s\n", texture_path);
+	fprintf(stderr, "asset path: %s\n", asset_path);
+
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		fprintf(stderr, "Failed to init SDL: %s\n", SDL_GetError());
 		return false;
@@ -1289,10 +1321,6 @@ mainloop(void)
 int
 main(int argc, char **argv)
 {
-	char *exe_path = SDL_GetBasePath();
-	printf("exe path from SDL: %s\n", exe_path);
-	SDL_free(exe_path);
-
 	if (!init_sdl_window()) exit(1);
 	mctx.argc = argc;
 	mctx.argv = argv;
