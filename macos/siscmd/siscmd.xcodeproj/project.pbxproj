@@ -21,7 +21,7 @@
 		8F2941EC2F4768F800FDB552 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			dstPath = /usr/local/share/sis;
 			dstSubfolderSpec = 0;
 			files = (
 				8F29420E2F476F3200FDB552 /* textures in CopyFiles */,

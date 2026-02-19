@@ -116,6 +116,14 @@ $(B)/sis.zip: all
 	zip -r $@ build/sis build/sisui assets/ depthmaps/ textures/
 $(B)/sis-setup.exe: install.nsi
 	wine "$(HOME)/.wine/drive_c/Program Files (x86)/NSIS/makensis.exe" install.nsi
+$(B)/sis.pkg:
+	cd macos/siscmd && xcodebuild install
+	pkgbuild --root /tmp/siscmd.dst --identifier siscmd $(B)/siscmdComponent.pkg
+	cd macos/sisui && xcodebuild install
+	pkgbuild --analyze --root /tmp/sisui.dst $(B)/sisuiComponent.plist
+	pkgbuild --root /tmp/sisui.dst --component-plist $(B)/sisuiComponent.plist $(B)/sisuiComponent.pkg
+	productbuild --synthesize --product macos/requirements.plist --package $(B)/sisuiComponent.pkg --package $(B)/siscmdComponent.pkg $(B)/distribution.plist
+	productbuild --distribution $(B)/distribution.plist --resources $(B) --package-path $(B) $@
 
 ## Administrative tasks
 clean:
