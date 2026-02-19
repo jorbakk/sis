@@ -7,7 +7,7 @@
 #define SYSTEM_LINUX
 #elif defined(__WIN32)
 #define SYSTEM_WINDOWS
-#elif defined()
+#elif defined(__sun) && defined(__SVR4)
 #define SYSTEM_SOLARIS
 #elif defined(__APPLE__)
 #define SYSTEM_DARWIN

@@ -14,8 +14,13 @@
 #ifndef _NFD_SDL2_H
 #define _NFD_SDL2_H
 
+#ifdef __APPLE__
+#include <SDL2/SDL_error.h>
+#include <SDL2/SDL_syswm.h>
+#else
 #include <SDL_error.h>
 #include <SDL_syswm.h>
+#endif
 #include <nfd.h>
 #include <stdbool.h>
 

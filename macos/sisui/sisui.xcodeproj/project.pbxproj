@@ -1,0 +1,399 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8F2941B12F47346F00FDB552 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F2941B02F47346F00FDB552 /* Assets.xcassets */; };
+		8F2941C72F47369C00FDB552 /* mainui.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941C22F47369C00FDB552 /* mainui.c */; };
+		8F2941C82F47369C00FDB552 /* get_opt.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941C32F47369C00FDB552 /* get_opt.c */; };
+		8F2941C92F47369C00FDB552 /* sis.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941C42F47369C00FDB552 /* sis.c */; };
+		8F2941CA2F47369C00FDB552 /* stbimg.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941C52F47369C00FDB552 /* stbimg.c */; };
+		8F2941CB2F47369C00FDB552 /* algorithm.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941C62F47369C00FDB552 /* algorithm.c */; };
+		8F2941D12F4737AB00FDB552 /* nanovg_xc.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941CD2F4737AB00FDB552 /* nanovg_xc.c */; };
+		8F2941D22F4737AB00FDB552 /* cwalk.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941CE2F4737AB00FDB552 /* cwalk.c */; };
+		8F2941D32F4737AB00FDB552 /* nfd_cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941CF2F4737AB00FDB552 /* nfd_cocoa.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		8F2941D42F4737AB00FDB552 /* liblocate.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F2941D02F4737AB00FDB552 /* liblocate.c */; };
+		8F2941DD2F473CB400FDB552 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 8F2941DC2F473CB400FDB552 /* assets */; };
+		8F2941DF2F473D4600FDB552 /* depthmaps in Resources */ = {isa = PBXBuildFile; fileRef = 8F2941DE2F473D4600FDB552 /* depthmaps */; };
+		8F2941E12F473D6200FDB552 /* textures in Resources */ = {isa = PBXBuildFile; fileRef = 8F2941E02F473D6200FDB552 /* textures */; };
+		8F2941E32F47447E00FDB552 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2941E22F47447E00FDB552 /* SDL2.framework */; };
+		8F2941E42F47447E00FDB552 /* SDL2.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F2941E22F47447E00FDB552 /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8F2941DB2F47390A00FDB552 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				8F2941E42F47447E00FDB552 /* SDL2.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8F2941AA2F47346F00FDB552 /* sisui.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sisui.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8F2941B02F47346F00FDB552 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8F2941B52F47346F00FDB552 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8F2941B82F47346F00FDB552 /* sisui.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = sisui.entitlements; sourceTree = "<group>"; };
+		8F2941C22F47369C00FDB552 /* mainui.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mainui.c; path = ../../../mainui.c; sourceTree = "<group>"; };
+		8F2941C32F47369C00FDB552 /* get_opt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = get_opt.c; path = ../../../get_opt.c; sourceTree = "<group>"; };
+		8F2941C42F47369C00FDB552 /* sis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sis.c; path = ../../../sis.c; sourceTree = "<group>"; };
+		8F2941C52F47369C00FDB552 /* stbimg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stbimg.c; path = ../../../stbimg.c; sourceTree = "<group>"; };
+		8F2941C62F47369C00FDB552 /* algorithm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = algorithm.c; path = ../../../algorithm.c; sourceTree = "<group>"; };
+		8F2941CD2F4737AB00FDB552 /* nanovg_xc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nanovg_xc.c; path = "../../../3rd-party/nanovg_xc.c"; sourceTree = "<group>"; };
+		8F2941CE2F4737AB00FDB552 /* cwalk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cwalk.c; path = "../../../3rd-party/cwalk.c"; sourceTree = "<group>"; };
+		8F2941CF2F4737AB00FDB552 /* nfd_cocoa.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nfd_cocoa.m; path = "../../../3rd-party/nfd_cocoa.m"; sourceTree = "<group>"; };
+		8F2941D02F4737AB00FDB552 /* liblocate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = liblocate.c; path = "../../../3rd-party/liblocate.c"; sourceTree = "<group>"; };
+		8F2941DC2F473CB400FDB552 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../assets; sourceTree = "<group>"; };
+		8F2941DE2F473D4600FDB552 /* depthmaps */ = {isa = PBXFileReference; lastKnownFileType = folder; name = depthmaps; path = ../../depthmaps; sourceTree = "<group>"; };
+		8F2941E02F473D6200FDB552 /* textures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = textures; path = ../../textures; sourceTree = "<group>"; };
+		8F2941E22F47447E00FDB552 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL2.framework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8F2941A72F47346F00FDB552 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F2941E32F47447E00FDB552 /* SDL2.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8F2941A12F47346F00FDB552 = {
+			isa = PBXGroup;
+			children = (
+				8F2941E02F473D6200FDB552 /* textures */,
+				8F2941DE2F473D4600FDB552 /* depthmaps */,
+				8F2941DC2F473CB400FDB552 /* assets */,
+				8F2941AC2F47346F00FDB552 /* sisui */,
+				8F2941AB2F47346F00FDB552 /* Products */,
+				8F2941D62F47385400FDB552 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		8F2941AB2F47346F00FDB552 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8F2941AA2F47346F00FDB552 /* sisui.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8F2941AC2F47346F00FDB552 /* sisui */ = {
+			isa = PBXGroup;
+			children = (
+				8F2941CE2F4737AB00FDB552 /* cwalk.c */,
+				8F2941D02F4737AB00FDB552 /* liblocate.c */,
+				8F2941CD2F4737AB00FDB552 /* nanovg_xc.c */,
+				8F2941CF2F4737AB00FDB552 /* nfd_cocoa.m */,
+				8F2941C62F47369C00FDB552 /* algorithm.c */,
+				8F2941C32F47369C00FDB552 /* get_opt.c */,
+				8F2941C22F47369C00FDB552 /* mainui.c */,
+				8F2941C42F47369C00FDB552 /* sis.c */,
+				8F2941C52F47369C00FDB552 /* stbimg.c */,
+				8F2941B02F47346F00FDB552 /* Assets.xcassets */,
+				8F2941B52F47346F00FDB552 /* Info.plist */,
+				8F2941B82F47346F00FDB552 /* sisui.entitlements */,
+			);
+			path = sisui;
+			sourceTree = "<group>";
+		};
+		8F2941D62F47385400FDB552 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8F2941E22F47447E00FDB552 /* SDL2.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8F2941A92F47346F00FDB552 /* sisui */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8F2941BB2F47346F00FDB552 /* Build configuration list for PBXNativeTarget "sisui" */;
+			buildPhases = (
+				8F2941A62F47346F00FDB552 /* Sources */,
+				8F2941A72F47346F00FDB552 /* Frameworks */,
+				8F2941A82F47346F00FDB552 /* Resources */,
+				8F2941DB2F47390A00FDB552 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sisui;
+			productName = sisui;
+			productReference = 8F2941AA2F47346F00FDB552 /* sisui.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8F2941A22F47346F00FDB552 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					8F2941A92F47346F00FDB552 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = 8F2941A52F47346F00FDB552 /* Build configuration list for PBXProject "sisui" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8F2941A12F47346F00FDB552;
+			productRefGroup = 8F2941AB2F47346F00FDB552 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8F2941A92F47346F00FDB552 /* sisui */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8F2941A82F47346F00FDB552 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F2941E12F473D6200FDB552 /* textures in Resources */,
+				8F2941DF2F473D4600FDB552 /* depthmaps in Resources */,
+				8F2941DD2F473CB400FDB552 /* assets in Resources */,
+				8F2941B12F47346F00FDB552 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8F2941A62F47346F00FDB552 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8F2941CB2F47369C00FDB552 /* algorithm.c in Sources */,
+				8F2941C92F47369C00FDB552 /* sis.c in Sources */,
+				8F2941D32F4737AB00FDB552 /* nfd_cocoa.m in Sources */,
+				8F2941C82F47369C00FDB552 /* get_opt.c in Sources */,
+				8F2941D42F4737AB00FDB552 /* liblocate.c in Sources */,
+				8F2941D12F4737AB00FDB552 /* nanovg_xc.c in Sources */,
+				8F2941C72F47369C00FDB552 /* mainui.c in Sources */,
+				8F2941D22F4737AB00FDB552 /* cwalk.c in Sources */,
+				8F2941CA2F47369C00FDB552 /* stbimg.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8F2941B92F47346F00FDB552 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8F2941BA2F47346F00FDB552 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8F2941BC2F47346F00FDB552 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = sisui/sisui.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"SW_ONLY=1",
+					"IGNORE_CMDLINE_OPT=1",
+					"RES_PREFIX=Resources",
+				);
+				HEADER_SEARCH_PATHS = (
+					"/Users/jorg/cc/sis/3rd-party",
+					/Users/jorg/cc/sis,
+				);
+				INFOPLIST_FILE = sisui/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openmultimedia.sisui;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8F2941BD2F47346F00FDB552 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = sisui/sisui.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"SW_ONLY=1",
+					"IGNORE_CMDLINE_OPT=1",
+					"RES_PREFIX=Resources",
+				);
+				HEADER_SEARCH_PATHS = (
+					"/Users/jorg/cc/sis/3rd-party",
+					/Users/jorg/cc/sis,
+				);
+				INFOPLIST_FILE = sisui/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = org.openmultimedia.sisui;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8F2941A52F47346F00FDB552 /* Build configuration list for PBXProject "sisui" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F2941B92F47346F00FDB552 /* Debug */,
+				8F2941BA2F47346F00FDB552 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8F2941BB2F47346F00FDB552 /* Build configuration list for PBXNativeTarget "sisui" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F2941BC2F47346F00FDB552 /* Debug */,
+				8F2941BD2F47346F00FDB552 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8F2941A22F47346F00FDB552 /* Project object */;
+}

@@ -32,7 +32,11 @@
 #include <GL/glew.h>
 #define NANOVG_GL3_IMPLEMENTATION
 #endif
+#ifdef __APPLE__
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #define FONTSTASH_IMPLEMENTATION
 #include "fontstash_xc.h"
 #include "nanovg_xc.h"
@@ -222,9 +226,9 @@ sis_button_handler(int item, UIevent event)
 #endif
 }
 
-void update_depth_map_and_sis();
-void update_texture();
-void update_sis();
+void update_depth_map_and_sis(void);
+void update_texture(void);
+void update_sis(void);
 
 void
 depth_button_handler(int item, UIevent event)
@@ -1219,10 +1223,16 @@ init_sdl_window(void)
 		if (SDL_GetRendererInfo(sdl_renderer, &ri) < 0) {
 			fprintf(stderr, "Failed to get renderer info: %s\n", SDL_GetError());
 		} else {
-			fprintf(stderr, "Renderer name: %s, max texture width: %d, height: %d\n", ri.name, ri.max_texture_width, ri.max_texture_height);
+			fprintf(stderr, "Renderer name: %s, accelerated: %s, software: %s, max texture width: %d, height: %d\n",
+			  ri.name,
+			  ri.flags & SDL_RENDERER_ACCELERATED ? "yes" : "no",
+			  ri.flags & SDL_RENDERER_SOFTWARE ? "yes" : "no",
+			  ri.max_texture_width, ri.max_texture_height);
 		}
 		/// At least on OS X the renderer will set up a GL 2.1 context
-		fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
+// #ifndef SW_ONLY
+		// fprintf(stderr, "OpenGL version: %s\n", glGetString(GL_VERSION));
+// #endif
 #endif
 		mctx.vg = nvgswCreate(nvg_flags);
 		if (mctx.vg == NULL) {
@@ -1245,7 +1255,7 @@ init_sdl_window(void)
 
 
 void
-clear(void)
+clear_frame(void)
 {
 	if (use_gl) {
 #ifndef SW_ONLY
@@ -1306,7 +1316,7 @@ mainloop(void)
     // my = my * pxRatioY;
     // printf("mouse [%d,%d]\n", mx, my);
 	uiSetCursor((int)mctx.mx, (int)mctx.my);
-	clear();
+	clear_frame();
 	frame();
 	if (use_gl) {
 #ifndef SW_ONLY

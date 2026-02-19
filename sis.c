@@ -117,12 +117,12 @@ init_base(int argc, char **argv)
 	SISgreen = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 	SISblue = (cmap_t *) calloc(SIS_MAX_COLORS + 1, sizeof(cmap_t));
 
-	if (argc > 0) {
-		SetDefaults();
-		/// If command line args are provided (with sis or sisui) or we're running non-gui sis with no args
-		if (argc > 1 || !gui) {
-			get_options(argc, argv);
-		}
+	SetDefaults();
+	/// If command line args are provided (with sis or sisui) or we're running non-gui sis with no args
+	if (argc > 1 || !gui) {
+#ifndef IGNORE_CMDLINE_OPT
+		get_options(argc, argv);
+#endif
 	}
 
 #if 0

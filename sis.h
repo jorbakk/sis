@@ -51,12 +51,17 @@
 #define PATH_MAX         4096
 #endif
 
-#ifdef PREFIX
 #define STR_VALUE(arg)     #arg
 #define PREFIX_STR(name)   STR_VALUE(name)
+
+#ifdef PREFIX
 #define ASSET_PREFIX       PREFIX_STR(PREFIX) "/share/sis/assets"
 #define DEPTHMAP_PREFIX    PREFIX_STR(PREFIX) "/share/sis/depthmaps"
 #define TEXTURE_PREFIX     PREFIX_STR(PREFIX) "/share/sis/textures"
+#elif defined(RES_PREFIX)
+#define ASSET_PREFIX       PREFIX_STR(RES_PREFIX) "/assets"
+#define DEPTHMAP_PREFIX    PREFIX_STR(RES_PREFIX) "/depthmaps"
+#define TEXTURE_PREFIX     PREFIX_STR(RES_PREFIX) "/textures"
 #else
 #define ASSET_PREFIX       "assets"
 #define DEPTHMAP_PREFIX    "depthmaps"

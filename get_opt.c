@@ -77,8 +77,8 @@ metric2pixel(int metric_val, int resolution)
 	case 'i':
 		return metric_val / 10.0 * resolution;
 	default:
-		return 0;
 		print_usage();
+		return 0;
 	}
 }
 
