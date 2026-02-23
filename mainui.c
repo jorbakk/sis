@@ -202,6 +202,13 @@ panel(bool border)
 }
 
 
+void
+quit_button_handler(int item, UIevent event)
+{
+	running = false;
+}
+
+
 static bool update_sis_view;
 
 void
@@ -733,11 +740,17 @@ ui_frame(NVGcontext *vg, float w, float h)
 	             panel_margin_v);
 	uiInsert(sis_view_panel, sis_view);
 
+	int quit_button = button(BND_ICON_QUIT, "quit", quit_button_handler);
+	uiSetLayout(quit_button, UI_HFILL | UI_TOP);
+	uiSetMargins(quit_button, M, 8, M, 3);
+	uiInsert(ctl_panel, quit_button);
+	pch += BND_WIDGET_HEIGHT + 5 + 5;
+
 	int eye_dist_slider = slider_int("eye distance",
 	  &eye_dist, slider_int_handler, 10, 0.5 * Dwidth, false);
-	uiSetMargins(eye_dist_slider, M, 8, M, 3);
+	uiSetMargins(eye_dist_slider, M, 5, M, 3);
 	uiInsert(ctl_panel, eye_dist_slider);
-	pch += BND_WIDGET_HEIGHT + 8 + 3;
+	pch += BND_WIDGET_HEIGHT + 5 + 3;
 
 	int near_plane_slider = slider("scene depth", &u, slider_handler, 0.01f, 1.0f, true);
 	uiSetMargins(near_plane_slider, M, 3, M, 3);
