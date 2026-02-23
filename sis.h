@@ -58,6 +58,30 @@
 #define ASSET_PREFIX       PREFIX_STR(PREFIX) "/share/sis/assets"
 #define DEPTHMAP_PREFIX    PREFIX_STR(PREFIX) "/share/sis/depthmaps"
 #define TEXTURE_PREFIX     PREFIX_STR(PREFIX) "/share/sis/textures"
+/*
+  The ANSI-C preprocessor 'cpp' of plan 9 inserts spaces when specific characters are
+  present in a macro:
+    #define path /foo/bar
+  expands to:
+    / foo / bar
+  these characters are:
+    /\.|^
+  but not:
+    ,;
+  this prevents local debug builds with ./build/sisui finding all assets in the build directory:
+    mk 'RES_PREFIX=.' 
+  without needing to install the sisui executable.
+  ... so we need either to hardcode it:
+    #elif defined(__plan9__)
+    #define ASSET_PREFIX       "/lib/sis/assets"
+    #define DEPTHMAP_PREFIX    "/lib/sis/depthmaps"
+    #define TEXTURE_PREFIX     "/lib/sis/textures"
+  or quote the path argument on the compiler command line and don't stringize it with C macros.
+*/
+#elif __plan9__
+#define ASSET_PREFIX       RES_PREFIX "/assets"
+#define DEPTHMAP_PREFIX    RES_PREFIX "/depthmaps"
+#define TEXTURE_PREFIX     RES_PREFIX "/textures"
 #elif defined(RES_PREFIX)
 #define ASSET_PREFIX       PREFIX_STR(RES_PREFIX) "/assets"
 #define DEPTHMAP_PREFIX    PREFIX_STR(RES_PREFIX) "/depthmaps"
@@ -67,7 +91,6 @@
 #define DEPTHMAP_PREFIX    "depthmaps"
 #define TEXTURE_PREFIX     "textures"
 #endif
-
 
 typedef uint32_t col_t;
 typedef uint16_t cmap_t;

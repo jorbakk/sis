@@ -1157,11 +1157,23 @@ init_frame_buffer(void)
 bool
 init_sdl_window(void)
 {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		fprintf(stderr, "Failed to init SDL: %s\n", SDL_GetError());
+		return false;
+	}
 	exe_path = SDL_GetBasePath();
-	pref_path = SDL_GetPrefPath("org.openmultimedia", "sis");
+	if (exe_path == NULL) {
+		fprintf(stderr, "failed to get path of executable\n");
+		return false;
+	}
 	fprintf(stderr, "exe path: %s\n", exe_path);
+	pref_path = SDL_GetPrefPath("org.openmultimedia", "sis");
+	if (pref_path == NULL) {
+		fprintf(stderr, "failed to get path of configuration directory\n");
+	}
 	fprintf(stderr, "pref path: %s\n", pref_path);
-#ifdef PREFIX
+/// Don't use runtime exe_path when PREFIX is defined or on plan 9
+#if defined(PREFIX) || defined(__plan9__)
 	strncpy(depth_map_path, DEPTHMAP_PREFIX, PATH_MAX);
 	strncpy(texture_path, TEXTURE_PREFIX, PATH_MAX);
 	strncpy(asset_path, ASSET_PREFIX, PATH_MAX);
@@ -1174,10 +1186,6 @@ init_sdl_window(void)
 	fprintf(stderr, "texture path: %s\n", texture_path);
 	fprintf(stderr, "asset path: %s\n", asset_path);
 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		fprintf(stderr, "Failed to init SDL: %s\n", SDL_GetError());
-		return false;
-	}
 	if (use_gl) {
 #ifndef SW_ONLY
 		sdl_window = SDL_CreateWindow(window_title,
